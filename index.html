@@ -586,15 +586,25 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
         async function handleOAuthCallback(code) {
             try {
                 console.log('Starting token exchange...');
+                console.log('OAuth code received:', code);
                 showSuccess('Authorization code received, exchanging for access token...');
 
                 // Retrieve the PKCE code verifier from session storage
                 const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+                console.log('Code verifier from session:', codeVerifier ? 'Found' : 'NOT FOUND');
+                
                 if (!codeVerifier) {
-                    throw new Error('PKCE code verifier not found in session');
+                    throw new Error('PKCE code verifier not found in session. This might mean you refreshed the page after OAuth redirect.');
                 }
                 
                 console.log('Using PKCE Code Verifier:', codeVerifier);
+
+                const requestBody = {
+                    code: code,
+                    code_verifier: codeVerifier,
+                    redirect_uri: SALESFORCE_CONFIG.redirectUri
+                };
+                console.log('Sending to Netlify function:', requestBody);
 
                 // Use Netlify Function to avoid CORS issues
                 const response = await fetch('/.netlify/functions/token-exchange', {
@@ -602,23 +612,31 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        code: code,
-                        code_verifier: codeVerifier,
-                        redirect_uri: SALESFORCE_CONFIG.redirectUri
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
-                console.log('Token response status:', response.status);
+                console.log('Netlify function response status:', response.status);
                 
                 const responseText = await response.text();
-                console.log('Token response:', responseText);
+                console.log('Netlify function response text:', responseText);
 
                 if (!response.ok) {
-                    throw new Error(`Token exchange failed (${response.status}): ${responseText}`);
+                    let errorDetail = responseText;
+                    try {
+                        const errorJson = JSON.parse(responseText);
+                        errorDetail = errorJson.details || errorJson.error || responseText;
+                    } catch (e) {
+                        // responseText is not JSON, use as is
+                    }
+                    throw new Error(`Token exchange failed (${response.status}): ${errorDetail}`);
                 }
 
                 const data = JSON.parse(responseText);
+                console.log('Token data received:', { hasAccessToken: !!data.access_token, hasInstanceUrl: !!data.instance_url });
+                
+                if (!data.access_token || !data.instance_url) {
+                    throw new Error('Token response missing access_token or instance_url');
+                }
                 
                 accessToken = data.access_token;
                 instanceUrl = data.instance_url;
@@ -638,10 +656,14 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                 // Clean up URL
                 window.history.replaceState({}, document.title, window.location.pathname);
 
+                console.log('About to load user info...');
                 await loadUserInfo();
             } catch (error) {
-                console.error('OAuth Error:', error);
+                console.error('OAuth Error Details:', error);
                 showError(`OAuth Error: ${error.message}`);
+                // Show login screen on error
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('dashboardScreen').style.display = 'none';
             }
         }
 
@@ -665,13 +687,18 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
 
         async function loadUserInfo() {
             try {
-                console.log('Fetching user info from:', `${instanceUrl}/services/oauth2/userinfo`);
-                console.log('Using access token:', accessToken ? accessToken.substring(0, 20) + '...' : 'null');
+                console.log('Fetching user info via Netlify function...');
+                console.log('Using instance URL:', instanceUrl);
                 
-                const response = await fetch(`${instanceUrl}/services/oauth2/userinfo`, {
+                const response = await fetch('/.netlify/functions/userinfo', {
+                    method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        access_token: accessToken,
+                        instance_url: instanceUrl
+                    })
                 });
 
                 console.log('User info response status:', response.status);
