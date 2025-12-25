@@ -60,7 +60,6 @@
             padding: 0 24px;
         }
 
-        /* Header */
         .header {
             padding: 48px 0 32px;
             border-bottom: 1px solid #e5e5e5;
@@ -108,7 +107,6 @@
             stroke-width: 2.5;
         }
 
-        /* Main Content */
         .main-content {
             padding: 48px 0;
         }
@@ -139,7 +137,6 @@
             margin-bottom: 32px;
         }
 
-        /* Buttons */
         .btn {
             padding: 12px 24px;
             font-size: 15px;
@@ -212,7 +209,6 @@
             box-shadow: none !important;
         }
 
-        /* Dashboard Layout */
         .dashboard {
             animation: fadeIn 0.5s ease;
         }
@@ -244,7 +240,6 @@
             color: #737373;
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -314,7 +309,6 @@
             letter-spacing: -0.02em;
         }
 
-        /* Control Panel */
         .control-panel {
             background: white;
             border: 1px solid #e5e5e5;
@@ -399,7 +393,6 @@
             opacity: 0.6;
         }
 
-        /* Status & Actions */
         .control-actions {
             display: flex;
             flex-direction: column;
@@ -452,7 +445,6 @@
             width: 100%;
         }
 
-        /* Alert Messages */
         .alert {
             padding: 14px 20px;
             border-radius: 10px;
@@ -475,7 +467,6 @@
             border-color: #bbf7d0;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -516,7 +507,6 @@
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
     <div id="loginScreen">
         <div class="header">
             <div class="header-content">
@@ -541,7 +531,6 @@
         </div>
     </div>
 
-    <!-- Dashboard Screen -->
     <div id="dashboardScreen" style="display: none;">
         <div class="header">
             <div class="header-content">
@@ -666,37 +655,24 @@
         let instanceUrl = null;
 
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('Page loaded, checking for OAuth callback...');
-            const currentUrl = window.location.href;
-            console.log('Current URL:', currentUrl);
+            console.log('Page loaded');
             
             const hasToken = localStorage.getItem('sf_access_token');
             const hasInstance = localStorage.getItem('sf_instance_url');
-            console.log('Has stored token:', !!hasToken);
-            console.log('Has stored instance:', !!hasInstance);
             
             const params = new URLSearchParams(window.location.search);
             const code = params.get('code');
             const error = params.get('error');
             
-            console.log('OAuth code:', code);
-            console.log('OAuth error:', error);
-            
             if (error) {
-                showError(`OAuth Error: ${error} - ${params.get('error_description')}`);
+                showError(`OAuth Error: ${error}`);
                 return;
             }
             
             if (code) {
-                console.log('Found OAuth code, processing...');
                 handleOAuthCallback(code);
             } else if (hasToken && hasInstance) {
-                console.log('Found existing session, loading...');
                 loadUserSession();
-            } else {
-                console.log('No OAuth code or session found - showing login screen');
-                document.getElementById('loginScreen').style.display = 'block';
-                document.getElementById('dashboardScreen').style.display = 'none';
             }
 
             document.getElementById('teamSelect').addEventListener('change', checkFormValid);
@@ -707,7 +683,6 @@
             const team = document.getElementById('teamSelect').value;
             const region = document.getElementById('regionSelect').value;
             const startBtn = document.getElementById('startButton');
-            
             startBtn.disabled = !(team && region) || isDialing;
         }
 
@@ -730,15 +705,10 @@
         }
 
         async function loginToSalesforce() {
-            console.log('Login button clicked');
-            
             const codeVerifier = generateCodeVerifier();
             const codeChallenge = await generateCodeChallenge(codeVerifier);
             
             sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-            
-            console.log('PKCE Code Verifier:', codeVerifier);
-            console.log('PKCE Code Challenge:', codeChallenge);
             
             const authParams = new URLSearchParams({
                 response_type: 'code',
@@ -749,15 +719,11 @@
                 code_challenge_method: 'S256'
             });
 
-            const authUrl = `${SALESFORCE_CONFIG.authUrl}?${authParams.toString()}`;
-            console.log('Redirecting to:', authUrl);
-            
-            window.location.href = authUrl;
+            window.location.href = `${SALESFORCE_CONFIG.authUrl}?${authParams.toString()}`;
         }
 
         async function handleOAuthCallback(code) {
             try {
-                console.log('Starting token exchange...');
                 showSuccess('Connecting to Salesforce...');
 
                 const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
@@ -768,9 +734,7 @@
 
                 const response = await fetch('/.netlify/functions/token-exchange', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         code: code,
                         code_verifier: codeVerifier,
@@ -779,8 +743,7 @@
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Authentication failed: ${errorText}`);
+                    throw new Error('Authentication failed');
                 }
 
                 const data = await response.json();
@@ -799,7 +762,49 @@
 
                 await loadUserInfo();
             } catch (error) {
-                console.error('Failed to load user info:', error);
+                showError(error.message);
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('dashboardScreen').style.display = 'none';
+            }
+        }
+
+        function loadUserSession() {
+            accessToken = localStorage.getItem('sf_access_token');
+            instanceUrl = localStorage.getItem('sf_instance_url');
+            
+            if (accessToken && instanceUrl) {
+                loadUserInfo();
+            }
+        }
+
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/.netlify/functions/userinfo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        access_token: accessToken,
+                        instance_url: instanceUrl
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load user information');
+                }
+
+                const userInfo = await response.json();
+                
+                document.getElementById('userName').textContent = userInfo.name || 'User';
+                document.getElementById('userOrg').textContent = userInfo.organization_id || 'Salesforce Org';
+                
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('dashboardScreen').style.display = 'block';
+                
+                showSuccess('Connected successfully');
+                setTimeout(() => {
+                    document.getElementById('successMessage').innerHTML = '';
+                }, 3000);
+            } catch (error) {
                 showError(error.message);
                 logout();
             }
@@ -832,21 +837,6 @@
             document.getElementById('regionSelect').disabled = true;
             
             const statusEl = document.getElementById('dialerStatus');
-            statusEl.className = 'status-indicator active';
-            statusEl.innerHTML = '<span class="status-dot"></span><span>Active</span>';
-
-            console.log('Starting dialer with:', { team, region });
-            showSuccess(`Dialing Team ${team} in ${region}`);
-        }
-
-        function stopDialing() {
-            isDialing = false;
-            document.getElementById('startButton').style.display = 'block';
-            document.getElementById('stopButton').style.display = 'none';
-            document.getElementById('teamSelect').disabled = false;
-            document.getElementById('regionSelect').disabled = false;
-            
-            const statusEl = document.getElementById('dialerStatus');
             statusEl.className = 'status-indicator idle';
             statusEl.innerHTML = '<span class="status-dot"></span><span>Ready</span>';
 
@@ -866,53 +856,18 @@
         }
     </script>
 </body>
-</html>.error('OAuth Error:', error);
-                showError(error.message);
-                document.getElementById('loginScreen').style.display = 'block';
-                document.getElementById('dashboardScreen').style.display = 'none';
-            }
+</html>document.getElementById('dialerStatus');
+            statusEl.className = 'status-indicator active';
+            statusEl.innerHTML = '<span class="status-dot"></span><span>Active</span>';
+
+            showSuccess(`Dialing Team ${team} in ${region}`);
         }
 
-        function loadUserSession() {
-            accessToken = localStorage.getItem('sf_access_token');
-            instanceUrl = localStorage.getItem('sf_instance_url');
+        function stopDialing() {
+            isDialing = false;
+            document.getElementById('startButton').style.display = 'block';
+            document.getElementById('stopButton').style.display = 'none';
+            document.getElementById('teamSelect').disabled = false;
+            document.getElementById('regionSelect').disabled = false;
             
-            if (accessToken && instanceUrl) {
-                loadUserInfo();
-            } else {
-                document.getElementById('loginScreen').style.display = 'block';
-                document.getElementById('dashboardScreen').style.display = 'none';
-            }
-        }
-
-        async function loadUserInfo() {
-            try {
-                const response = await fetch('/.netlify/functions/userinfo', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        access_token: accessToken,
-                        instance_url: instanceUrl
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load user information');
-                }
-
-                const userInfo = await response.json();
-                
-                document.getElementById('userName').textContent = userInfo.name || 'User';
-                document.getElementById('userOrg').textContent = userInfo.organization_id || 'Salesforce Org';
-                
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboardScreen').style.display = 'block';
-                
-                showSuccess('Connected successfully');
-                setTimeout(() => {
-                    document.getElementById('successMessage').innerHTML = '';
-                }, 3000);
-            } catch (error) {
-                console
+            const statusEl =
