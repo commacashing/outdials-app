@@ -484,6 +484,12 @@
             const currentUrl = window.location.href;
             console.log('Current URL:', currentUrl);
             
+            // Check localStorage
+            const hasToken = localStorage.getItem('sf_access_token');
+            const hasInstance = localStorage.getItem('sf_instance_url');
+            console.log('Has stored token:', !!hasToken);
+            console.log('Has stored instance:', !!hasInstance);
+            
             const params = new URLSearchParams(window.location.search);
             const code = params.get('code');
             const error = params.get('error');
@@ -499,11 +505,13 @@
             if (code) {
                 console.log('Found OAuth code, processing...');
                 handleOAuthCallback(code);
-            } else if (localStorage.getItem('sf_access_token')) {
+            } else if (hasToken && hasInstance) {
                 console.log('Found existing session, loading...');
                 loadUserSession();
             } else {
-                console.log('No OAuth code or session found');
+                console.log('No OAuth code or session found - showing login screen');
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('dashboardScreen').style.display = 'none';
             }
 
             // Enable start button when both selects have values
@@ -588,23 +596,17 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                 
                 console.log('Using PKCE Code Verifier:', codeVerifier);
 
-                const tokenParams = new URLSearchParams({
-                    grant_type: 'authorization_code',
-                    code: code,
-                    client_id: SALESFORCE_CONFIG.clientId,
-                    redirect_uri: SALESFORCE_CONFIG.redirectUri,
-                    code_verifier: codeVerifier
-                });
-
-                console.log('Token request params:', Object.fromEntries(tokenParams));
-
-                const response = await fetch(SALESFORCE_CONFIG.tokenUrl, {
+                // Use Netlify Function to avoid CORS issues
+                const response = await fetch('/.netlify/functions/token-exchange', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Accept': 'application/json'
+                        'Content-Type': 'application/json'
                     },
-                    body: tokenParams.toString()
+                    body: JSON.stringify({
+                        code: code,
+                        code_verifier: codeVerifier,
+                        redirect_uri: SALESFORCE_CONFIG.redirectUri
+                    })
                 });
 
                 console.log('Token response status:', response.status);
@@ -644,17 +646,27 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
         }
 
         function loadUserSession() {
+            console.log('Loading user session...');
             accessToken = localStorage.getItem('sf_access_token');
             instanceUrl = localStorage.getItem('sf_instance_url');
             
+            console.log('Access token exists:', !!accessToken);
+            console.log('Instance URL:', instanceUrl);
+            
             if (accessToken && instanceUrl) {
+                console.log('Valid session found, loading user info...');
                 loadUserInfo();
+            } else {
+                console.log('Invalid session, showing login screen');
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('dashboardScreen').style.display = 'none';
             }
         }
 
         async function loadUserInfo() {
             try {
                 console.log('Fetching user info from:', `${instanceUrl}/services/oauth2/userinfo`);
+                console.log('Using access token:', accessToken ? accessToken.substring(0, 20) + '...' : 'null');
                 
                 const response = await fetch(`${instanceUrl}/services/oauth2/userinfo`, {
                     headers: {
@@ -671,11 +683,14 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                 }
 
                 const userInfo = await response.json();
-                console.log('User info:', userInfo);
+                console.log('User info received:', userInfo);
                 
+                // Update UI with user info
                 document.getElementById('userName').textContent = userInfo.name || 'User';
                 document.getElementById('userOrg').textContent = userInfo.organization_id || 'Salesforce Org';
                 
+                // Hide login screen, show dashboard
+                console.log('Switching to dashboard view...');
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboardScreen').style.display = 'block';
                 
@@ -683,6 +698,8 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                 setTimeout(() => {
                     document.getElementById('successMessage').innerHTML = '';
                 }, 3000);
+                
+                console.log('Dashboard should now be visible');
             } catch (error) {
                 console.error('Failed to load user info:', error);
                 showError(`Failed to load user info: ${error.message}`);
