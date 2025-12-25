@@ -112,6 +112,16 @@
             transform: translateY(0);
         }
 
+        .btn-continue {
+            background: #10b981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-continue:hover:not(:disabled) {
+            background: #059669;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
         .btn-stop {
             background: #ef4444;
             box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
@@ -221,7 +231,7 @@
             letter-spacing: 0.05em;
         }
 
-        select {
+        select, input[type="tel"] {
             width: 100%;
             padding: 14px 16px;
             font-size: 15px;
@@ -235,13 +245,17 @@
             font-family: inherit;
         }
 
-        select:focus {
+        input[type="tel"] {
+            cursor: text;
+        }
+
+        select:focus, input[type="tel"]:focus {
             outline: none;
             border-color: #6b9080;
             box-shadow: 0 0 0 3px rgba(107, 144, 128, 0.1);
         }
 
-        select:disabled {
+        select:disabled, input[type="tel"]:disabled {
             background: #f9fafb;
             cursor: not-allowed;
             opacity: 0.6;
@@ -277,6 +291,12 @@
             box-shadow: 0 2px 8px rgba(107, 144, 128, 0.25);
         }
 
+        .status-indicator.on-call {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+
         .status-dot {
             width: 8px;
             height: 8px;
@@ -284,7 +304,8 @@
             background: currentColor;
         }
 
-        .status-indicator.dialing .status-dot {
+        .status-indicator.dialing .status-dot,
+        .status-indicator.on-call .status-dot {
             animation: pulse 2s ease-in-out infinite;
         }
 
@@ -319,6 +340,82 @@
             font-size: 14px;
         }
 
+        .contact-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            min-width: 400px;
+            max-width: 500px;
+            display: none;
+        }
+
+        .contact-popup.active {
+            display: block;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .popup-overlay.active {
+            display: block;
+        }
+
+        .contact-popup h3 {
+            color: #1a1a1a;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .contact-detail {
+            margin-bottom: 16px;
+        }
+
+        .contact-detail label {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .contact-detail p {
+            color: #1a1a1a;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .settings-section {
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .settings-section h4 {
+            color: #1a1a1a;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         .debug-info {
             background: #f9fafb;
             padding: 12px;
@@ -328,6 +425,12 @@
             color: #6b7280;
             font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
             border: 1px solid #e5e7eb;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
         }
     </style>
 </head>
@@ -378,6 +481,11 @@
                 <h3>Dialing Parameters</h3>
                 
                 <div class="form-group">
+                    <label for="repPhone">Your Phone Number</label>
+                    <input type="tel" id="repPhone" placeholder="+12125551234" />
+                </div>
+
+                <div class="form-group">
                     <label for="teamSelect">Team</label>
                     <select id="teamSelect">
                         <option value="">Select team...</option>
@@ -402,17 +510,56 @@
                 <div class="dialer-controls">
                     <div class="status-indicator idle" id="dialerStatus">
                         <span class="status-dot"></span>
-                        <span>System Ready</span>
+                        <span id="statusText">System Ready</span>
                     </div>
                     <br>
-                    <button id="startButton" onclick="startDialing()" class="btn btn-control" disabled>
-                        Start Dialing
-                    </button>
-                    <button id="stopButton" onclick="stopDialing()" class="btn btn-control btn-stop" style="display: none;">
-                        Stop Dialing
-                    </button>
+                    <div class="button-group">
+                        <button id="startButton" onclick="startDialing()" class="btn btn-control" disabled>
+                            Start Dialing
+                        </button>
+                        <button id="continueButton" onclick="continueDialing()" class="btn btn-control btn-continue" style="display: none;">
+                            Continue Dialing
+                        </button>
+                        <button id="stopButton" onclick="stopDialing()" class="btn btn-control btn-stop" style="display: none;">
+                            Stop Dialing
+                        </button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>n8n Webhook Settings</h4>
+                    <div class="form-group">
+                        <label for="n8nWebhookUrl">n8n Webhook Base URL</label>
+                        <input type="text" id="n8nWebhookUrl" placeholder="https://your-instance.app.n8n.cloud/webhook" />
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Contact Popup -->
+    <div class="popup-overlay" id="popupOverlay"></div>
+    <div class="contact-popup" id="contactPopup">
+        <h3>Call Connected!</h3>
+        <div class="contact-detail">
+            <label>Name</label>
+            <p id="contactName">-</p>
+        </div>
+        <div class="contact-detail">
+            <label>Company</label>
+            <p id="contactCompany">-</p>
+        </div>
+        <div class="contact-detail">
+            <label>Phone</label>
+            <p id="contactPhone">-</p>
+        </div>
+        <div class="contact-detail">
+            <label>Region</label>
+            <p id="contactRegion">-</p>
+        </div>
+        <div class="contact-detail">
+            <label>Team</label>
+            <p id="contactTeam">-</p>
         </div>
     </div>
 
@@ -425,12 +572,13 @@
         };
 
         let isDialing = false;
+        let isOnCall = false;
         let accessToken = null;
         let instanceUrl = null;
+        let sessionId = null;
+        let currentStats = { totalCalls: 0, connects: 0, talkTime: 0 };
 
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('Page loaded, checking for OAuth callback...');
-            
             const hasToken = localStorage.getItem('sf_access_token');
             const hasInstance = localStorage.getItem('sf_instance_url');
             
@@ -452,16 +600,31 @@
                 document.getElementById('dashboardScreen').style.display = 'none';
             }
 
+            // Load saved webhook URL
+            const savedWebhook = localStorage.getItem('n8n_webhook_url');
+            if (savedWebhook) {
+                document.getElementById('n8nWebhookUrl').value = savedWebhook;
+            }
+
+            // Form validation
+            document.getElementById('repPhone').addEventListener('input', checkFormValid);
             document.getElementById('teamSelect').addEventListener('change', checkFormValid);
             document.getElementById('regionSelect').addEventListener('change', checkFormValid);
+            document.getElementById('n8nWebhookUrl').addEventListener('change', saveWebhookUrl);
         });
 
+        function saveWebhookUrl() {
+            const webhookUrl = document.getElementById('n8nWebhookUrl').value;
+            localStorage.setItem('n8n_webhook_url', webhookUrl);
+        }
+
         function checkFormValid() {
+            const repPhone = document.getElementById('repPhone').value;
             const team = document.getElementById('teamSelect').value;
             const region = document.getElementById('regionSelect').value;
             const startBtn = document.getElementById('startButton');
             
-            startBtn.disabled = !(team && region) || isDialing;
+            startBtn.disabled = !(repPhone && team && region) || isDialing;
         }
 
         function generateCodeVerifier() {
@@ -625,44 +788,209 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
         }
 
         async function startDialing() {
+            const repPhone = document.getElementById('repPhone').value;
             const team = document.getElementById('teamSelect').value;
             const region = document.getElementById('regionSelect').value;
+            const webhookUrl = document.getElementById('n8nWebhookUrl').value;
 
-            if (!team || !region) {
-                showError('Please select both Team and Region');
+            if (!repPhone || !team || !region) {
+                showError('Please fill in all fields');
                 return;
             }
 
-            isDialing = true;
-            document.getElementById('startButton').style.display = 'none';
-            document.getElementById('stopButton').style.display = 'inline-block';
-            document.getElementById('teamSelect').disabled = true;
-            document.getElementById('regionSelect').disabled = true;
-            
-            const statusEl = document.getElementById('dialerStatus');
-            statusEl.className = 'status-indicator dialing';
-            statusEl.innerHTML = '<span class="status-dot"></span><span>Dialing Active</span>';
+            if (!webhookUrl) {
+                showError('Please set your n8n webhook URL in settings');
+                return;
+            }
 
-            console.log('Starting dialer with:', { team, region });
-            showSuccess(`Dialing started for Team ${team} in ${region} region`);
+            try {
+                isDialing = true;
+                sessionId = 'session_' + Date.now();
+
+                document.getElementById('startButton').style.display = 'none';
+                document.getElementById('stopButton').style.display = 'inline-block';
+                document.getElementById('repPhone').disabled = true;
+                document.getElementById('teamSelect').disabled = true;
+                document.getElementById('regionSelect').disabled = true;
+                
+                updateStatus('dialing', 'Dialing Active');
+
+                // Send webhook to n8n
+                const payload = {
+                    action: 'start',
+                    session_id: sessionId,
+                    rep_phone: repPhone,
+                    team: team,
+                    region: region,
+                    access_token: accessToken,
+                    instance_url: instanceUrl
+                };
+
+                console.log('Sending to n8n:', payload);
+
+                const response = await fetch(`${webhookUrl}/start-dialing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`n8n webhook failed: ${response.status}`);
+                }
+
+                showSuccess(`Dialing started for Team ${team} in ${region} region`);
+            } catch (error) {
+                console.error('Start dialing error:', error);
+                showError(`Failed to start dialing: ${error.message}`);
+                resetDialingState();
+            }
         }
 
-        function stopDialing() {
+        async function continueDialing() {
+            const webhookUrl = document.getElementById('n8nWebhookUrl').value;
+
+            try {
+                isOnCall = false;
+                updateStatus('dialing', 'Dialing Active');
+                
+                document.getElementById('continueButton').style.display = 'none';
+                document.getElementById('stopButton').style.display = 'inline-block';
+                
+                hideContactPopup();
+
+                const payload = {
+                    action: 'continue',
+                    session_id: sessionId
+                };
+
+                const response = await fetch(`${webhookUrl}/continue-dialing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`n8n webhook failed: ${response.status}`);
+                }
+
+                showSuccess('Resuming dialing...');
+            } catch (error) {
+                console.error('Continue dialing error:', error);
+                showError(`Failed to continue dialing: ${error.message}`);
+            }
+        }
+
+        async function stopDialing() {
+            const webhookUrl = document.getElementById('n8nWebhookUrl').value;
+
+            try {
+                const payload = {
+                    action: 'stop',
+                    session_id: sessionId
+                };
+
+                const response = await fetch(`${webhookUrl}/stop-dialing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`n8n webhook failed: ${response.status}`);
+                }
+
+                resetDialingState();
+                showSuccess('Dialing stopped');
+            } catch (error) {
+                console.error('Stop dialing error:', error);
+                showError(`Failed to stop dialing: ${error.message}`);
+                resetDialingState();
+            }
+        }
+
+        function resetDialingState() {
             isDialing = false;
+            isOnCall = false;
+            sessionId = null;
+            
             document.getElementById('startButton').style.display = 'inline-block';
+            document.getElementById('continueButton').style.display = 'none';
             document.getElementById('stopButton').style.display = 'none';
+            document.getElementById('repPhone').disabled = false;
             document.getElementById('teamSelect').disabled = false;
             document.getElementById('regionSelect').disabled = false;
             
-            const statusEl = document.getElementById('dialerStatus');
-            statusEl.className = 'status-indicator idle';
-            statusEl.innerHTML = '<span class="status-dot"></span><span>System Ready</span>';
-
+            updateStatus('idle', 'System Ready');
             checkFormValid();
-
-            console.log('Dialer stopped');
-            showSuccess('Dialing stopped');
+            hideContactPopup();
         }
+
+        function updateStatus(state, text) {
+            const statusEl = document.getElementById('dialerStatus');
+            const statusText = document.getElementById('statusText');
+            
+            statusEl.className = `status-indicator ${state}`;
+            statusText.textContent = text;
+        }
+
+        function showContactPopup(contact) {
+            document.getElementById('contactName').textContent = contact.name || '-';
+            document.getElementById('contactCompany').textContent = contact.company || '-';
+            document.getElementById('contactPhone').textContent = contact.phone || '-';
+            document.getElementById('contactRegion').textContent = contact.region || '-';
+            document.getElementById('contactTeam').textContent = contact.team || '-';
+            
+            document.getElementById('popupOverlay').classList.add('active');
+            document.getElementById('contactPopup').classList.add('active');
+            
+            isOnCall = true;
+            updateStatus('on-call', 'Call In Progress');
+            
+            document.getElementById('stopButton').style.display = 'none';
+            document.getElementById('continueButton').style.display = 'inline-block';
+        }
+
+        function hideContactPopup() {
+            document.getElementById('popupOverlay').classList.remove('active');
+            document.getElementById('contactPopup').classList.remove('active');
+        }
+
+        function updateStats(stats) {
+            if (stats.totalCalls !== undefined) {
+                document.getElementById('totalCalls').textContent = stats.totalCalls;
+                currentStats.totalCalls = stats.totalCalls;
+            }
+            if (stats.connects !== undefined) {
+                document.getElementById('connects').textContent = stats.connects;
+                currentStats.connects = stats.connects;
+            }
+            if (stats.talkTime !== undefined) {
+                document.getElementById('talkTime').textContent = stats.talkTime + 'm';
+                currentStats.talkTime = stats.talkTime;
+            }
+        }
+
+        // Listen for webhooks from n8n (contact connected, stats updates)
+        window.addEventListener('message', (event) => {
+            // Validate origin if needed
+            const data = event.data;
+            
+            if (data.type === 'contact_connected') {
+                showContactPopup(data.contact);
+            } else if (data.type === 'stats_update') {
+                updateStats(data.stats);
+            } else if (data.type === 'dialing_complete') {
+                showSuccess('All contacts dialed!');
+                resetDialingState();
+                updateStats(data.stats);
+            }
+        });
 
         function showError(message) {
             document.getElementById('errorMessage').innerHTML = `<div class="error">${message}</div>`;
