@@ -14,30 +14,19 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%);
             min-height: 100vh;
             padding: 20px;
-            animation: gradientShift 10s ease infinite;
+            animation: gradientFlow 8s ease infinite;
             background-size: 200% 200%;
         }
 
-        @keyframes gradientShift {
+        @keyframes gradientFlow {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
 
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInUp {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -48,39 +37,77 @@
             }
         }
 
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(45, 212, 191, 0.4),
+                            0 0 40px rgba(45, 212, 191, 0.2),
+                            0 8px 32px rgba(0, 0, 0, 0.1);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(45, 212, 191, 0.6),
+                            0 0 60px rgba(45, 212, 191, 0.3),
+                            0 8px 32px rgba(0, 0, 0, 0.1);
+            }
+        }
+
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        .card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             border-radius: 24px;
             padding: 32px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             margin-bottom: 24px;
-            animation: slideInDown 0.6s ease;
         }
 
         .header {
             text-align: center;
             margin-bottom: 40px;
-            animation: slideInDown 0.4s ease;
+            animation: fadeInUp 0.6s ease;
         }
 
         .header h1 {
             color: white;
-            font-size: 48px;
+            font-size: 56px;
             font-weight: 700;
             margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.02em;
         }
 
         .header p {
             color: rgba(255, 255, 255, 0.9);
             font-size: 18px;
+            font-weight: 500;
         }
 
         .login-container {
@@ -91,6 +118,7 @@
         .login-container h2 {
             color: white;
             font-size: 32px;
+            font-weight: 600;
             margin-bottom: 16px;
         }
 
@@ -105,57 +133,92 @@
             font-size: 16px;
             font-weight: 600;
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn:hover::before {
+            opacity: 1;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 20px rgba(20, 184, 166, 0.4);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 8px 30px rgba(20, 184, 166, 0.5);
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        .btn-control {
+            background: rgba(255, 255, 255, 0.95);
+            color: #0d9488;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            padding: 24px 56px;
+            border-radius: 20px;
+        }
+
+        .btn-control:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-control.active {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
-            font-size: 18px;
-            padding: 20px 48px;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
         }
 
-        .btn-success:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(17, 153, 142, 0.6);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(238, 9, 121, 0.4);
-            font-size: 18px;
-            padding: 20px 48px;
-        }
-
-        .btn-danger:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(238, 9, 121, 0.6);
+        .btn-stop:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(239, 68, 68, 0.5);
         }
 
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 12px 24px;
+            font-size: 14px;
+            border-radius: 12px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
         }
 
         .dashboard {
-            animation: slideInUp 0.6s ease;
+            animation: scaleIn 0.6s ease;
         }
 
         .user-info {
@@ -163,107 +226,118 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 32px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            animation: slideInUp 0.5s ease 0.1s both;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            animation: slideIn 0.5s ease 0.1s both;
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .user-details h3 {
             color: white;
             font-size: 24px;
+            font-weight: 600;
             margin-bottom: 4px;
         }
 
         .user-details p {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 14px;
-        }
-
-        .btn-logout {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 10px 20px;
-            font-size: 14px;
-        }
-
-        .btn-logout:hover {
-            background: rgba(255, 255, 255, 0.3);
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-bottom: 32px;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 24px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 28px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-4px);
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
-        .stat-card:nth-child(1) { animation: slideInUp 0.5s ease 0.2s both; }
-        .stat-card:nth-child(2) { animation: slideInUp 0.5s ease 0.3s both; }
-        .stat-card:nth-child(3) { animation: slideInUp 0.5s ease 0.4s both; }
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:nth-child(1) { animation: fadeInUp 0.5s ease 0.2s both; }
+        .stat-card:nth-child(2) { animation: fadeInUp 0.5s ease 0.3s both; }
+        .stat-card:nth-child(3) { animation: fadeInUp 0.5s ease 0.4s both; }
 
         .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .stat-card:nth-child(1) .stat-icon {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .stat-card:nth-child(2) .stat-icon {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
-        .stat-card:nth-child(3) .stat-icon {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        .stat-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         .stat-label {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 14px;
+            font-weight: 500;
             margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .stat-value {
             color: white;
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 700;
             margin-bottom: 4px;
         }
 
-        .stat-trend {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
-        }
-
         .controls-section {
-            animation: slideInUp 0.5s ease 0.5s both;
+            animation: fadeInUp 0.5s ease 0.5s both;
         }
 
         .controls-section h3 {
             color: white;
-            font-size: 24px;
+            font-size: 20px;
+            font-weight: 600;
             margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .form-group {
@@ -276,99 +350,117 @@
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         select {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             font-size: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #0d9488;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
 
         select:focus {
             outline: none;
-            border-color: white;
+            border-color: rgba(255, 255, 255, 0.5);
             background: white;
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
         }
 
         select:disabled {
             background: rgba(255, 255, 255, 0.5);
             cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .dialer-controls {
             text-align: center;
-            padding: 32px 0;
+            padding: 40px 0 20px;
         }
 
         .status-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-size: 14px;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 15px;
             font-weight: 600;
-            margin-bottom: 24px;
-            animation: slideInUp 0.5s ease 0.6s both;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.5s ease 0.6s both;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .status-indicator.idle {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .status-indicator.dialing {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
+            background: rgba(255, 255, 255, 0.95);
+            color: #0d9488;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+            animation: pulseGlow 2s ease-in-out infinite;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: currentColor;
             animation: pulse 2s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.5;
+                transform: scale(0.9);
+            }
         }
 
         .error {
-            background: rgba(255, 87, 87, 0.2);
-            border: 1px solid rgba(255, 87, 87, 0.4);
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
             color: white;
-            padding: 16px;
-            border-radius: 12px;
+            padding: 16px 20px;
+            border-radius: 16px;
             margin-bottom: 20px;
-            animation: slideInDown 0.4s ease;
+            animation: slideIn 0.4s ease;
+            font-weight: 500;
         }
 
         .success {
-            background: rgba(56, 239, 125, 0.2);
-            border: 1px solid rgba(56, 239, 125, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 16px;
-            border-radius: 12px;
+            padding: 16px 20px;
+            border-radius: 16px;
             margin-bottom: 20px;
-            animation: slideInDown 0.4s ease;
+            animation: slideIn 0.4s ease;
+            font-weight: 500;
         }
 
         .debug-info {
             background: rgba(255, 255, 255, 0.1);
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-top: 20px;
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
-            font-family: monospace;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
         }
     </style>
 </head>
@@ -376,10 +468,10 @@
     <div class="container">
         <div class="header">
             <h1>Outdials</h1>
-            <p>Power Dialer Platform</p>
+            <p>Power Dialer Control Panel</p>
         </div>
 
-        <div id="loginScreen" class="card">
+        <div id="loginScreen" class="glass-card">
             <div class="login-container">
                 <h2>Welcome Back</h2>
                 <p>Connect your Salesforce account to start dialing</p>
@@ -388,7 +480,7 @@
             </div>
         </div>
 
-        <div id="dashboardScreen" class="card" style="display: none;">
+        <div id="dashboardScreen" class="glass-card" style="display: none;">
             <div class="dashboard">
                 <div id="errorMessage"></div>
                 <div id="successMessage"></div>
@@ -403,22 +495,25 @@
 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon">📞</div>
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        </div>
                         <div class="stat-label">Total Calls Today</div>
                         <div class="stat-value" id="totalCalls">0</div>
-                        <div class="stat-trend">of 99 daily limit</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">✓</div>
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
                         <div class="stat-label">Connects</div>
                         <div class="stat-value" id="connects">0</div>
-                        <div class="stat-trend">—</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">⏱</div>
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </div>
                         <div class="stat-label">Talk Time</div>
                         <div class="stat-value" id="talkTime">0m</div>
-                        <div class="stat-trend">—</div>
                     </div>
                 </div>
 
@@ -426,9 +521,9 @@
                     <h3>Dialing Parameters</h3>
                     
                     <div class="form-group">
-                        <label for="teamSelect">Select Team</label>
+                        <label for="teamSelect">Team</label>
                         <select id="teamSelect">
-                            <option value="">Choose a team...</option>
+                            <option value="">Select team...</option>
                             <option value="A">Team A</option>
                             <option value="B">Team B</option>
                             <option value="C">Team C</option>
@@ -437,9 +532,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="regionSelect">Select Region</label>
+                        <label for="regionSelect">Region</label>
                         <select id="regionSelect">
-                            <option value="">Choose a region...</option>
+                            <option value="">Select region...</option>
                             <option value="Northeast">Northeast</option>
                             <option value="Southwest">Southwest</option>
                             <option value="Southeast">Southeast</option>
@@ -450,13 +545,13 @@
                     <div class="dialer-controls">
                         <div class="status-indicator idle" id="dialerStatus">
                             <span class="status-dot"></span>
-                            <span>Ready to Dial</span>
+                            <span>System Ready</span>
                         </div>
                         <br>
-                        <button id="startButton" onclick="startDialing()" class="btn btn-success" disabled>
+                        <button id="startButton" onclick="startDialing()" class="btn btn-control" disabled>
                             Start Dialing
                         </button>
-                        <button id="stopButton" onclick="stopDialing()" class="btn btn-danger" style="display: none;">
+                        <button id="stopButton" onclick="stopDialing()" class="btn btn-control btn-stop" style="display: none;">
                             Stop Dialing
                         </button>
                     </div>
@@ -470,7 +565,6 @@
             clientId: '3MVG9HtWXcDGV.nHzF1EzyN.bUajy5rX.YWM11RQGgy_mRqB4oxWWkvtCN2eh5gRZPENJUZjaKqyyDUo0kfvR',
             redirectUri: 'https://fabulous-hamster-abc51c.netlify.app/oauth/callback',
             authUrl: 'https://login.salesforce.com/services/oauth2/authorize',
-            tokenUrl: 'https://login.salesforce.com/services/oauth2/token',
             scope: 'id api refresh_token'
         };
 
@@ -478,13 +572,11 @@
         let accessToken = null;
         let instanceUrl = null;
 
-        // Check for OAuth callback on page load
         window.addEventListener('DOMContentLoaded', () => {
             console.log('Page loaded, checking for OAuth callback...');
             const currentUrl = window.location.href;
             console.log('Current URL:', currentUrl);
             
-            // Check localStorage
             const hasToken = localStorage.getItem('sf_access_token');
             const hasInstance = localStorage.getItem('sf_instance_url');
             console.log('Has stored token:', !!hasToken);
@@ -514,7 +606,6 @@
                 document.getElementById('dashboardScreen').style.display = 'none';
             }
 
-            // Enable start button when both selects have values
             document.getElementById('teamSelect').addEventListener('change', checkFormValid);
             document.getElementById('regionSelect').addEventListener('change', checkFormValid);
         });
@@ -525,9 +616,14 @@
             const startBtn = document.getElementById('startButton');
             
             startBtn.disabled = !(team && region) || isDialing;
+            
+            if (team && region && !isDialing) {
+                startBtn.classList.add('active');
+            } else {
+                startBtn.classList.remove('active');
+            }
         }
 
-        // Generate PKCE code verifier and challenge
         function generateCodeVerifier() {
             const array = new Uint8Array(32);
             crypto.getRandomValues(array);
@@ -549,11 +645,9 @@
         async function loginToSalesforce() {
             console.log('Login button clicked');
             
-            // Generate PKCE values
             const codeVerifier = generateCodeVerifier();
             const codeChallenge = await generateCodeChallenge(codeVerifier);
             
-            // Store code verifier for later use in token exchange
             sessionStorage.setItem('pkce_code_verifier', codeVerifier);
             
             console.log('PKCE Code Verifier:', codeVerifier);
@@ -571,13 +665,11 @@
             const authUrl = `${SALESFORCE_CONFIG.authUrl}?${authParams.toString()}`;
             console.log('Redirecting to:', authUrl);
             
-            // Show debug info
             const debugEl = document.getElementById('debugInfo');
             debugEl.style.display = 'block';
             debugEl.textContent = `Redirecting to Salesforce with PKCE...
 Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
             
-            // Redirect after a brief moment so user can see debug info
             setTimeout(() => {
                 window.location.href = authUrl;
             }, 1000);
@@ -589,7 +681,6 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                 console.log('OAuth code received:', code);
                 showSuccess('Authorization code received, exchanging for access token...');
 
-                // Retrieve the PKCE code verifier from session storage
                 const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
                 console.log('Code verifier from session:', codeVerifier ? 'Found' : 'NOT FOUND');
                 
@@ -606,7 +697,6 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                 };
                 console.log('Sending to Netlify function:', requestBody);
 
-                // Use Netlify Function to avoid CORS issues
                 const response = await fetch('/.netlify/functions/token-exchange', {
                     method: 'POST',
                     headers: {
@@ -650,10 +740,7 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                     localStorage.setItem('sf_refresh_token', data.refresh_token);
                 }
                 
-                // Clear PKCE verifier from session storage
                 sessionStorage.removeItem('pkce_code_verifier');
-
-                // Clean up URL
                 window.history.replaceState({}, document.title, window.location.pathname);
 
                 console.log('About to load user info...');
@@ -661,7 +748,6 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
             } catch (error) {
                 console.error('OAuth Error Details:', error);
                 showError(`OAuth Error: ${error.message}`);
-                // Show login screen on error
                 document.getElementById('loginScreen').style.display = 'block';
                 document.getElementById('dashboardScreen').style.display = 'none';
             }
@@ -712,11 +798,9 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                 const userInfo = await response.json();
                 console.log('User info received:', userInfo);
                 
-                // Update UI with user info
                 document.getElementById('userName').textContent = userInfo.name || 'User';
                 document.getElementById('userOrg').textContent = userInfo.organization_id || 'Salesforce Org';
                 
-                // Hide login screen, show dashboard
                 console.log('Switching to dashboard view...');
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboardScreen').style.display = 'block';
@@ -779,7 +863,7 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
             
             const statusEl = document.getElementById('dialerStatus');
             statusEl.className = 'status-indicator idle';
-            statusEl.innerHTML = '<span class="status-dot"></span><span>Ready to Dial</span>';
+            statusEl.innerHTML = '<span class="status-dot"></span><span>System Ready</span>';
 
             checkFormValid();
 
