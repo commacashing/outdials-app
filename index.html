@@ -519,14 +519,45 @@
             startBtn.disabled = !(team && region) || isDialing;
         }
 
-        function loginToSalesforce() {
+        // Generate PKCE code verifier and challenge
+        function generateCodeVerifier() {
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            return base64URLEncode(array);
+        }
+
+        function base64URLEncode(buffer) {
+            const base64 = btoa(String.fromCharCode.apply(null, buffer));
+            return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        }
+
+        async function generateCodeChallenge(verifier) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(verifier);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return base64URLEncode(new Uint8Array(hash));
+        }
+
+        async function loginToSalesforce() {
             console.log('Login button clicked');
+            
+            // Generate PKCE values
+            const codeVerifier = generateCodeVerifier();
+            const codeChallenge = await generateCodeChallenge(codeVerifier);
+            
+            // Store code verifier for later use in token exchange
+            sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+            
+            console.log('PKCE Code Verifier:', codeVerifier);
+            console.log('PKCE Code Challenge:', codeChallenge);
             
             const authParams = new URLSearchParams({
                 response_type: 'code',
                 client_id: SALESFORCE_CONFIG.clientId,
                 redirect_uri: SALESFORCE_CONFIG.redirectUri,
-                scope: SALESFORCE_CONFIG.scope
+                scope: SALESFORCE_CONFIG.scope,
+                code_challenge: codeChallenge,
+                code_challenge_method: 'S256'
             });
 
             const authUrl = `${SALESFORCE_CONFIG.authUrl}?${authParams.toString()}`;
@@ -535,7 +566,7 @@
             // Show debug info
             const debugEl = document.getElementById('debugInfo');
             debugEl.style.display = 'block';
-            debugEl.textContent = `Redirecting to Salesforce...
+            debugEl.textContent = `Redirecting to Salesforce with PKCE...
 Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
             
             // Redirect after a brief moment so user can see debug info
@@ -549,13 +580,20 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                 console.log('Starting token exchange...');
                 showSuccess('Authorization code received, exchanging for access token...');
 
-                // Use a CORS proxy for the token exchange
+                // Retrieve the PKCE code verifier from session storage
+                const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+                if (!codeVerifier) {
+                    throw new Error('PKCE code verifier not found in session');
+                }
+                
+                console.log('Using PKCE Code Verifier:', codeVerifier);
+
                 const tokenParams = new URLSearchParams({
                     grant_type: 'authorization_code',
                     code: code,
                     client_id: SALESFORCE_CONFIG.clientId,
-                    client_secret: '12085D80DEA203E02FDB8FAB0D5DC76ED3C047604A17ADAD1D4D119AA8FA6594',
-                    redirect_uri: SALESFORCE_CONFIG.redirectUri
+                    redirect_uri: SALESFORCE_CONFIG.redirectUri,
+                    code_verifier: codeVerifier
                 });
 
                 console.log('Token request params:', Object.fromEntries(tokenParams));
@@ -591,6 +629,9 @@ Callback URL: ${SALESFORCE_CONFIG.redirectUri}`;
                 if (data.refresh_token) {
                     localStorage.setItem('sf_refresh_token', data.refresh_token);
                 }
+                
+                // Clear PKCE verifier from session storage
+                sessionStorage.removeItem('pkce_code_verifier');
 
                 // Clean up URL
                 window.history.replaceState({}, document.title, window.location.pathname);
