@@ -17,10 +17,23 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Get credentials from environment variables (set in Netlify)
+    const clientId = process.env.SALESFORCE_CLIENT_ID;
+    const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      console.error('Missing Salesforce credentials in environment variables');
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Server configuration error' })
+      };
+    }
+
     const tokenParams = new URLSearchParams({
       grant_type: 'authorization_code',
       code: code,
-      client_id: '3MVG9HtWXcDGV.nHzF1EzyN.bUajy5rX.YWM11RQGgy_mRqB4oxWWkvtCN2eh5gRZPENJUZjaKqyyDUo0kfvR',
+      client_id: clientId,
+      client_secret: clientSecret,
       redirect_uri: redirect_uri,
       code_verifier: code_verifier
     });
