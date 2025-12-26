@@ -656,7 +656,7 @@
             const team = document.getElementById('teamSelect').value;
             const region = document.getElementById('regionSelect').value;
 
-            if (!N8N_WEBHOOK_URL || N8N_WEBHOOK_URL === 'YOUR_N8N_WEBHOOK_URL_HERE') {
+            if (!N8N_WEBHOOK_BASE || N8N_WEBHOOK_BASE === 'YOUR_N8N_WEBHOOK_URL_HERE') {
                 showError('n8n webhook URL not configured');
                 return;
             }
