@@ -525,7 +525,7 @@
     </div>
 
     <script>
-        const N8N_WEBHOOK_URL = 'https://commacashing.app.n8n.cloud/webhook/outdials';
+        const N8N_WEBHOOK_BASE = 'https://commacashing.app.n8n.cloud/webhook';
         
         const SALESFORCE_CONFIG = {
             clientId: '3MVG9HtWXcDGV.nHzF1EzyN.bUajy5rX.YWM11RQGgy_mRqB4oxWWkvtCN2eh5gRZPENJUZjaKqyyDUo0kfvR',
@@ -673,7 +673,7 @@
                 
                 updateStatus('dialing', 'Dialing Active');
 
-                await fetch(`${N8N_WEBHOOK_URL}/start-dialing`, {
+                await fetch(`${N8N_WEBHOOK_BASE}/start-dialing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -699,7 +699,7 @@
                 updateStatus('dialing', 'Dialing Active');
                 hideContactPopup();
 
-                await fetch(`${N8N_WEBHOOK_URL}/continue-dialing`, {
+                await fetch(`${N8N_WEBHOOK_BASE}/continue-dialing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'continue', session_id: sessionId })
@@ -711,7 +711,7 @@
 
         async function stopDialing() {
             try {
-                await fetch(`${N8N_WEBHOOK_URL}/stop-dialing`, {
+                await fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'stop', session_id: sessionId })
