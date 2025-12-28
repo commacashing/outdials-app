@@ -687,6 +687,9 @@
                     })
                 });
 
+                // Store rep phone for stop functionality
+                localStorage.setItem('current_rep_phone', repPhone);
+
                 showSuccess(`Dialing started for Team ${team} in ${region} region`);
             } catch (error) {
                 showError(`Failed to start dialing: ${error.message}`);
@@ -711,10 +714,16 @@
 
         async function stopDialing() {
             try {
+                const repPhone = localStorage.getItem('current_rep_phone');
+                
                 await fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'stop', session_id: sessionId })
+                    body: JSON.stringify({ 
+                        action: 'stop', 
+                        session_id: sessionId,
+                        rep_phone: repPhone
+                    })
                 });
 
                 resetDialingState();
