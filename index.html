@@ -787,6 +787,7 @@
 
         function subscribeToSupabase() {
             if (!sessionId || !supabaseClient) return;
+            console.log('Subscribing with session_id:', sessionId);
             supabaseSubscription = supabaseClient.channel('dialer_status')
                 .on('postgres_changes', 
                     { event: 'INSERT', schema: 'public', table: 'dialer_status', filter: `session_id=eq.${sessionId}` },
