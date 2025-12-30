@@ -534,9 +534,12 @@
                 <h3>Dialing Parameters</h3>
                 
                 <div class="form-group">
-                    <label for="repPhone">Your Phone Number</label>
-                    <input type="tel" id="repPhone" placeholder="+12125551234" />
-                </div>
+    <label for="repPhone">Your Phone Number</label>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="padding: 14px 16px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 10px; font-weight: 600; color: #1a1a1a;">+1</span>
+        <input type="tel" id="repPhone" placeholder="(212) 555-1234" maxlength="14" style="flex: 1;" />
+    </div>
+</div>
 
                 <div class="form-group">
                     <label for="teamSelect">Team</label>
@@ -690,7 +693,17 @@
             } else if (localStorage.getItem('sf_access_token')) {
                 loadUserSession();
             }
-            document.getElementById('repPhone').addEventListener('input', checkFormValid);
+            document.getElementById('repPhone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 10) value = value.slice(0, 10);
+    if (value.length >= 6) {
+        value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+    } else if (value.length >= 3) {
+        value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+    }
+    e.target.value = value;
+    checkFormValid();
+});
             document.getElementById('teamSelect').addEventListener('change', checkFormValid);
             document.getElementById('regionSelect').addEventListener('change', checkFormValid);
         });
