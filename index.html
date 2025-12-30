@@ -853,7 +853,7 @@
         }
 
         async function startDialing() {
-            const repPhone = document.getElementById('repPhone').value;
+            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
             const team = document.getElementById('teamSelect').value;
             const region = document.getElementById('regionSelect').value;
 
