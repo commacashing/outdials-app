@@ -9,6 +9,8 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method not allowed' };
   }
   
+  console.log('Received body:', event.body);
+  
   const { 
     rep_phone, 
     event_type, 
@@ -22,6 +24,8 @@ exports.handler = async (event) => {
     details, 
     session_id 
   } = JSON.parse(event.body);
+  
+  console.log('Inserting:', { rep_phone, event_type, session_id });
   
   const { error } = await supabase.from('dialer_status').insert({
     rep_phone,
@@ -38,6 +42,7 @@ exports.handler = async (event) => {
   });
   
   if (error) {
+    console.error('Supabase error:', error);
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
   }
   
