@@ -419,25 +419,21 @@
         }
 
         .contact-popup {
-            <div class="contact-popup" id="contactPopup">
-    <button onclick="hideContactPopup()" style="position: absolute; top: 16px; right: 16px; background: #f3f4f6; border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #666;">×</button>
-    <h3>Call Connected!</h3>
-    <!-- rest of popup content --> 
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 32px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            min-width: 400px;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            display: none;
-        }
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    min-width: 400px;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    display: none;
+}
 
         .contact-popup.active {
             display: block;
@@ -629,8 +625,9 @@
     </div>
 
     <div class="popup-overlay" id="popupOverlay"></div>
-    <div class="contact-popup" id="contactPopup">
-        <h3>Call Connected!</h3>
+<div class="contact-popup" id="contactPopup">
+    <button onclick="hideContactPopup()" style="position: absolute; top: 16px; right: 16px; background: #f3f4f6; border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #666;">×</button>
+    <h3>Call Connected!</h3>
         <div class="contact-detail">
             <label>Name</label>
             <p id="contactName">-</p>
@@ -829,7 +826,10 @@ function handleStatusUpdate(data) {
     if (status === 'workflow_started') {
         updateFlowStatus('dialing');
     } else if (status === 'human_answered') {
-        updateFlowStatus('transfer');
+        setTimeout(() => {
+            updateFlowStatus('transfer');
+        }, 8000); // Wait 8 seconds before showing transfer
+        
         setTimeout(() => {
             showContactPopup({
                 name: data.contact_name || '-',
@@ -839,13 +839,11 @@ function handleStatusUpdate(data) {
                 team: data.contact_team || '-',
                 notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
             });
-        }, 2000);
+        }, 10000); // Show popup 10 seconds after human answers
     } else if (status === 'workflow_complete') {
-        // Only show complete icon, don't reset yet
         setTimeout(() => {
             updateFlowStatus('complete');
-        }, 5000);
-        // User must manually stop or close popup to reset
+        }, 15000); // Wait 15 seconds before complete
     }
 }
         function updateFlowStatus(currentStep) {
