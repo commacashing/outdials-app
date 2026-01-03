@@ -624,43 +624,34 @@
         </div>
     </div>
 
-    <div class="popup-overlay" id="popupOverlay"></div>
-<div class="contact-popup" id="contactPopup">
+    <div class="contact-popup" id="contactPopup">
     <button onclick="hideContactPopup()" style="position: absolute; top: 16px; right: 16px; background: #f3f4f6; border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #666;">×</button>
-    <h3>Call Connected!</h3>
-        <div class="contact-detail">
-            <label>Name</label>
-            <p id="contactName">-</p>
-        </div>
-        <div class="contact-detail">
-            <label>Company</label>
-            <p id="contactCompany">-</p>
-        </div>
-        <div class="contact-detail">
-            <label>Phone</label>
-            <p id="contactPhone">-</p>
-        </div>
-        <div class="contact-detail">
-            <label>Title</label>
-            <p id="contactTitle">-</p>
-        </div>
-        <div class="contact-detail">
-            <label>Email</label>
-            <p id="contactEmail">-</p>
-        </div>
-        <div class="contact-detail">
-            <label>Region</label>
-            <p id="contactRegion">-</p>
-        </div>
-        <div class="contact-detail">
-            <label>Team</label>
-            <p id="contactTeam">-</p>
-        </div>
-        <div class="contact-detail">
-            <label>Notes</label>
-            <p id="contactNotes" style="white-space: pre-wrap;">-</p>
-        </div>
+    <h3 style="text-align: center;">Call Connected!</h3>
+    <div class="contact-detail">
+        <label>Name</label>
+        <p id="contactName">-</p>
     </div>
+    <div class="contact-detail">
+        <label>Company</label>
+        <p id="contactCompany">-</p>
+    </div>
+    <div class="contact-detail">
+        <label>Phone</label>
+        <p id="contactPhone">-</p>
+    </div>
+    <div class="contact-detail">
+        <label>Region</label>
+        <p id="contactRegion">-</p>
+    </div>
+    <div class="contact-detail">
+        <label>Team</label>
+        <p id="contactTeam">-</p>
+    </div>
+    <div class="contact-detail">
+        <label>Notes</label>
+        <p id="contactNotes" style="white-space: pre-wrap;">-</p>
+    </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -826,24 +817,22 @@ function handleStatusUpdate(data) {
     if (status === 'workflow_started') {
         updateFlowStatus('dialing');
     } else if (status === 'human_answered') {
-        setTimeout(() => {
-            updateFlowStatus('transfer');
-        }, 8000); // Wait 8 seconds before showing transfer
+        updateFlowStatus('transfer'); // Immediately show transfer
         
         setTimeout(() => {
             showContactPopup({
                 name: data.contact_name || '-',
                 company: data.contact_company || '-',
-                phone: data.rep_phone || '-',
+                phone: data.contact_phone || '-', // Changed from rep_phone
                 region: data.contact_region || '-',
                 team: data.contact_team || '-',
                 notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
             });
-        }, 10000); // Show popup 10 seconds after human answers
+        }, 2000); // Show popup after 2 seconds
     } else if (status === 'workflow_complete') {
         setTimeout(() => {
             updateFlowStatus('complete');
-        }, 15000); // Wait 15 seconds before complete
+        }, 30000); // Wait 30 seconds before showing complete
     }
 }
         function updateFlowStatus(currentStep) {
