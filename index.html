@@ -822,7 +822,7 @@
             }
         }
 
-        function handleStatusUpdate(data) {
+function handleStatusUpdate(data) {
     console.log('Processing status:', data);
     const status = data.event_type;
     
@@ -841,13 +841,11 @@
             });
         }, 2000);
     } else if (status === 'workflow_complete') {
+        // Only show complete icon, don't reset yet
         setTimeout(() => {
             updateFlowStatus('complete');
-            setTimeout(() => { 
-                resetDialingState();
-                // Popup stays open - user must click X
-            }, 3000);
         }, 5000);
+        // User must manually stop or close popup to reset
     }
 }
         function updateFlowStatus(currentStep) {
@@ -975,9 +973,10 @@
         }
 
         function hideContactPopup() {
-            document.getElementById('popupOverlay').classList.remove('active');
-            document.getElementById('contactPopup').classList.remove('active');
-        }
+    document.getElementById('popupOverlay').classList.remove('active');
+    document.getElementById('contactPopup').classList.remove('active');
+    resetDialingState(); // Reset when popup closes
+}
 
         function showError(message) {
             document.getElementById('errorMessage').innerHTML = `<div class="error">${message}</div>`;
