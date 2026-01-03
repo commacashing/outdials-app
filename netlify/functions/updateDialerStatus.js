@@ -12,7 +12,8 @@ exports.handler = async (event) => {
   console.log('Received body:', event.body);
   
   const { 
-    rep_phone, 
+    rep_phone,
+    contact_phone,
     event_type, 
     contact_name, 
     contact_id,
@@ -29,6 +30,7 @@ exports.handler = async (event) => {
   
   const { error } = await supabase.from('dialer_status').insert({
     rep_phone,
+    contact_phone,
     event_type,
     contact_name,
     contact_id,
