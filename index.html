@@ -819,16 +819,30 @@
         }
 
         function handleStatusUpdate(data) {
-            const status = data.event_type;
-            if (status === 'workflow_started' || status === 'dialing_contact') {
-                updateFlowStatus('dialing');
-            } else if (status === 'human_answered') {
-                updateFlowStatus('transfer');
-            } else if (status === 'workflow_complete') {
-                updateFlowStatus('complete');
-                setTimeout(() => { resetDialingState(); }, 2000);
-            }
-        }
+    console.log('Processing status:', data);
+    const status = data.event_type;
+    
+    if (status === 'workflow_started') {
+        updateFlowStatus('dialing');
+    } else if (status === 'human_answered') {
+        updateFlowStatus('transfer');
+        setTimeout(() => {
+            showContactPopup({
+                name: data.contact_name || '-',
+                company: data.contact_company || '-',
+                phone: data.rep_phone || '-',
+                region: data.contact_region || '-',
+                team: data.contact_team || '-',
+                notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
+            });
+        }, 2000); // Show popup after 2 seconds
+    } else if (status === 'workflow_complete') {
+        setTimeout(() => {
+            updateFlowStatus('complete');
+            setTimeout(() => { resetDialingState(); }, 3000);
+        }, 5000); // Wait 5 seconds before showing complete
+    }
+}
 
         function updateFlowStatus(currentStep) {
             document.getElementById('dialingStep').classList.remove('active', 'inactive');
