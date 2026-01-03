@@ -839,15 +839,17 @@
                 team: data.contact_team || '-',
                 notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
             });
-        }, 2000); // Show popup after 2 seconds
+        }, 2000);
     } else if (status === 'workflow_complete') {
         setTimeout(() => {
             updateFlowStatus('complete');
-            setTimeout(() => { resetDialingState(); }, 3000);
-        }, 5000); // Wait 5 seconds before showing complete
+            setTimeout(() => { 
+                resetDialingState();
+                // Popup stays open - user must click X
+            }, 3000);
+        }, 5000);
     }
 }
-
         function updateFlowStatus(currentStep) {
             document.getElementById('dialingStep').classList.remove('active', 'inactive');
             document.getElementById('transferStep').classList.remove('active', 'inactive');
@@ -951,7 +953,6 @@
             document.getElementById('statusFlow').classList.remove('active');
             updateStatus('idle', 'System Ready');
             checkFormValid();
-            hideContactPopup();
         }
 
         function updateStatus(state, text) {
