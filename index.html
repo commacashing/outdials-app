@@ -793,11 +793,18 @@
         }
 
         function subscribeToSupabase() {
-    if (!sessionId || !supabaseClient) return;
-    console.log('Subscribing with session_id:', sessionId);
+    if (!supabaseClient) return;
+    const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+    console.log('Subscribing with rep_phone:', repPhone);
+    
     supabaseSubscription = supabaseClient.channel('dialer_status')
         .on('postgres_changes', 
-            { event: '*', schema: 'public', table: 'dialer_status', filter: `session_id=eq.${sessionId}` },
+            { 
+                event: '*', 
+                schema: 'public', 
+                table: 'dialer_status', 
+                filter: `session_id=eq.${sessionId},or,rep_phone=eq.${repPhone}` 
+            },
             (payload) => { 
                 console.log('Status updated:', payload);
                 handleStatusUpdate(payload.new); 
