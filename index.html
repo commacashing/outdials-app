@@ -796,6 +796,7 @@
     if (!supabaseClient) return;
     const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
     console.log('Subscribing with rep_phone:', repPhone);
+    console.log('Subscribing with session_id:', sessionId);
     
     supabaseSubscription = supabaseClient.channel('dialer_status')
         .on('postgres_changes', 
