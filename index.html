@@ -825,23 +825,23 @@ function handleStatusUpdate(data) {
     
     if (status === 'workflow_started') {
         updateFlowStatus('dialing');
-    } else if (status === 'human_answered') {
-        updateFlowStatus('transfer'); // Immediately show transfer
+    } else if (status === 'human_answered' || status === 'inbound_call') { // Add inbound_call here
+        updateFlowStatus('transfer');
         
         setTimeout(() => {
             showContactPopup({
                 name: data.contact_name || '-',
                 company: data.contact_company || '-',
-                phone: data.contact_phone || '-', // Changed from rep_phone
+                phone: data.contact_phone || '-',
                 region: data.contact_region || '-',
                 team: data.contact_team || '-',
                 notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
             });
-        }, 2000); // Show popup after 2 seconds
+        }, 2000);
     } else if (status === 'workflow_complete') {
         setTimeout(() => {
             updateFlowStatus('complete');
-        }, 30000); // Wait 30 seconds before showing complete
+        }, 30000);
     }
 }
         function updateFlowStatus(currentStep) {
