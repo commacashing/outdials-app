@@ -703,11 +703,17 @@
         });
 
         function checkFormValid() {
-            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-            const team = document.getElementById('teamSelect').value;
-            const region = document.getElementById('regionSelect').value;
-            document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing;
-        }
+    const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+    const team = document.getElementById('teamSelect').value;
+    const region = document.getElementById('regionSelect').value;
+    
+    // Subscribe for inbound calls if phone is complete
+    if (repPhone.length === 12 && !supabaseSubscription) {
+        subscribeForInbound();
+    }
+    
+    document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing;
+}
 
         function generateCodeVerifier() {
             const array = new Uint8Array(32);
