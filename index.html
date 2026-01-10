@@ -14,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #fafaf9;
+            background: #000000;
             min-height: 100vh;
             padding: 40px 20px;
         }
@@ -30,7 +30,7 @@
         }
 
         .header h1 {
-            color: #1a1a1a;
+            color: #ffffff;
             font-size: 48px;
             font-weight: 700;
             margin-bottom: 8px;
@@ -38,17 +38,18 @@
         }
 
         .header p {
-            color: #666;
+            color: #cccccc;
             font-size: 16px;
             font-weight: 500;
         }
 
         .card {
-            background: white;
+            background: #1a1a1a;
             border-radius: 16px;
             padding: 48px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 1px 3px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(255, 255, 255, 0.04);
             margin-bottom: 24px;
+            border: 1px solid #333333;
         }
 
         .login-container {
@@ -57,14 +58,14 @@
         }
 
         .login-container h2 {
-            color: #1a1a1a;
+            color: #ffffff;
             font-size: 28px;
             font-weight: 600;
             margin-bottom: 12px;
         }
 
         .login-container p {
-            color: #666;
+            color: #cccccc;
             font-size: 15px;
             margin-bottom: 32px;
         }
@@ -129,15 +130,15 @@
         }
 
         .btn-logout {
-            background: #f3f4f6;
-            color: #6b7280;
+            background: #2a2a2a;
+            color: #cccccc;
             padding: 10px 20px;
             font-size: 14px;
             border-radius: 8px;
         }
 
         .btn-logout:hover {
-            background: #e5e7eb;
+            background: #3a3a3a;
         }
 
         .user-info {
@@ -146,20 +147,20 @@
             justify-content: space-between;
             margin-bottom: 32px;
             padding: 24px;
-            background: #fafaf9;
+            background: #0a0a0a;
             border-radius: 12px;
-            border: 1px solid #f0f0f0;
+            border: 1px solid #333333;
         }
 
         .user-details h3 {
-            color: #1a1a1a;
+            color: #ffffff;
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 4px;
         }
 
         .user-details p {
-            color: #666;
+            color: #cccccc;
             font-size: 14px;
         }
 
@@ -171,10 +172,10 @@
         }
 
         .stat-card {
-            background: #fafaf9;
+            background: #0a0a0a;
             padding: 24px;
             border-radius: 12px;
-            border: 1px solid #f0f0f0;
+            border: 1px solid #333333;
             transition: all 0.2s ease;
         }
 
@@ -184,7 +185,7 @@
         }
 
         .stat-label {
-            color: #666;
+            color: #cccccc;
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 8px;
@@ -193,13 +194,13 @@
         }
 
         .stat-value {
-            color: #1a1a1a;
+            color: #ffffff;
             font-size: 32px;
             font-weight: 700;
         }
 
         .controls-section h3 {
-            color: #1a1a1a;
+            color: #ffffff;
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 24px;
@@ -213,7 +214,7 @@
 
         .form-group label {
             display: block;
-            color: #1a1a1a;
+            color: #ffffff;
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 8px;
@@ -225,10 +226,10 @@
             width: 100%;
             padding: 14px 16px;
             font-size: 15px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #333333;
             border-radius: 10px;
-            background: white;
-            color: #1a1a1a;
+            background: #0a0a0a;
+            color: #ffffff;
             font-weight: 500;
             transition: all 0.2s ease;
             cursor: pointer;
@@ -246,7 +247,7 @@
         }
 
         select:disabled, input[type="tel"]:disabled {
-            background: #f9fafb;
+            background: #1a1a1a;
             cursor: not-allowed;
             opacity: 0.6;
         }
@@ -275,8 +276,8 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: #fafaf9;
-            border: 2px solid #f0f0f0;
+            background: #0a0a0a;
+            border: 2px solid #333333;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -286,7 +287,7 @@
         .flow-icon svg {
             width: 36px;
             height: 36px;
-            stroke: #666;
+            stroke: #cccccc;
             transition: all 0.3s ease;
         }
 
@@ -309,7 +310,7 @@
         }
 
         .flow-label {
-            color: #666;
+            color: #cccccc;
             font-size: 13px;
             font-weight: 600;
             text-transform: uppercase;
@@ -324,7 +325,7 @@
         .flow-arrow {
             width: 40px;
             height: 40px;
-            stroke: #e5e7eb;
+            stroke: #333333;
             transition: stroke 0.3s ease;
         }
 
@@ -362,9 +363,9 @@
         }
 
         .status-indicator.idle {
-            background: #f3f4f6;
-            color: #6b7280;
-            border: 1px solid #e5e7eb;
+            background: #1a1a1a;
+            color: #cccccc;
+            border: 1px solid #333333;
         }
 
         .status-indicator.dialing {
@@ -397,9 +398,9 @@
         }
 
         .error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
+            background: #2a1a1a;
+            border: 1px solid #4a2a2a;
+            color: #ff6b6b;
             padding: 16px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -408,9 +409,9 @@
         }
 
         .success {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #166534;
+            background: #1a2a1a;
+            border: 1px solid #2a4a2a;
+            color: #6bff6b;
             padding: 16px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -419,21 +420,22 @@
         }
 
         .contact-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 32px;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    min-width: 400px;
-    max-width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
-    display: none;
-}
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1a1a;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 1px solid #333333;
+            z-index: 1000;
+            min-width: 400px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+        }
 
         .contact-popup.active {
             display: block;
@@ -445,7 +447,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.8);
             z-index: 999;
             display: none;
         }
@@ -455,7 +457,7 @@
         }
 
         .contact-popup h3 {
-            color: #1a1a1a;
+            color: #ffffff;
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 20px;
@@ -467,7 +469,7 @@
 
         .contact-detail label {
             display: block;
-            color: #666;
+            color: #cccccc;
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
@@ -476,7 +478,7 @@
         }
 
         .contact-detail p {
-            color: #1a1a1a;
+            color: #ffffff;
             font-size: 16px;
             font-weight: 500;
         }
@@ -534,12 +536,12 @@
                 <h3>Dialing Parameters</h3>
                 
                 <div class="form-group">
-    <label for="repPhone">Your Phone Number</label>
-    <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="padding: 14px 16px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 10px; font-weight: 600; color: #1a1a1a;">+1</span>
-        <input type="tel" id="repPhone" placeholder="(212) 555-1234" maxlength="14" style="flex: 1;" />
-    </div>
-</div>
+                    <label for="repPhone">Your Phone Number</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="padding: 14px 16px; background: #0a0a0a; border: 1px solid #333333; border-radius: 10px; font-weight: 600; color: #ffffff;">+1</span>
+                        <input type="tel" id="repPhone" placeholder="(212) 555-1234" maxlength="14" style="flex: 1;" />
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label for="teamSelect">Team</label>
@@ -624,36 +626,36 @@
         </div>
     </div>
 
-<div class="contact-popup" id="contactPopup">
-    <button onclick="hideContactPopup()" style="position: absolute; top: 16px; right: 16px; background: #f3f4f6; border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #666;">×</button>
-    <h3 style="text-align: center; margin-bottom: 24px;">Call Connected!</h3>
-    <div class="contact-detail">
-        <label>Name</label>
-        <p id="contactName">-</p>
+    <div class="contact-popup" id="contactPopup">
+        <button onclick="hideContactPopup()" style="position: absolute; top: 16px; right: 16px; background: #2a2a2a; border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #cccccc;">×</button>
+        <h3 style="text-align: center; margin-bottom: 24px;">Call Connected!</h3>
+        <div class="contact-detail">
+            <label>Name</label>
+            <p id="contactName">-</p>
+        </div>
+        <div class="contact-detail">
+            <label>Company</label>
+            <p id="contactCompany">-</p>
+        </div>
+        <div class="contact-detail">
+            <label>Phone</label>
+            <p id="contactPhone">-</p>
+        </div>
+        <div class="contact-detail">
+            <label>Region</label>
+            <p id="contactRegion">-</p>
+        </div>
+        <div class="contact-detail">
+            <label>Team</label>
+            <p id="contactTeam">-</p>
+        </div>
+        <div class="contact-detail">
+            <label>Additional Info</label>
+            <p id="contactNotes" style="white-space: pre-wrap;">-</p>
+        </div>
     </div>
-    <div class="contact-detail">
-        <label>Company</label>
-        <p id="contactCompany">-</p>
-    </div>
-    <div class="contact-detail">
-        <label>Phone</label>
-        <p id="contactPhone">-</p>
-    </div>
-    <div class="contact-detail">
-        <label>Region</label>
-        <p id="contactRegion">-</p>
-    </div>
-    <div class="contact-detail">
-        <label>Team</label>
-        <p id="contactTeam">-</p>
-    </div>
-    <div class="contact-detail">
-        <label>Additional Info</label>
-        <p id="contactNotes" style="white-space: pre-wrap;">-</p>
-    </div>
-</div>
 
-<div class="popup-overlay" id="popupOverlay" onclick="hideContactPopup()"></div>
+    <div class="popup-overlay" id="popupOverlay" onclick="hideContactPopup()"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -688,32 +690,31 @@
                 loadUserSession();
             }
             document.getElementById('repPhone').addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 10) value = value.slice(0, 10);
-    if (value.length >= 6) {
-        value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
-    } else if (value.length >= 3) {
-        value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-    }
-    e.target.value = value;
-    checkFormValid();
-});
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 10) value = value.slice(0, 10);
+                if (value.length >= 6) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+                } else if (value.length >= 3) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+                }
+                e.target.value = value;
+                checkFormValid();
+            });
             document.getElementById('teamSelect').addEventListener('change', checkFormValid);
             document.getElementById('regionSelect').addEventListener('change', checkFormValid);
         });
 
         function checkFormValid() {
-    const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-    const team = document.getElementById('teamSelect').value;
-    const region = document.getElementById('regionSelect').value;
-    
-    // Subscribe for inbound calls if phone is complete
-    if (repPhone.length === 12 && !supabaseSubscription) {
-        subscribeForInbound();
-    }
-    
-    document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing;
-}
+            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+            const team = document.getElementById('teamSelect').value;
+            const region = document.getElementById('regionSelect').value;
+            
+            if (repPhone.length === 12 && !supabaseSubscription) {
+                subscribeForInbound();
+            }
+            
+            document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing;
+        }
 
         function generateCodeVerifier() {
             const array = new Uint8Array(32);
@@ -799,44 +800,44 @@
         }
 
         function subscribeToSupabase() {
-    if (!supabaseClient) return;
-    const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-    console.log('Subscribing with rep_phone:', repPhone);
-    console.log('Subscribing with session_id:', sessionId);
-    
-    supabaseSubscription = supabaseClient.channel('dialer_status')
-        .on('postgres_changes', 
-            { 
-                event: '*', 
-                schema: 'public', 
-                table: 'dialer_status', 
-                filter: `session_id=eq.${sessionId},or,rep_phone=eq.${repPhone}` 
-            },
-            (payload) => { 
-                console.log('Status updated:', payload);
-                handleStatusUpdate(payload.new); 
-            }
-        ).subscribe();
-}
+            if (!supabaseClient) return;
+            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+            console.log('Subscribing with rep_phone:', repPhone);
+            console.log('Subscribing with session_id:', sessionId);
+            
+            supabaseSubscription = supabaseClient.channel('dialer_status')
+                .on('postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'dialer_status', 
+                        filter: `session_id=eq.${sessionId},or,rep_phone=eq.${repPhone}` 
+                    },
+                    (payload) => { 
+                        console.log('Status updated:', payload);
+                        handleStatusUpdate(payload.new); 
+                    }
+                ).subscribe();
+        }
         
         function subscribeForInbound() {
-    const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-    console.log('Subscribing for inbound with rep_phone:', repPhone);
-    
-    supabaseSubscription = supabaseClient.channel('inbound_dialer')
-        .on('postgres_changes', 
-            { 
-                event: '*', 
-                schema: 'public', 
-                table: 'dialer_status', 
-                filter: `rep_phone=eq.${repPhone.replace('+1', ' 1')}` 
-            },
-            (payload) => { 
-                console.log('Inbound status updated:', payload);
-                handleStatusUpdate(payload.new); 
-            }
-        ).subscribe();
-}
+            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+            console.log('Subscribing for inbound with rep_phone:', repPhone);
+            
+            supabaseSubscription = supabaseClient.channel('inbound_dialer')
+                .on('postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'dialer_status', 
+                        filter: `rep_phone=eq.${repPhone.replace('+1', ' 1')}` 
+                    },
+                    (payload) => { 
+                        console.log('Inbound status updated:', payload);
+                        handleStatusUpdate(payload.new); 
+                    }
+                ).subscribe();
+        }
         
         function unsubscribeFromSupabase() {
             if (supabaseSubscription && supabaseClient) {
@@ -845,31 +846,32 @@
             }
         }
 
-function handleStatusUpdate(data) {
-    console.log('Processing status:', data);
-    const status = data.event_type;
-    
-    if (status === 'workflow_started') {
-        updateFlowStatus('dialing');
-    } else if (status === 'human_answered' || status === 'inbound_call') { // Add inbound_call here
-        updateFlowStatus('transfer');
-        
-        setTimeout(() => {
-            showContactPopup({
-                name: data.contact_name || '-',
-                company: data.contact_company || '-',
-                phone: data.contact_phone || '-',
-                region: data.contact_region || '-',
-                team: data.contact_team || '-',
-                notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
-            });
-        }, 2000);
-    } else if (status === 'workflow_complete') {
-        setTimeout(() => {
-            updateFlowStatus('complete');
-        }, 30000);
-    }
-}
+        function handleStatusUpdate(data) {
+            console.log('Processing status:', data);
+            const status = data.event_type;
+            
+            if (status === 'workflow_started') {
+                updateFlowStatus('dialing');
+            } else if (status === 'human_answered' || status === 'inbound_call') {
+                updateFlowStatus('transfer');
+                
+                setTimeout(() => {
+                    showContactPopup({
+                        name: data.contact_name || '-',
+                        company: data.contact_company || '-',
+                        phone: data.contact_phone || '-',
+                        region: data.contact_region || '-',
+                        team: data.contact_team || '-',
+                        notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
+                    });
+                }, 2000);
+            } else if (status === 'workflow_complete') {
+                setTimeout(() => {
+                    updateFlowStatus('complete');
+                }, 30000);
+            }
+        }
+
         function updateFlowStatus(currentStep) {
             document.getElementById('dialingStep').classList.remove('active', 'inactive');
             document.getElementById('transferStep').classList.remove('active', 'inactive');
@@ -993,10 +995,10 @@ function handleStatusUpdate(data) {
         }
 
         function hideContactPopup() {
-    document.getElementById('popupOverlay').classList.remove('active');
-    document.getElementById('contactPopup').classList.remove('active');
-    resetDialingState(); // Reset when popup closes
-}
+            document.getElementById('popupOverlay').classList.remove('active');
+            document.getElementById('contactPopup').classList.remove('active');
+            resetDialingState();
+        }
 
         function showError(message) {
             document.getElementById('errorMessage').innerHTML = `<div class="error">${message}</div>`;
