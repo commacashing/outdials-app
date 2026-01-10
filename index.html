@@ -38,17 +38,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 0;
         }
 
-        .header h1 .logo-o {
+        /* Broken O symbol - sharp diagonal cut in upper-right */
+        .broken-o {
             display: inline-block;
-            width: 48px;
+            width: 42px;
             height: 48px;
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtZGFzaGFycmF5PSIyMjAgNDAiIHN0cm9rZS1kYXNob2Zmc2V0PSI0MCIgZmlsbD0iYmxhY2siLz4KPC9zdmc+');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+            position: relative;
+            margin: 0 -2px;
+        }
+
+        .broken-o svg {
+            width: 100%;
+            height: 100%;
         }
 
         .header p {
@@ -512,7 +516,20 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><span class="logo-o"></span>utDials</h1>
+            <h1>
+                <span class="broken-o">
+                    <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <clipPath id="cutClip">
+                                <rect x="0" y="0" width="42" height="48"/>
+                                <polygon points="28,8 42,8 42,0 35,0" fill="black"/>
+                            </clipPath>
+                        </defs>
+                        <circle cx="21" cy="24" r="16" stroke="white" stroke-width="6" fill="none" clip-path="url(#cutClip)"/>
+                    </svg>
+                </span>
+                <span>utDials</span>
+            </h1>
         </div>
 
         <div id="loginScreen" class="card">
