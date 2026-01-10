@@ -35,12 +35,27 @@
             font-weight: 700;
             margin-bottom: 8px;
             letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header h1 .logo-o {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtZGFzaGFycmF5PSIyMjAgNDAiIHN0cm9rZS1kYXNob2Zmc2V0PSI0MCIgZmlsbD0iYmxhY2siLz4KPC9zdmc+');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         .header p {
             color: #cccccc;
             font-size: 16px;
             font-weight: 500;
+            display: none;
         }
 
         .card {
@@ -84,29 +99,33 @@
         }
 
         .btn-primary {
-            background: #6b9080;
+            background: rgba(255, 255, 255, 0.1);
             color: white;
-            box-shadow: 0 1px 2px rgba(107, 144, 128, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
         }
 
         .btn-primary:hover:not(:disabled) {
-            background: #5d7d6e;
-            box-shadow: 0 2px 4px rgba(107, 144, 128, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.15);
         }
 
         .btn-control {
-            background: #6b9080;
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             font-size: 18px;
             padding: 18px 48px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(107, 144, 128, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
         }
 
         .btn-control:hover:not(:disabled) {
-            background: #5d7d6e;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(107, 144, 128, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
         }
 
         .btn-control:active:not(:disabled) {
@@ -493,8 +512,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Outdials</h1>
-            <p>Power Dialer Control Panel</p>
+            <h1><span class="logo-o"></span>utDials</h1>
         </div>
 
         <div id="loginScreen" class="card">
