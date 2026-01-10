@@ -518,16 +518,17 @@
         <div class="header">
             <h1>
                 <span class="broken-o">
-                    <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <clipPath id="cutClip">
-                                <rect x="0" y="0" width="42" height="48"/>
-                                <polygon points="28,8 42,8 42,0 35,0" fill="black"/>
-                            </clipPath>
-                        </defs>
-                        <circle cx="21" cy="24" r="16" stroke="white" stroke-width="6" fill="none" clip-path="url(#cutClip)"/>
-                    </svg>
-                </span>
+    <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <mask id="slitMask">
+                <rect width="42" height="48" fill="white"/>
+                <!-- Aggressive 80° slit -->
+                <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+            </mask>
+        </defs>
+        <circle cx="21" cy="24" r="18" stroke="white" stroke-width="6" fill="none" mask="url(#slitMask)"/>
+    </svg>
+</span>
                 <span>utDials</span>
             </h1>
         </div>
