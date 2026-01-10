@@ -138,14 +138,16 @@
         }
 
         .btn-stop {
-            background: #ef4444;
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
-        }
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: rgba(239, 68, 68, 0.9);
+}
 
-        .btn-stop:hover:not(:disabled) {
-            background: #dc2626;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-        }
+.btn-stop:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.4);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
 
         .btn:disabled {
             opacity: 0.4;
@@ -650,7 +652,7 @@
                     </div>
                 </div>
 
-                <div class="dialer-controls">
+                <div style="text-align: center; padding: 40px 0 20px; display: flex; flex-direction: column; align-items: center;">
                     <div class="status-indicator idle" id="dialerStatus">
                         <span class="status-dot"></span>
                         <span id="statusText">System Ready</span>
