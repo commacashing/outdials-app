@@ -297,34 +297,33 @@
         }
 
         .flow-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: #0a0a0a;
-            border: 2px solid #333333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
 
-        .flow-icon svg {
-            width: 36px;
-            height: 36px;
-            stroke: #cccccc;
-            transition: all 0.3s ease;
-        }
+.flow-icon svg {
+    width: 36px;
+    height: 36px;
+    stroke: rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+}
 
-        .flow-step.active .flow-icon {
-            background: #6b9080;
-            border-color: #6b9080;
-            animation: flowPulse 2s ease-in-out infinite;
-        }
+.flow-step.active .flow-icon {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    animation: flowPulse 2s ease-in-out infinite;
+}
 
-        .flow-step.active .flow-icon svg {
-            stroke: white;
-        }
-
+.flow-step.active .flow-icon svg {
+    stroke: rgba(255, 255, 255, 0.8);
+}
         .flow-step.inactive .flow-icon {
             opacity: 0.4;
         }
@@ -347,69 +346,76 @@
         }
 
         .flow-arrow {
-            width: 40px;
-            height: 40px;
-            stroke: #333333;
-            transition: stroke 0.3s ease;
-        }
+    width: 40px;
+    height: 40px;
+    stroke: rgba(255, 255, 255, 0.2);
+    transition: stroke 0.3s ease;
+}
 
-        .flow-arrow.active {
-            stroke: #6b9080;
-        }
+.flow-arrow.active {
+    stroke: rgba(255, 255, 255, 0.5);
+}
 
         @keyframes flowPulse {
-            0%, 100% { 
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(107, 144, 128, 0.4);
-            }
-            50% { 
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(107, 144, 128, 0);
-            }
-        }
-
-        .dialer-controls {
-            text-align: center;
-            padding: 40px 0 20px;
-        }
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+}
 
         .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 32px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 32px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
 
-        .status-indicator.idle {
-            background: #1a1a1a;
-            color: #cccccc;
-            border: 1px solid #333333;
-        }
+.status-indicator.idle {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
 
-        .status-indicator.dialing {
-            background: #6b9080;
-            color: white;
-            box-shadow: 0 2px 8px rgba(107, 144, 128, 0.25);
-        }
+.status-indicator.dialing {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
 
-        .status-indicator.on-call {
-            background: #10b981;
-            color: white;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
-        }
+.status-indicator.on-call {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-        }
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.status-indicator.dialing .status-dot {
+    background: #ef4444;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.status-indicator.on-call .status-dot {
+    background: #ef4444;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
 
         .status-indicator.dialing .status-dot,
         .status-indicator.on-call .status-dot {
