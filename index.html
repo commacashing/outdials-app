@@ -1188,28 +1188,34 @@ function resetSessionStats() {
         updateStatsDisplay();
     }
     else if (status === 'human_answered' || status === 'inbound_call') {
-        currentSessionStats.connects++;
-        currentSessionStats.humanAnsweredTime = new Date(data.created_at).getTime();
-        updateFlowStatus('transfer');
-        updateStatsDisplay();
+    currentSessionStats.connects++;
+    currentSessionStats.humanAnsweredTime = new Date(data.created_at).getTime();
+    console.log('=== HUMAN ANSWERED ===');
+    console.log('Set humanAnsweredTime to:', currentSessionStats.humanAnsweredTime);
+    console.log('======================');
+    updateFlowStatus('transfer');
+    updateStatsDisplay();
+    
+    setTimeout(() => {
+        showContactPopup({...});
+    }, 2000);
+} 
+else if (status === 'call_completed') {
+        console.log('=== CALL COMPLETED ===');
+        console.log('humanAnsweredTime:', currentSessionStats.humanAnsweredTime);
+        console.log('created_at:', data.created_at);
         
-        setTimeout(() => {
-            showContactPopup({
-                name: data.contact_name || '-',
-                company: data.contact_company || '-',
-                phone: data.contact_phone || '-',
-                region: data.contact_region || '-',
-                team: data.contact_team || '-',
-                notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
-            });
-        }, 2000);
-    } 
-    else if (status === 'call_completed') {
         if (currentSessionStats.humanAnsweredTime) {
             const duration = (new Date(data.created_at).getTime() - currentSessionStats.humanAnsweredTime) / 1000;
-            currentSessionStats.callDurations.push(duration);
+            console.log('Calculated duration:', duration, 'seconds');
+            if (duration > 0 && duration < 3600) {
+                currentSessionStats.callDurations.push(duration);
+            }
             currentSessionStats.humanAnsweredTime = null;
+        } else {
+            console.log('ERROR: humanAnsweredTime was null!');
         }
+        console.log('======================');
         updateStatsDisplay();
     }
     else if (status === 'workflow_complete') {
