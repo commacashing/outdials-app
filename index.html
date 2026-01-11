@@ -1197,7 +1197,14 @@ function resetSessionStats() {
     updateStatsDisplay();
     
     setTimeout(() => {
-        showContactPopup({...});
+        showContactPopup({
+            name: data.contact_name || '-',
+            company: data.contact_company || '-',
+            phone: data.contact_phone || '-',
+            region: data.contact_region || '-',
+            team: data.contact_team || '-',
+            notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
+        });
     }, 2000);
 } 
 else if (status === 'call_completed') {
