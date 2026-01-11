@@ -1167,23 +1167,6 @@ function resetSessionStats() {
             }
         }
 
-        function handleStatusUpdate(data) {
-    console.log('Processing status:', data);
-    const status = data.event_type;
-    
-    if (status === 'workflow_started') {
-        currentSessionStats.sessionId = data.session_id;
-        currentSessionStats.startTime = new Date(data.created_at).getTime();
-        updateFlowStatus('dialing');
-        updateStatsDisplay();
-    } 
-    else if (status === 'call_initiated') {
-        currentSessionStats.totalCalls++;
-        updateStatsDisplay();
-    }
-    else if (status === 'machine_detected') {
-        currentSessionStats.machines++;
-        updateStatsDisplay();
    function handleStatusUpdate(data) {
     console.log('Processing status:', data);
     const status = data.event_type;
