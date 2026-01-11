@@ -23,7 +23,10 @@ exports.handler = async (event) => {
     licenses,
     years_at_firm,
     details, 
-    session_id 
+    session_id,
+    batch_id,
+    call_sid,        
+    all_call_sids    
   } = JSON.parse(event.body);
   
   console.log('Inserting:', { rep_phone, event_type, session_id });
@@ -40,7 +43,10 @@ exports.handler = async (event) => {
     licenses,
     years_at_firm,
     details,
-    session_id
+    session_id,
+    batch_id,
+    call_sid,
+    all_call_sids
   });
   
   if (error) {
