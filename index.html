@@ -1173,7 +1173,9 @@ function resetSessionStats() {
     
     if (status === 'workflow_started') {
         currentSessionStats.sessionId = data.session_id;
-        currentSessionStats.startTime = new Date(data.created_at).getTime();
+        if (!currentSessionStats.startTime) {
+            currentSessionStats.startTime = new Date(data.created_at).getTime();
+        }
         updateFlowStatus('dialing');
         updateStatsDisplay();
     } 
@@ -1201,33 +1203,16 @@ function resetSessionStats() {
                 notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
             });
         }, 2000);
-    }
-   }
-    else if (status === 'workflow_complete') {
+    } 
+    else if (status === 'call_completed') {
         if (currentSessionStats.humanAnsweredTime) {
             const duration = (new Date(data.created_at).getTime() - currentSessionStats.humanAnsweredTime) / 1000;
             currentSessionStats.callDurations.push(duration);
+            currentSessionStats.humanAnsweredTime = null;
         }
-        saveSessionToHistory();
         updateStatsDisplay();
-        
-        setTimeout(() => {
-            updateFlowStatus('complete');
-        }, 30000);
-    }
-    else if (status === 'batches_complete') {
-        saveSessionToHistory();
-        updateStatsDisplay();
-        
-        setTimeout(() => {
-            updateFlowStatus('complete');
-        }, 2000);
     }
     else if (status === 'workflow_complete') {
-        if (currentSessionStats.humanAnsweredTime) {
-            const duration = (new Date(data.created_at).getTime() - currentSessionStats.humanAnsweredTime) / 1000;
-            currentSessionStats.callDurations.push(duration);
-        }
         saveSessionToHistory();
         updateStatsDisplay();
         
@@ -1244,8 +1229,6 @@ function resetSessionStats() {
         }, 2000);
     }
 }
-
-
         function updateFlowStatus(currentStep) {
             document.getElementById('dialingStep').classList.remove('active', 'inactive');
             document.getElementById('transferStep').classList.remove('active', 'inactive');
