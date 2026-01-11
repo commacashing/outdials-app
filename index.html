@@ -1121,19 +1121,19 @@ function resetSessionStats() {
         }
 
         function subscribeToSupabase() {
-            if (!supabaseClient) return;
-            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-            console.log('Subscribing with rep_phone:', repPhone);
-            console.log('Subscribing with session_id:', sessionId);
-            
-            supabaseSubscription = supabaseClient.channel('dialer_status')
-                .on('postgres_changes', 
-                    { 
-                        event: '*', 
-                        schema: 'public', 
-                        table: 'dialer_status', 
-                        filter: `session_id=eq.${sessionId},or,rep_phone=eq.${repPhone}` 
-                    },
+    if (!supabaseClient) return;
+    const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+    console.log('Subscribing with rep_phone:', repPhone);
+    console.log('Subscribing with session_id:', sessionId);
+    
+    supabaseSubscription = supabaseClient.channel('dialer_status')
+        .on('postgres_changes', 
+            { 
+                event: '*', 
+                schema: 'public', 
+                table: 'dialer_status', 
+                filter: `session_id=eq.${sessionId}` 
+            },
                     (payload) => { 
                         console.log('Status updated:', payload);
                         handleStatusUpdate(payload.new); 
