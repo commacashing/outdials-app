@@ -1201,7 +1201,8 @@ function resetSessionStats() {
                 notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
             });
         }, 2000);
-    } 
+    }
+   }
     else if (status === 'workflow_complete') {
         if (currentSessionStats.humanAnsweredTime) {
             const duration = (new Date(data.created_at).getTime() - currentSessionStats.humanAnsweredTime) / 1000;
