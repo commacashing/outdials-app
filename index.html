@@ -950,6 +950,15 @@ function updateStatsDisplay() {
           )
         : 0;
     document.getElementById('statAvgDuration').textContent = avgDuration + 'm';
+
+    // SAVE TO LOCALSTORAGE
+    localStorage.setItem('dailyStats', JSON.stringify({
+        totalCalls: currentSessionStats.totalCalls,
+        connects: currentSessionStats.connects,
+        machines: currentSessionStats.machines,
+        callDurations: currentSessionStats.callDurations,
+        startTime: currentSessionStats.startTime
+    }));
 }
 
 // Save session to history
@@ -1015,28 +1024,6 @@ function resetSessionStats() {
     updateStatsDisplay();
 }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get('code');
-            if (code) {
-                handleOAuthCallback(code);
-            } else if (localStorage.getItem('sf_access_token')) {
-                loadUserSession();
-            }
-            document.getElementById('repPhone').addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 10) value = value.slice(0, 10);
-                if (value.length >= 6) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
-                } else if (value.length >= 3) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-                }
-                e.target.value = value;
-                checkFormValid();
-            });
-            document.getElementById('teamSelect').addEventListener('change', checkFormValid);
-            document.getElementById('regionSelect').addEventListener('change', checkFormValid);
-        });
 
         function checkFormValid() {
             const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
@@ -1197,6 +1184,23 @@ function resetSessionStats() {
     else if (status === 'machine_detected') {
         currentSessionStats.machines++;
         updateStatsDisplay();
+   function handleStatusUpdate(data) {
+    console.log('Processing status:', data);
+    const status = data.event_type;
+    
+    if (status === 'workflow_started') {
+        currentSessionStats.sessionId = data.session_id;
+        currentSessionStats.startTime = new Date(data.created_at).getTime();
+        updateFlowStatus('dialing');
+        updateStatsDisplay();
+    } 
+    else if (status === 'call_initiated') {
+        currentSessionStats.totalCalls++;
+        updateStatsDisplay();
+    }
+    else if (status === 'machine_detected') {
+        currentSessionStats.machines++;
+        updateStatsDisplay();
     }
     else if (status === 'human_answered' || status === 'inbound_call') {
         currentSessionStats.connects++;
@@ -1215,6 +1219,27 @@ function resetSessionStats() {
             });
         }, 2000);
     } 
+    else if (status === 'workflow_complete') {
+        if (currentSessionStats.humanAnsweredTime) {
+            const duration = (new Date(data.created_at).getTime() - currentSessionStats.humanAnsweredTime) / 1000;
+            currentSessionStats.callDurations.push(duration);
+        }
+        saveSessionToHistory();
+        updateStatsDisplay();
+        
+        setTimeout(() => {
+            updateFlowStatus('complete');
+        }, 30000);
+    }
+    else if (status === 'batches_complete') {
+        saveSessionToHistory();
+        updateStatsDisplay();
+        
+        setTimeout(() => {
+            updateFlowStatus('complete');
+        }, 2000);
+    }
+}
     else if (status === 'workflow_complete') {
         if (currentSessionStats.humanAnsweredTime) {
             const duration = (new Date(data.created_at).getTime() - currentSessionStats.humanAnsweredTime) / 1000;
@@ -1376,7 +1401,28 @@ function resetSessionStats() {
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-    loadSessionHistory(); // Load session history on page load
+    loadSessionHistory();
+    
+    // Reset stats at midnight
+    const lastResetDate = localStorage.getItem('lastStatsReset');
+    const today = new Date().toDateString();
+    
+    if (lastResetDate !== today) {
+        resetSessionStats();
+        localStorage.setItem('lastStatsReset', today);
+    } else {
+        // Load stats from localStorage if same day
+        const savedStats = localStorage.getItem('dailyStats');
+        if (savedStats) {
+            const parsed = JSON.parse(savedStats);
+            currentSessionStats.totalCalls = parsed.totalCalls || 0;
+            currentSessionStats.connects = parsed.connects || 0;
+            currentSessionStats.machines = parsed.machines || 0;
+            currentSessionStats.callDurations = parsed.callDurations || [];
+            currentSessionStats.startTime = parsed.startTime || null;
+            updateStatsDisplay();
+        }
+    }
     
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
@@ -1385,6 +1431,7 @@ function resetSessionStats() {
     } else if (localStorage.getItem('sf_access_token')) {
         loadUserSession();
     }
+    
     document.getElementById('repPhone').addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 10) value = value.slice(0, 10);
@@ -1396,6 +1443,7 @@ function resetSessionStats() {
         e.target.value = value;
         checkFormValid();
     });
+    
     document.getElementById('teamSelect').addEventListener('change', checkFormValid);
     document.getElementById('regionSelect').addEventListener('change', checkFormValid);
 });
