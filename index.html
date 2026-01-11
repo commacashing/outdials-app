@@ -520,6 +520,133 @@
             gap: 12px;
             justify-content: center;
         }
+        
+        .analytics-section {
+    margin-bottom: 40px;
+}
+
+.analytics-header {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 20px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.analytics-header:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.analytics-header h3 {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+
+.analytics-chevron {
+    width: 20px;
+    height: 20px;
+    stroke: rgba(255, 255, 255, 0.6);
+    transition: transform 0.3s ease;
+}
+
+.analytics-section.expanded .analytics-chevron {
+    transform: rotate(180deg);
+}
+
+.analytics-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.analytics-section.expanded .analytics-content {
+    max-height: 2000px;
+}
+
+.analytics-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.analytics-stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.analytics-stat-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.analytics-stat-value {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.session-history {
+    margin-top: 24px;
+}
+
+.session-history h4 {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table th {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.history-table td {
+    color: #ffffff;
+    font-size: 14px;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.history-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.history-empty {
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+    padding: 32px;
+    font-size: 14px;
+}
     </style>
 </head>
 <body>
@@ -562,20 +689,63 @@
                 <button onclick="logout()" class="btn btn-logout">Logout</button>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Calls Today</div>
-                    <div class="stat-value" id="totalCalls">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Connects</div>
-                    <div class="stat-value" id="connects">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Talk Time</div>
-                    <div class="stat-value" id="talkTime">0m</div>
-                </div>
+            <div class="analytics-section" id="analyticsSection">
+    <div class="analytics-header" onclick="toggleAnalytics()">
+        <h3>Session Analytics</h3>
+        <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    </div>
+    
+    <div class="analytics-content">
+        <div class="analytics-stats-grid">
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Total Calls Today</div>
+                <div class="analytics-stat-value" id="statTotalCalls">0</div>
             </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Connects</div>
+                <div class="analytics-stat-value" id="statConnects">0</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Talk Time</div>
+                <div class="analytics-stat-value" id="statTalkTime">0m</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Calls/Hour</div>
+                <div class="analytics-stat-value" id="statCallsPerHour">0</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Machine Rate</div>
+                <div class="analytics-stat-value" id="statMachineRate">0%</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Avg Duration</div>
+                <div class="analytics-stat-value" id="statAvgDuration">0m</div>
+            </div>
+        </div>
+        
+        <div class="session-history">
+            <h4>Recent Sessions</h4>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Calls</th>
+                        <th>Connects</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <tr>
+                        <td colspan="4" class="history-empty">No session history yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 
             <div class="controls-section">
                 <h3>Dialing Parameters</h3>
@@ -725,6 +895,125 @@
         let instanceUrl = null;
         let sessionId = null;
         let supabaseSubscription = null;
+
+        // Analytics state
+let currentSessionStats = {
+    sessionId: null,
+    startTime: null,
+    totalCalls: 0,
+    connects: 0,
+    machines: 0,
+    humanAnsweredTime: null,
+    callDurations: []
+};
+
+// Toggle analytics section
+function toggleAnalytics() {
+    const section = document.getElementById('analyticsSection');
+    section.classList.toggle('expanded');
+}
+
+// Update stats display
+function updateStatsDisplay() {
+    // Total Calls Today
+    document.getElementById('statTotalCalls').textContent = currentSessionStats.totalCalls;
+    
+    // Connects
+    document.getElementById('statConnects').textContent = currentSessionStats.connects;
+    
+    // Talk Time (sum of all call durations)
+    const totalMinutes = Math.round(
+        currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / 60
+    );
+    document.getElementById('statTalkTime').textContent = totalMinutes + 'm';
+    
+    // Calls/Hour
+    if (currentSessionStats.startTime) {
+        const hoursElapsed = (Date.now() - currentSessionStats.startTime) / 3600000;
+        const callsPerHour = hoursElapsed > 0 
+            ? Math.round(currentSessionStats.totalCalls / hoursElapsed) 
+            : 0;
+        document.getElementById('statCallsPerHour').textContent = callsPerHour;
+    }
+    
+    // Machine Detection Rate
+    const machineRate = currentSessionStats.totalCalls > 0
+        ? Math.round((currentSessionStats.machines / currentSessionStats.totalCalls) * 100)
+        : 0;
+    document.getElementById('statMachineRate').textContent = machineRate + '%';
+    
+    // Average Call Duration
+    const avgDuration = currentSessionStats.callDurations.length > 0
+        ? Math.round(
+            currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / 
+            currentSessionStats.callDurations.length / 60
+          )
+        : 0;
+    document.getElementById('statAvgDuration').textContent = avgDuration + 'm';
+}
+
+// Save session to history
+function saveSessionToHistory() {
+    if (!currentSessionStats.sessionId) return;
+    
+    const sessions = JSON.parse(localStorage.getItem('sessionHistory') || '[]');
+    
+    const sessionData = {
+        sessionId: currentSessionStats.sessionId,
+        startTime: currentSessionStats.startTime,
+        endTime: Date.now(),
+        totalCalls: currentSessionStats.totalCalls,
+        connects: currentSessionStats.connects,
+        duration: Math.round((Date.now() - currentSessionStats.startTime) / 60000)
+    };
+    
+    sessions.unshift(sessionData);
+    
+    // Keep only last 10 sessions
+    if (sessions.length > 10) sessions.pop();
+    
+    localStorage.setItem('sessionHistory', JSON.stringify(sessions));
+    loadSessionHistory();
+}
+
+// Load and display session history
+function loadSessionHistory() {
+    const sessions = JSON.parse(localStorage.getItem('sessionHistory') || '[]');
+    const tbody = document.getElementById('historyTableBody');
+    
+    if (sessions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="history-empty">No session history yet</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = sessions.slice(0, 5).map(session => {
+        const date = new Date(session.startTime);
+        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        return `
+            <tr>
+                <td>${dateStr}</td>
+                <td>${session.totalCalls}</td>
+                <td>${session.connects}</td>
+                <td>${session.duration}m</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Reset session stats
+function resetSessionStats() {
+    currentSessionStats = {
+        sessionId: null,
+        startTime: null,
+        totalCalls: 0,
+        connects: 0,
+        machines: 0,
+        humanAnsweredTime: null,
+        callDurations: []
+    };
+    updateStatsDisplay();
+}
 
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
@@ -892,30 +1181,62 @@
         }
 
         function handleStatusUpdate(data) {
-            console.log('Processing status:', data);
-            const status = data.event_type;
-            
-            if (status === 'workflow_started') {
-                updateFlowStatus('dialing');
-            } else if (status === 'human_answered' || status === 'inbound_call') {
-                updateFlowStatus('transfer');
-                
-                setTimeout(() => {
-                    showContactPopup({
-                        name: data.contact_name || '-',
-                        company: data.contact_company || '-',
-                        phone: data.contact_phone || '-',
-                        region: data.contact_region || '-',
-                        team: data.contact_team || '-',
-                        notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
-                    });
-                }, 2000);
-            } else if (status === 'workflow_complete') {
-                setTimeout(() => {
-                    updateFlowStatus('complete');
-                }, 30000);
-            }
+    console.log('Processing status:', data);
+    const status = data.event_type;
+    
+    if (status === 'workflow_started') {
+        currentSessionStats.sessionId = data.session_id;
+        currentSessionStats.startTime = new Date(data.created_at).getTime();
+        updateFlowStatus('dialing');
+        updateStatsDisplay();
+    } 
+    else if (status === 'call_initiated') {
+        currentSessionStats.totalCalls++;
+        updateStatsDisplay();
+    }
+    else if (status === 'machine_detected') {
+        currentSessionStats.machines++;
+        updateStatsDisplay();
+    }
+    else if (status === 'human_answered' || status === 'inbound_call') {
+        currentSessionStats.connects++;
+        currentSessionStats.humanAnsweredTime = new Date(data.created_at).getTime();
+        updateFlowStatus('transfer');
+        updateStatsDisplay();
+        
+        setTimeout(() => {
+            showContactPopup({
+                name: data.contact_name || '-',
+                company: data.contact_company || '-',
+                phone: data.contact_phone || '-',
+                region: data.contact_region || '-',
+                team: data.contact_team || '-',
+                notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
+            });
+        }, 2000);
+    } 
+    else if (status === 'workflow_complete') {
+        if (currentSessionStats.humanAnsweredTime) {
+            const duration = (new Date(data.created_at).getTime() - currentSessionStats.humanAnsweredTime) / 1000;
+            currentSessionStats.callDurations.push(duration);
         }
+        saveSessionToHistory();
+        updateStatsDisplay();
+        
+        setTimeout(() => {
+            updateFlowStatus('complete');
+        }, 30000);
+    }
+    else if (status === 'batches_complete') {
+        saveSessionToHistory();
+        updateStatsDisplay();
+        
+        setTimeout(() => {
+            updateFlowStatus('complete');
+        }, 2000);
+    }
+}
+
 
         function updateFlowStatus(currentStep) {
             document.getElementById('dialingStep').classList.remove('active', 'inactive');
@@ -1054,19 +1375,30 @@
             setTimeout(() => { document.getElementById('successMessage').innerHTML = ''; }, 3000);
         }
 
-        window.addEventListener('message', (event) => {
-            const data = event.data;
-            if (data.type === 'contact_connected') {
-                showContactPopup(data.contact);
-            } else if (data.type === 'stats_update') {
-                if (data.stats.totalCalls !== undefined) document.getElementById('totalCalls').textContent = data.stats.totalCalls;
-                if (data.stats.connects !== undefined) document.getElementById('connects').textContent = data.stats.connects;
-                if (data.stats.talkTime !== undefined) document.getElementById('talkTime').textContent = data.stats.talkTime + 'm';
-            } else if (data.type === 'dialing_complete') {
-                showSuccess('All contacts dialed!');
-                resetDialingState();
-            }
-        });
+        window.addEventListener('DOMContentLoaded', () => {
+    loadSessionHistory(); // Load session history on page load
+    
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+        handleOAuthCallback(code);
+    } else if (localStorage.getItem('sf_access_token')) {
+        loadUserSession();
+    }
+    document.getElementById('repPhone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 10) value = value.slice(0, 10);
+        if (value.length >= 6) {
+            value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+        } else if (value.length >= 3) {
+            value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        }
+        e.target.value = value;
+        checkFormValid();
+    });
+    document.getElementById('teamSelect').addEventListener('change', checkFormValid);
+    document.getElementById('regionSelect').addEventListener('change', checkFormValid);
+});
     </script>
 </body>
 </html>
