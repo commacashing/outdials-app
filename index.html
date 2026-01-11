@@ -942,14 +942,19 @@ function updateStatsDisplay() {
         : 0;
     document.getElementById('statMachineRate').textContent = machineRate + '%';
     
-    // Average Call Duration
-    const avgDuration = currentSessionStats.callDurations.length > 0
-        ? Math.round(
-            currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / 
-            currentSessionStats.callDurations.length / 60
-          )
-        : 0;
-    document.getElementById('statAvgDuration').textContent = avgDuration + 'm';
+// Average Call Duration
+if (currentSessionStats.callDurations.length > 0) {
+    const avgSeconds = currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / currentSessionStats.callDurations.length;
+    const avgMinutes = avgSeconds / 60;
+    
+    if (avgMinutes < 1) {
+        document.getElementById('statAvgDuration').textContent = Math.round(avgSeconds) + 's';
+    } else {
+        document.getElementById('statAvgDuration').textContent = Math.round(avgMinutes) + 'm';
+    }
+} else {
+    document.getElementById('statAvgDuration').textContent = '0s';
+}
 
     // SAVE TO LOCALSTORAGE
     localStorage.setItem('dailyStats', JSON.stringify({
