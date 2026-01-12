@@ -1351,33 +1351,68 @@ function resetSessionStats() {
     } 
     else if (status === 'call_initiated') {
         currentSessionStats.totalCalls++;
+        
+        // Store contact in map
+        currentBatchContacts.set(data.call_sid, {
+            name: data.contact_name,
+            company: data.contact_company,
+            phone: data.contact_phone,
+            region: data.contact_region,
+            team: data.contact_team,
+            licenses: data.licenses,
+            years_at_firm: data.years_at_firm,
+            call_sid: data.call_sid,
+            status: 'ringing'
+        });
+        
+        // If we have 3 contacts, show the race
+        if (currentBatchContacts.size === 3) {
+            showCallRace();
+        }
+        
         updateStatsDisplay();
     }
     else if (status === 'machine_detected') {
         currentSessionStats.machines++;
+        
+        // Update contact status
+        const contact = currentBatchContacts.get(data.call_sid);
+        if (contact) {
+            contact.status = 'machine';
+            updateRaceCard(data.call_sid, 'machine');
+        }
+        
         updateStatsDisplay();
     }
     else if (status === 'human_answered' || status === 'inbound_call') {
-    currentSessionStats.connects++;
-    currentSessionStats.humanAnsweredTime = new Date(data.created_at).getTime();
-    console.log('=== HUMAN ANSWERED ===');
-    console.log('Set humanAnsweredTime to:', currentSessionStats.humanAnsweredTime);
-    console.log('======================');
-    updateFlowStatus('transfer');
-    updateStatsDisplay();
-    
-    setTimeout(() => {
-        showContactPopup({
-            name: data.contact_name || '-',
-            company: data.contact_company || '-',
-            phone: data.contact_phone || '-',
-            region: data.contact_region || '-',
-            team: data.contact_team || '-',
-            notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
-        });
-    }, 2000);
-} 
-else if (status === 'call_completed') {
+        currentSessionStats.connects++;
+        currentSessionStats.humanAnsweredTime = new Date(data.created_at).getTime();
+        console.log('=== HUMAN ANSWERED ===');
+        console.log('Set humanAnsweredTime to:', currentSessionStats.humanAnsweredTime);
+        console.log('======================');
+        
+        // Update contact status
+        const contact = currentBatchContacts.get(data.call_sid);
+        if (contact) {
+            contact.status = 'human';
+            updateRaceCard(data.call_sid, 'human');
+        }
+        
+        updateFlowStatus('transfer');
+        updateStatsDisplay();
+        
+        setTimeout(() => {
+            showContactPopup({
+                name: data.contact_name || '-',
+                company: data.contact_company || '-',
+                phone: data.contact_phone || '-',
+                region: data.contact_region || '-',
+                team: data.contact_team || '-',
+                notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
+            });
+        }, 2000);
+    } 
+    else if (status === 'call_completed') {
         console.log('=== CALL COMPLETED ===');
         console.log('humanAnsweredTime:', currentSessionStats.humanAnsweredTime);
         console.log('created_at:', data.created_at);
@@ -1537,7 +1572,90 @@ else if (status === 'call_completed') {
         function hideContactPopup() {
             document.getElementById('popupOverlay').classList.remove('active');
             document.getElementById('contactPopup').classList.remove('active');
+            
+            // Hide race container and clear contacts
+            document.getElementById('callRaceContainer').classList.remove('active');
+            document.getElementById('callRaceGrid').innerHTML = '';
+            currentBatchContacts.clear();
+            
             resetDialingState();
+        }
+
+        function showCallRace() {
+            const container = document.getElementById('callRaceContainer');
+            const grid = document.getElementById('callRaceGrid');
+            
+            // Clear previous cards
+            grid.innerHTML = '';
+            
+            // Create cards for each contact
+            currentBatchContacts.forEach((contact, callSid) => {
+                const card = document.createElement('div');
+                card.className = 'race-card ringing';
+                card.id = `race-card-${callSid}`;
+                
+                card.innerHTML = `
+                    <div class="race-card-status">
+                        <span class="race-status-icon">📞</span>
+                        <span>Ringing...</span>
+                    </div>
+                    <div class="race-card-name">${contact.name}</div>
+                    <div class="race-card-info">${contact.company || 'No company'}</div>
+                    <div class="race-card-info">${contact.phone || 'No phone'}</div>
+                `;
+                
+                grid.appendChild(card);
+            });
+            
+            container.classList.add('active');
+        }
+
+        function updateRaceCard(callSid, status) {
+            const card = document.getElementById(`race-card-${callSid}`);
+            if (!card) return;
+            
+            // Remove all status classes
+            card.classList.remove('ringing', 'human', 'machine', 'ended');
+            
+            if (status === 'human') {
+                card.classList.add('human');
+                card.innerHTML = card.innerHTML.replace(
+                    /<div class="race-card-status">[\s\S]*?<\/div>/,
+                    `<div class="race-card-status">
+                        <span class="race-status-icon">✓</span>
+                        <span>Human Answered</span>
+                    </div>
+                    <div class="race-winner-badge">WINNER</div>`
+                );
+                
+                // Mark other cards as ended
+                currentBatchContacts.forEach((contact, sid) => {
+                    if (sid !== callSid && contact.status === 'ringing') {
+                        const otherCard = document.getElementById(`race-card-${sid}`);
+                        if (otherCard) {
+                            otherCard.classList.remove('ringing');
+                            otherCard.classList.add('ended');
+                            otherCard.innerHTML = otherCard.innerHTML.replace(
+                                /<div class="race-card-status">[\s\S]*?<\/div>/,
+                                `<div class="race-card-status">
+                                    <span class="race-status-icon">⏸️</span>
+                                    <span>Call Ended</span>
+                                </div>`
+                            );
+                        }
+                    }
+                });
+            } 
+            else if (status === 'machine') {
+                card.classList.add('machine');
+                card.innerHTML = card.innerHTML.replace(
+                    /<div class="race-card-status">[\s\S]*?<\/div>/,
+                    `<div class="race-card-status">
+                        <span class="race-status-icon">🤖</span>
+                        <span>Voicemail</span>
+                    </div>`
+                );
+            }
         }
 
         function showError(message) {
