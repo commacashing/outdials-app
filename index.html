@@ -1365,8 +1365,11 @@ function resetSessionStats() {
             status: 'ringing'
         });
         
-        // If we have 3 contacts, show the race
-        if (currentBatchContacts.size === 3) {
+        // Show race immediately on first contact
+        if (currentBatchContacts.size === 1) {
+            showCallRace();
+        } else if (currentBatchContacts.size <= 3) {
+            // Update existing race view
             showCallRace();
         }
         
@@ -1400,17 +1403,6 @@ function resetSessionStats() {
         
         updateFlowStatus('transfer');
         updateStatsDisplay();
-        
-        setTimeout(() => {
-            showContactPopup({
-                name: data.contact_name || '-',
-                company: data.contact_company || '-',
-                phone: data.contact_phone || '-',
-                region: data.contact_region || '-',
-                team: data.contact_team || '-',
-                notes: `Licenses: ${data.licenses || '-'}\nYears at firm: ${data.years_at_firm || '-'}`
-            });
-        }, 2000);
     } 
     else if (status === 'call_completed') {
         console.log('=== CALL COMPLETED ===');
@@ -1600,8 +1592,11 @@ function resetSessionStats() {
                         <span>Ringing...</span>
                     </div>
                     <div class="race-card-name">${contact.name}</div>
-                    <div class="race-card-info">${contact.company || 'No company'}</div>
+                    <div class="race-card-info"><strong>${contact.company || 'No company'}</strong></div>
                     <div class="race-card-info">${contact.phone || 'No phone'}</div>
+                    <div class="race-card-info">Region: ${contact.region || '-'} | Team: ${contact.team || '-'}</div>
+                    <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
+                    <div class="race-card-info">Years: ${contact.years_at_firm || '-'}</div>
                 `;
                 
                 grid.appendChild(card);
