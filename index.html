@@ -1444,11 +1444,9 @@ function resetSessionStats() {
                 document.getElementById('repPhone').disabled = true;
                 document.getElementById('teamSelect').disabled = true;
                 document.getElementById('regionSelect').disabled = true;
-                document.getElementById('statusFlow').classList.add('active');
                 
                 updateStatus('dialing', 'Dialing Active');
                 document.getElementById('callRaceContainer').classList.add('active');
-                updateFlowStatus('dialing');
                 subscribeToSupabase();
 
                 await fetch(`${N8N_WEBHOOK_BASE}/start-dialing`, {
