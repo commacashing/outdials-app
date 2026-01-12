@@ -329,7 +329,7 @@
         }
 
         .race-card.ringing {
-            animation: cardPulse 2s ease-in-out infinite;
+            animation: cardPulse 0.8s ease-in-out infinite;
         }
 
         .race-card.human {
@@ -354,12 +354,12 @@
 
         @keyframes cardPulse {
             0%, 100% { 
-                border-color: rgba(255, 255, 255, 0.15);
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
             }
             50% { 
-                border-color: rgba(255, 255, 255, 0.3);
-                box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.6);
+                box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
             }
         }
 
@@ -944,48 +944,6 @@
                     </div>
                 </div>
 
-                <div class="status-flow" id="statusFlow">
-                    <div class="flow-step" id="dialingStep">
-                        <div class="flow-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                            </svg>
-                        </div>
-                        <span class="flow-label">Dialing</span>
-                    </div>
-
-                    <svg class="flow-arrow" id="arrow1" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                    </svg>
-
-                    <div class="flow-step inactive" id="transferStep">
-                        <div class="flow-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                                <polyline points="16 2 22 2 22 8"/>
-                                <line x1="22" y1="2" x2="14" y2="10"/>
-                            </svg>
-                        </div>
-                        <span class="flow-label">Transfer</span>
-                    </div>
-
-                    <svg class="flow-arrow" id="arrow2" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                    </svg>
-
-                    <div class="flow-step inactive" id="completeStep">
-                        <div class="flow-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                                <polyline points="22 4 12 14.01 9 11.01"/>
-                            </svg>
-                        </div>
-                        <span class="flow-label">Complete</span>
-                    </div>
-                </div>
-
                 <div style="text-align: center; padding: 40px 0 20px; display: flex; flex-direction: column; align-items: center;">
                     <div class="status-indicator idle" id="dialerStatus">
                         <span class="status-dot"></span>
@@ -1489,6 +1447,7 @@ function resetSessionStats() {
                 document.getElementById('statusFlow').classList.add('active');
                 
                 updateStatus('dialing', 'Dialing Active');
+                document.getElementById('callRaceContainer').classList.add('active');
                 updateFlowStatus('dialing');
                 subscribeToSupabase();
 
@@ -1630,7 +1589,8 @@ function resetSessionStats() {
                         <span class="race-status-icon">✓</span>
                         <span>Human Answered</span>
                     </div>
-                    <div class="race-winner-badge">WINNER</div>
+                    `<button onclick="closeRaceAndReset()" style="position: absolute; top: 12px; right: 12px; background: rgba(239, 68, 68, 0.9); border: none; border-radius: 8px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; font-weight: bold; z-index: 10;">✕</button>
+                    <div class="race-winner-badge" style="top: 12px; left: 50%; transform: translateX(-50%); right: auto;">WINNER</div>`
                     <button onclick="closeRaceAndReset()" style="position: absolute; bottom: 16px; right: 16px; background: rgba(34, 197, 94, 1); border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: bold;">✕</button>`
                 );
                 
