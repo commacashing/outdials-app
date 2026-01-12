@@ -1354,8 +1354,6 @@ function resetSessionStats() {
         
         // Store contact in map
         currentBatchContacts.set(data.call_sid, {
-            // Show card immediately
-        showCallRace();
             name: data.contact_name,
             company: data.contact_company,
             phone: data.contact_phone,
@@ -1366,6 +1364,9 @@ function resetSessionStats() {
             call_sid: data.call_sid,
             status: 'ringing'
         });
+        
+        // Show card immediately
+        showCallRace();
         
         // Show race immediately on first contact
         if (currentBatchContacts.size === 1) {
