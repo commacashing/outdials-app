@@ -291,6 +291,151 @@
             display: flex;
         }
 
+        .call-race-container {
+            display: none;
+            padding: 40px 0;
+            margin-bottom: 32px;
+        }
+
+        .call-race-container.active {
+            display: block;
+        }
+
+        .call-race-header {
+            text-align: center;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 32px;
+        }
+
+        .call-race-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .race-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .race-card.ringing {
+            animation: cardPulse 2s ease-in-out infinite;
+        }
+
+        .race-card.human {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.5);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+            animation: none;
+            transform: scale(1.05);
+        }
+
+        .race-card.machine {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: rgba(251, 191, 36, 0.3);
+            opacity: 0.4;
+            animation: none;
+        }
+
+        .race-card.ended {
+            opacity: 0.3;
+            animation: none;
+        }
+
+        @keyframes cardPulse {
+            0%, 100% { 
+                border-color: rgba(255, 255, 255, 0.15);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
+            }
+            50% { 
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .race-card-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .race-card.ringing .race-card-status {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .race-card.human .race-card-status {
+            color: rgba(34, 197, 94, 1);
+        }
+
+        .race-card.machine .race-card-status {
+            color: rgba(251, 191, 36, 0.9);
+        }
+
+        .race-card.ended .race-card-status {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .race-status-icon {
+            font-size: 18px;
+        }
+
+        .race-card-name {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .race-card.machine .race-card-name,
+        .race-card.ended .race-card-name {
+            opacity: 0.6;
+        }
+
+        .race-card-info {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .race-card.machine .race-card-info,
+        .race-card.ended .race-card-info {
+            opacity: 0.5;
+        }
+
+        .race-winner-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: rgba(34, 197, 94, 1);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        }
+
+        .status-flow.active {
+            display: flex;
+        }
+
         .flow-step {
             display: flex;
             flex-direction: column;
@@ -792,6 +937,13 @@
                     </select>
                 </div>
 
+                <div class="call-race-container" id="callRaceContainer">
+                    <div class="call-race-header">DIALING 3 CONTACTS...</div>
+                    <div class="call-race-grid" id="callRaceGrid">
+                        <!-- Race cards will be inserted here -->
+                    </div>
+                </div>
+
                 <div class="status-flow" id="statusFlow">
                     <div class="flow-step" id="dialingStep">
                         <div class="flow-icon">
@@ -907,6 +1059,7 @@
         let instanceUrl = null;
         let sessionId = null;
         let supabaseSubscription = null;
+        let currentBatchContacts = new Map(); // Store contacts by call_sid
 
         // Analytics state
 let currentSessionStats = {
