@@ -810,46 +810,49 @@
             section.classList.toggle('expanded');
         }
 
-        function updateStatsDisplay() {
-            document.getElementById('statTotalCalls').textContent = currentSessionStats.totalCalls;
-            document.getElementById('statConnects').textContent = currentSessionStats.connects;
-            
-            const totalMinutes = Math.round(
-                currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / 60
-            );
-            document.getElementById('statTalkTime').textContent = totalMinutes + 'm';
-            
-            if (currentSessionStats.startTime) {
-                const hoursElapsed = (Date.now() - currentSessionStats.startTime) / 3600000;
-                const callsPerHour = hoursElapsed > 0 
-                    ? Math.round(currentSessionStats.totalCalls / hoursElapsed)
-
-                     const machineRate = currentSessionStats.totalCalls > 0
-                ? Math.round((currentSessionStats.machines / currentSessionStats.totalCalls) * 100)
-                : 0;
-            document.getElementById('statMachineRate').textContent = machineRate + '%';
-            
-            if (currentSessionStats.callDurations.length > 0) {
-                const avgSeconds = currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / currentSessionStats.callDurations.length;
-                const avgMinutes = avgSeconds / 60;
-                
-                if (avgMinutes < 1) {
-                    document.getElementById('statAvgDuration').textContent = Math.round(avgSeconds) + 's';
-                } else {
-                    document.getElementById('statAvgDuration').textContent = Math.round(avgMinutes) + 'm';
-                }
-            } else {
-                document.getElementById('statAvgDuration').textContent = '0s';
-            }
-
-            localStorage.setItem('dailyStats', JSON.stringify({
-                totalCalls: currentSessionStats.totalCalls,
-                connects: currentSessionStats.connects,
-                machines: currentSessionStats.machines,
-                callDurations: currentSessionStats.callDurations,
-                startTime: currentSessionStats.startTime
-            }));
+function updateStatsDisplay() {
+    document.getElementById('statTotalCalls').textContent = currentSessionStats.totalCalls;
+    document.getElementById('statConnects').textContent = currentSessionStats.connects;
+    
+    const totalMinutes = Math.round(
+        currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / 60
+    );
+    document.getElementById('statTalkTime').textContent = totalMinutes + 'm';
+    
+    if (currentSessionStats.startTime) {
+        const hoursElapsed = (Date.now() - currentSessionStats.startTime) / 3600000;
+        const callsPerHour = hoursElapsed > 0 
+            ? Math.round(currentSessionStats.totalCalls / hoursElapsed)
+            : 0;
+        document.getElementById('statCallsPerHour').textContent = callsPerHour;
+    }
+    
+    const machineRate = currentSessionStats.totalCalls > 0
+        ? Math.round((currentSessionStats.machines / currentSessionStats.totalCalls) * 100)
+        : 0;
+    document.getElementById('statMachineRate').textContent = machineRate + '%';
+    
+    if (currentSessionStats.callDurations.length > 0) {
+        const avgSeconds = currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / currentSessionStats.callDurations.length;
+        const avgMinutes = avgSeconds / 60;
+        
+        if (avgMinutes < 1) {
+            document.getElementById('statAvgDuration').textContent = Math.round(avgSeconds) + 's';
+        } else {
+            document.getElementById('statAvgDuration').textContent = Math.round(avgMinutes) + 'm';
         }
+    } else {
+        document.getElementById('statAvgDuration').textContent = '0s';
+    }
+    
+    localStorage.setItem('dailyStats', JSON.stringify({
+        totalCalls: currentSessionStats.totalCalls,
+        connects: currentSessionStats.connects,
+        machines: currentSessionStats.machines,
+        callDurations: currentSessionStats.callDurations,
+        startTime: currentSessionStats.startTime
+    }));
+}  // <-- Only one closing brace here for the function
 
         function saveSessionToHistory() {
             if (!currentSessionStats.sessionId) return;
