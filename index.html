@@ -938,7 +938,6 @@
                 </div>
 
                 <div class="call-race-container" id="callRaceContainer">
-                    <div class="call-race-header">DIALING 3 CONTACTS...</div>
                     <div class="call-race-grid" id="callRaceGrid">
                         <!-- Race cards will be inserted here -->
                     </div>
@@ -1446,6 +1445,8 @@ function resetSessionStats() {
                 document.getElementById('regionSelect').disabled = true;
                 
                 updateStatus('dialing', 'Dialing Active');
+                console.log('>>> Showing race container');
+                document.getElementById('callRaceContainer').classList.add('active');
                 document.getElementById('callRaceContainer').classList.add('active');
                 subscribeToSupabase();
 
