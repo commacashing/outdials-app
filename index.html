@@ -1354,6 +1354,8 @@ function resetSessionStats() {
         
         // Store contact in map
         currentBatchContacts.set(data.call_sid, {
+            // Show card immediately
+        showCallRace();
             name: data.contact_name,
             company: data.contact_company,
             phone: data.contact_phone,
@@ -1390,20 +1392,20 @@ function resetSessionStats() {
     else if (status === 'human_answered' || status === 'inbound_call') {
         currentSessionStats.connects++;
         currentSessionStats.humanAnsweredTime = new Date(data.created_at).getTime();
-        console.log('=== HUMAN ANSWERED ===');
-        console.log('Set humanAnsweredTime to:', currentSessionStats.humanAnsweredTime);
-        console.log('======================');
+        
+        // Update card IMMEDIATELY
+        updateRaceCard(data.call_sid, 'human');
         
         // Update contact status
         const contact = currentBatchContacts.get(data.call_sid);
         if (contact) {
             contact.status = 'human';
-            updateRaceCard(data.call_sid, 'human');
         }
         
         updateFlowStatus('transfer');
         updateStatsDisplay();
-    } 
+    }
+        
     else if (status === 'call_completed') {
         console.log('=== CALL COMPLETED ===');
         console.log('humanAnsweredTime:', currentSessionStats.humanAnsweredTime);
@@ -1573,6 +1575,13 @@ function resetSessionStats() {
             resetDialingState();
         }
 
+        function closeRaceAndReset() {
+            document.getElementById('callRaceContainer').classList.remove('active');
+            document.getElementById('callRaceGrid').innerHTML = '';
+            currentBatchContacts.clear();
+            resetDialingState();
+        }
+
         function showCallRace() {
             const container = document.getElementById('callRaceContainer');
             const grid = document.getElementById('callRaceGrid');
@@ -1620,7 +1629,8 @@ function resetSessionStats() {
                         <span class="race-status-icon">✓</span>
                         <span>Human Answered</span>
                     </div>
-                    <div class="race-winner-badge">WINNER</div>`
+                    <div class="race-winner-badge">WINNER</div>
+                    <button onclick="closeRaceAndReset()" style="position: absolute; bottom: 16px; right: 16px; background: rgba(34, 197, 94, 1); border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; font-weight: bold;">✕</button>`
                 );
                 
                 // Mark other cards as ended
@@ -1633,7 +1643,7 @@ function resetSessionStats() {
                             otherCard.innerHTML = otherCard.innerHTML.replace(
                                 /<div class="race-card-status">[\s\S]*?<\/div>/,
                                 `<div class="race-card-status">
-                                    <span class="race-status-icon">⏸️</span>
+                                    <span class="race-status-icon">✕</span>
                                     <span>Call Ended</span>
                                 </div>`
                             );
