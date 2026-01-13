@@ -548,6 +548,17 @@
             background: rgba(59, 130, 246, 1);
         }
 
+        .note-btn-save.saved {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: default;
+        }
+
+        .note-btn-save.saved:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
         .call-race-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -958,6 +969,8 @@
         let sessionId = null;
         let supabaseSubscription = null;
         let currentBatchContacts = new Map();
+        let hasUnsavedNotes = false;
+        let currentNoteCallSid = null;
 
         let currentSessionStats = {
             sessionId: null,
@@ -1256,6 +1269,18 @@
                 if (contact) {
                     contact.status = 'human';
                 }
+                
+                // Reset to ready state when human answers
+                isDialing = false;
+                unsubscribeFromSupabase();
+                document.getElementById('stopButton').style.display = 'none';
+                document.getElementById('startButton').style.display = 'inline-block';
+                document.getElementById('repPhone').disabled = false;
+                document.getElementById('teamSelect').disabled = false;
+                document.getElementById('regionSelect').disabled = false;
+                updateStatus('idle', 'System Ready');
+                checkFormValid();
+                
                 updateStatsDisplay();
             }
             else if (status === 'call_completed') {
@@ -1279,9 +1304,20 @@
             const team = document.getElementById('teamSelect').value;
             const region = document.getElementById('regionSelect').value;
 
+            // Check for unsaved notes before starting new session
+            if (!checkUnsavedNotes()) {
+                return; // User cancelled, don't start new session
+            }
+
             try {
                 isDialing = true;
                 sessionId = 'session_' + Date.now();
+
+                // Clear previous cards and reset
+                currentBatchContacts.clear();
+                document.getElementById('callRaceGrid').innerHTML = '';
+                hasUnsavedNotes = false;
+                currentNoteCallSid = null;
 
                 document.getElementById('startButton').style.display = 'none';
                 document.getElementById('stopButton').style.display = 'inline-block';
@@ -1327,11 +1363,31 @@
                         rep_phone: repPhone
                     })
                 });
-                resetDialingState();
-                showSuccess('Dialing stopped');
+                
+                // Reset to ready state - same as when human answers
+                isDialing = false;
+                unsubscribeFromSupabase();
+                document.getElementById('stopButton').style.display = 'none';
+                document.getElementById('startButton').style.display = 'inline-block';
+                document.getElementById('repPhone').disabled = false;
+                document.getElementById('teamSelect').disabled = false;
+                document.getElementById('regionSelect').disabled = false;
+                updateStatus('idle', 'System Ready');
+                checkFormValid();
+                
+                showSuccess('Dialing stopped - cards paused');
             } catch (error) {
                 showError(`Failed to stop: ${error.message}`);
-                resetDialingState();
+                // Still reset the state even if the API call fails
+                isDialing = false;
+                unsubscribeFromSupabase();
+                document.getElementById('stopButton').style.display = 'none';
+                document.getElementById('startButton').style.display = 'inline-block';
+                document.getElementById('repPhone').disabled = false;
+                document.getElementById('teamSelect').disabled = false;
+                document.getElementById('regionSelect').disabled = false;
+                updateStatus('idle', 'System Ready');
+                checkFormValid();
             }
         }
 
@@ -1418,12 +1474,6 @@
                 winnerBadge.className = 'race-winner-badge';
                 winnerBadge.textContent = 'WINNER';
                 card.appendChild(winnerBadge);
-                
-                const closeBtn = document.createElement('button');
-                closeBtn.className = 'race-close-btn';
-                closeBtn.textContent = '✕';
-                closeBtn.onclick = closeRaceAndReset;
-                card.appendChild(closeBtn);
 
                 const noteBtn = document.createElement('button');
                 noteBtn.className = 'race-note-btn';
@@ -1440,7 +1490,7 @@
                 noteCompartment.id = `note-compartment-${callSid}`;
                 noteCompartment.innerHTML = `
                     <div class="note-compartment-header">
-                        📝 Call Notes
+                        Call Notes
                     </div>
                     <div class="note-compartment-subheader">
                         ${contact?.name || 'Contact'}
@@ -1449,10 +1499,11 @@
                         class="note-textarea" 
                         placeholder="Type your notes here..."
                         id="note-text-${callSid}"
+                        oninput="markNoteAsUnsaved('${callSid}')"
                     ></textarea>
                     <div class="note-actions">
                         <button class="note-btn note-btn-cancel" onclick="toggleNoteCompartment('${callSid}')">Cancel</button>
-                        <button class="note-btn note-btn-save" onclick="saveNoteToSalesforce('${callSid}')">Save to Salesforce</button>
+                        <button class="note-btn note-btn-save" id="note-save-btn-${callSid}" onclick="saveNoteToSalesforce('${callSid}')">Save</button>
                     </div>
                 `;
                 card.appendChild(noteCompartment);
@@ -1492,6 +1543,38 @@
             }
         }
 
+        function markNoteAsUnsaved(callSid) {
+            const noteText = document.getElementById(`note-text-${callSid}`).value.trim();
+            const saveBtn = document.getElementById(`note-save-btn-${callSid}`);
+            
+            if (noteText) {
+                hasUnsavedNotes = true;
+                currentNoteCallSid = callSid;
+                
+                // If button was previously "Saved", revert it back to "Save"
+                if (saveBtn && saveBtn.classList.contains('saved')) {
+                    saveBtn.classList.remove('saved');
+                    saveBtn.textContent = 'Save';
+                    saveBtn.disabled = false;
+                }
+            } else if (!noteText) {
+                hasUnsavedNotes = false;
+                currentNoteCallSid = null;
+            }
+        }
+
+        function checkUnsavedNotes() {
+            if (hasUnsavedNotes && currentNoteCallSid) {
+                const noteText = document.getElementById(`note-text-${currentNoteCallSid}`)?.value.trim();
+                const saveBtn = document.getElementById(`note-save-btn-${currentNoteCallSid}`);
+                
+                if (noteText && saveBtn && !saveBtn.classList.contains('saved')) {
+                    return confirm('You have unsaved notes. Are you sure you want to start a new session? Your notes will be lost.');
+                }
+            }
+            return true;
+        }
+
         async function saveNoteToSalesforce(callSid) {
             const noteText = document.getElementById(`note-text-${callSid}`).value.trim();
             
@@ -1505,6 +1588,10 @@
                 showError('Contact information not found.');
                 return;
             }
+
+            const saveBtn = document.getElementById(`note-save-btn-${callSid}`);
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
 
             try {
                 // Call your n8n webhook or Salesforce API to save the note
@@ -1523,13 +1610,20 @@
 
                 if (response.ok) {
                     showSuccess('Note saved to Salesforce!');
-                    toggleNoteCompartment(callSid);
-                    document.getElementById(`note-text-${callSid}`).value = '';
+                    saveBtn.textContent = 'Saved';
+                    saveBtn.classList.add('saved');
+                    saveBtn.disabled = true;
+                    hasUnsavedNotes = false;
+                    currentNoteCallSid = null;
                 } else {
                     showError('Failed to save note to Salesforce.');
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save';
                 }
             } catch (error) {
                 showError(`Error saving note: ${error.message}`);
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save';
             }
         }
 
