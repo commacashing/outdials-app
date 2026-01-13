@@ -420,6 +420,143 @@
             transform: scale(1.1);
         }
 
+        .race-note-btn {
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(59, 130, 246, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .race-note-btn:hover {
+            background: rgba(59, 130, 246, 1);
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .note-compartment {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 20px;
+            width: 100%;
+            background: rgba(26, 26, 26, 0.98);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            z-index: 15;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .note-compartment.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        .note-compartment-header {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .note-compartment-subheader {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        .note-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 12px;
+            transition: border-color 0.2s ease;
+        }
+
+        .note-textarea:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .note-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .note-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .note-btn-cancel {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .note-btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .note-btn-save {
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .note-btn-save:hover {
+            background: rgba(59, 130, 246, 1);
+        }
+
+        .call-race-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
         .status-indicator {
             display: inline-flex;
             align-items: center;
@@ -1239,6 +1376,7 @@
                         <span>Dialing...</span>
                     </div>
                     <div class="race-card-name">Searching for contact</div>
+                    <div class="race-card-info">Preparing call ${i + 1}</div>
                 `;
                 
                 grid.appendChild(card);
@@ -1286,6 +1424,38 @@
                 closeBtn.textContent = '✕';
                 closeBtn.onclick = closeRaceAndReset;
                 card.appendChild(closeBtn);
+
+                const noteBtn = document.createElement('button');
+                noteBtn.className = 'race-note-btn';
+                noteBtn.textContent = '📝';
+                noteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleNoteCompartment(callSid);
+                };
+                card.appendChild(noteBtn);
+
+                const contact = currentBatchContacts.get(callSid);
+                const noteCompartment = document.createElement('div');
+                noteCompartment.className = 'note-compartment';
+                noteCompartment.id = `note-compartment-${callSid}`;
+                noteCompartment.innerHTML = `
+                    <div class="note-compartment-header">
+                        📝 Call Notes
+                    </div>
+                    <div class="note-compartment-subheader">
+                        ${contact?.name || 'Contact'}
+                    </div>
+                    <textarea 
+                        class="note-textarea" 
+                        placeholder="Type your notes here..."
+                        id="note-text-${callSid}"
+                    ></textarea>
+                    <div class="note-actions">
+                        <button class="note-btn note-btn-cancel" onclick="toggleNoteCompartment('${callSid}')">Cancel</button>
+                        <button class="note-btn note-btn-save" onclick="saveNoteToSalesforce('${callSid}')">Save to Salesforce</button>
+                    </div>
+                `;
+                card.appendChild(noteCompartment);
                 
                 card.querySelector('.race-card-status').innerHTML = `
                     <span class="race-status-icon">✓</span>
@@ -1312,6 +1482,54 @@
                     <span class="race-status-icon">🤖</span>
                     <span>Voicemail</span>
                 `;
+            }
+        }
+
+        function toggleNoteCompartment(callSid) {
+            const compartment = document.getElementById(`note-compartment-${callSid}`);
+            if (compartment) {
+                compartment.classList.toggle('open');
+            }
+        }
+
+        async function saveNoteToSalesforce(callSid) {
+            const noteText = document.getElementById(`note-text-${callSid}`).value.trim();
+            
+            if (!noteText) {
+                showError('Please enter a note before saving.');
+                return;
+            }
+
+            const contact = currentBatchContacts.get(callSid);
+            if (!contact) {
+                showError('Contact information not found.');
+                return;
+            }
+
+            try {
+                // Call your n8n webhook or Salesforce API to save the note
+                const response = await fetch(`${N8N_WEBHOOK_BASE}/save-note`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        call_sid: callSid,
+                        contact_name: contact.name,
+                        contact_phone: contact.phone,
+                        note: noteText,
+                        access_token: accessToken,
+                        instance_url: instanceUrl
+                    })
+                });
+
+                if (response.ok) {
+                    showSuccess('Note saved to Salesforce!');
+                    toggleNoteCompartment(callSid);
+                    document.getElementById(`note-text-${callSid}`).value = '';
+                } else {
+                    showError('Failed to save note to Salesforce.');
+                }
+            } catch (error) {
+                showError(`Error saving note: ${error.message}`);
             }
         }
 
