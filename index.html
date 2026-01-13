@@ -266,6 +266,21 @@
             animation: cardPulse 0.8s ease-in-out infinite;
         }
 
+        .race-card.dialing-placeholder {
+            animation: dialingShimmer 1.5s ease-in-out infinite;
+        }
+
+        @keyframes dialingShimmer {
+            0%, 100% { 
+                background: rgba(255, 255, 255, 0.05);
+                border-color: rgba(255, 255, 255, 0.15);
+            }
+            50% { 
+                background: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.3);
+            }
+        }
+
         .race-card.human {
             background: rgba(34, 197, 94, 0.15);
             border-color: rgba(34, 197, 94, 0.5);
@@ -312,6 +327,10 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
+        .race-card.dialing-placeholder .race-card-status {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         .race-card.human .race-card-status {
             color: rgba(34, 197, 94, 1);
         }
@@ -335,6 +354,10 @@
             margin-bottom: 8px;
         }
 
+        .race-card.dialing-placeholder .race-card-name {
+            opacity: 0.5;
+        }
+
         .race-card.machine .race-card-name,
         .race-card.ended .race-card-name {
             opacity: 0.6;
@@ -344,6 +367,10 @@
             color: rgba(255, 255, 255, 0.7);
             font-size: 14px;
             margin-bottom: 4px;
+        }
+
+        .race-card.dialing-placeholder .race-card-info {
+            opacity: 0.4;
         }
 
         .race-card.machine .race-card-info,
@@ -810,49 +837,49 @@
             section.classList.toggle('expanded');
         }
 
-function updateStatsDisplay() {
-    document.getElementById('statTotalCalls').textContent = currentSessionStats.totalCalls;
-    document.getElementById('statConnects').textContent = currentSessionStats.connects;
-    
-    const totalMinutes = Math.round(
-        currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / 60
-    );
-    document.getElementById('statTalkTime').textContent = totalMinutes + 'm';
-    
-    if (currentSessionStats.startTime) {
-        const hoursElapsed = (Date.now() - currentSessionStats.startTime) / 3600000;
-        const callsPerHour = hoursElapsed > 0 
-            ? Math.round(currentSessionStats.totalCalls / hoursElapsed)
-            : 0;
-        document.getElementById('statCallsPerHour').textContent = callsPerHour;
-    }
-    
-    const machineRate = currentSessionStats.totalCalls > 0
-        ? Math.round((currentSessionStats.machines / currentSessionStats.totalCalls) * 100)
-        : 0;
-    document.getElementById('statMachineRate').textContent = machineRate + '%';
-    
-    if (currentSessionStats.callDurations.length > 0) {
-        const avgSeconds = currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / currentSessionStats.callDurations.length;
-        const avgMinutes = avgSeconds / 60;
-        
-        if (avgMinutes < 1) {
-            document.getElementById('statAvgDuration').textContent = Math.round(avgSeconds) + 's';
-        } else {
-            document.getElementById('statAvgDuration').textContent = Math.round(avgMinutes) + 'm';
+        function updateStatsDisplay() {
+            document.getElementById('statTotalCalls').textContent = currentSessionStats.totalCalls;
+            document.getElementById('statConnects').textContent = currentSessionStats.connects;
+            
+            const totalMinutes = Math.round(
+                currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / 60
+            );
+            document.getElementById('statTalkTime').textContent = totalMinutes + 'm';
+            
+            if (currentSessionStats.startTime) {
+                const hoursElapsed = (Date.now() - currentSessionStats.startTime) / 3600000;
+                const callsPerHour = hoursElapsed > 0 
+                    ? Math.round(currentSessionStats.totalCalls / hoursElapsed)
+                    : 0;
+                document.getElementById('statCallsPerHour').textContent = callsPerHour;
+            }
+            
+            const machineRate = currentSessionStats.totalCalls > 0
+                ? Math.round((currentSessionStats.machines / currentSessionStats.totalCalls) * 100)
+                : 0;
+            document.getElementById('statMachineRate').textContent = machineRate + '%';
+            
+            if (currentSessionStats.callDurations.length > 0) {
+                const avgSeconds = currentSessionStats.callDurations.reduce((sum, dur) => sum + dur, 0) / currentSessionStats.callDurations.length;
+                const avgMinutes = avgSeconds / 60;
+                
+                if (avgMinutes < 1) {
+                    document.getElementById('statAvgDuration').textContent = Math.round(avgSeconds) + 's';
+                } else {
+                    document.getElementById('statAvgDuration').textContent = Math.round(avgMinutes) + 'm';
+                }
+            } else {
+                document.getElementById('statAvgDuration').textContent = '0s';
+            }
+            
+            localStorage.setItem('dailyStats', JSON.stringify({
+                totalCalls: currentSessionStats.totalCalls,
+                connects: currentSessionStats.connects,
+                machines: currentSessionStats.machines,
+                callDurations: currentSessionStats.callDurations,
+                startTime: currentSessionStats.startTime
+            }));
         }
-    } else {
-        document.getElementById('statAvgDuration').textContent = '0s';
-    }
-    
-    localStorage.setItem('dailyStats', JSON.stringify({
-        totalCalls: currentSessionStats.totalCalls,
-        connects: currentSessionStats.connects,
-        machines: currentSessionStats.machines,
-        callDurations: currentSessionStats.callDurations,
-        startTime: currentSessionStats.startTime
-    }));
-}  // <-- Only one closing brace here for the function
 
         function saveSessionToHistory() {
             if (!currentSessionStats.sessionId) return;
@@ -1052,7 +1079,7 @@ function updateStatsDisplay() {
             else if (status === 'call_initiated') {
                 currentSessionStats.totalCalls++;
                 
-                currentBatchContacts.set(data.call_sid, {
+                const contact = {
                     name: data.contact_name,
                     company: data.contact_company,
                     phone: data.contact_phone,
@@ -1062,9 +1089,13 @@ function updateStatsDisplay() {
                     years_at_firm: data.years_at_firm,
                     call_sid: data.call_sid,
                     status: 'ringing'
-                });
+                };
                 
-                showCallRace();
+                currentBatchContacts.set(data.call_sid, contact);
+                
+                const index = currentBatchContacts.size - 1;
+                populateRaceCard(data.call_sid, contact, index);
+                
                 updateStatsDisplay();
             }
             else if (status === 'machine_detected') {
@@ -1122,7 +1153,7 @@ function updateStatsDisplay() {
                 document.getElementById('regionSelect').disabled = true;
                 
                 updateStatus('dialing', 'Dialing Active');
-                document.getElementById('callRaceContainer').classList.add('active');
+                showEmptyRaceCards();
                 subscribeToSupabase();
 
                 await fetch(`${N8N_WEBHOOK_BASE}/start-dialing`, {
@@ -1191,34 +1222,50 @@ function updateStatsDisplay() {
             resetDialingState();
         }
 
-        function showCallRace() {
+        function showEmptyRaceCards() {
             const container = document.getElementById('callRaceContainer');
             const grid = document.getElementById('callRaceGrid');
             
             grid.innerHTML = '';
             
-            currentBatchContacts.forEach((contact, callSid) => {
+            for (let i = 0; i < 3; i++) {
                 const card = document.createElement('div');
-                card.className = 'race-card ringing';
-                card.id = `race-card-${callSid}`;
+                card.className = 'race-card dialing-placeholder';
+                card.id = `race-card-placeholder-${i}`;
                 
                 card.innerHTML = `
                     <div class="race-card-status">
-                        <span class="race-status-icon">📞</span>
-                        <span>Ringing...</span>
+                        <span class="race-status-icon">⏳</span>
+                        <span>Dialing...</span>
                     </div>
-                    <div class="race-card-name">${contact.name}</div>
-                    <div class="race-card-info"><strong>${contact.company || 'No company'}</strong></div>
-                    <div class="race-card-info">${contact.phone || 'No phone'}</div>
-                    <div class="race-card-info">Region: ${contact.region || '-'} | Team: ${contact.team || '-'}</div>
-                    <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
-                    <div class="race-card-info">Years: ${contact.years_at_firm || '-'}</div>
+                    <div class="race-card-name">Searching for contact</div>
+                    <div class="race-card-info">Preparing call ${i + 1}</div>
                 `;
                 
                 grid.appendChild(card);
-            });
+            }
             
             container.classList.add('active');
+        }
+        
+        function populateRaceCard(callSid, contact, index) {
+            const placeholder = document.getElementById(`race-card-placeholder-${index}`);
+            if (!placeholder) return;
+            
+            placeholder.id = `race-card-${callSid}`;
+            placeholder.className = 'race-card ringing';
+            placeholder.innerHTML = `
+                <div class="race-card-status">
+                    <span class="race-status-icon">📞</span>
+                    <span>Ringing...</span>
+                </div>
+                <div class="race-card-name">${contact.name}</div>
+                <div class="race-card-info"><strong>${contact.company || 'No company'}</strong></div>
+                <div class="race-card-info">${contact.phone || 'No phone'}</div>
+                <div class="race-card-info">Region: ${contact.region || '-'} | Team: ${contact.team || '-'}</div>
+                <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
+                <div class="race-card-info">Years: ${contact.years_at_firm || '-'}</div>
+            `;
         }
 
         function updateRaceCard(callSid, status) {
