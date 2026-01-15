@@ -93,6 +93,7 @@
             text-decoration: none;
             display: inline-block;
             font-family: inherit;
+            min-height: 44px;
         }
 
         .btn-primary {
@@ -116,6 +117,7 @@
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+            min-height: 44px;
         }
 
         .btn-control:hover:not(:disabled) {
@@ -612,6 +614,12 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        .status-indicator.paused {
+            background: rgba(251, 191, 36, 0.1);
+            color: rgba(251, 191, 36, 0.9);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
         .status-dot {
             width: 8px;
             height: 8px;
@@ -629,6 +637,11 @@
             background: #ef4444;
             animation: pulse 2s ease-in-out infinite;
             box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .status-indicator.paused .status-dot {
+            background: rgba(251, 191, 36, 1);
+            animation: none;
         }
 
         @keyframes pulse {
@@ -731,6 +744,47 @@
         @media (max-width: 480px) {
             .analytics-stats-grid {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .call-race-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .hero-card {
+                padding: 24px;
+                max-width: calc(100% - 32px);
+            }
+
+            .hero-card-name {
+                font-size: 24px;
+                margin-bottom: 16px;
+            }
+
+            .hero-card-info-value {
+                font-size: 14px;
+            }
+
+            .hero-card-btn {
+                padding: 12px 24px;
+                font-size: 14px;
+            }
+
+            .btn-control {
+                font-size: 16px;
+                padding: 14px 32px;
+            }
+
+            .header h1 {
+                font-size: 36px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .call-race-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -1191,6 +1245,12 @@
                         <button id="startButton" onclick="startDialing()" class="btn btn-control" disabled>
                             Start Dialing
                         </button>
+                        <button id="pauseButton" onclick="pauseDialing()" class="btn btn-control" style="display: none; background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.3); color: rgba(251, 191, 36, 0.9);">
+                            Pause
+                        </button>
+                        <button id="resumeButton" onclick="resumeDialing()" class="btn btn-control" style="display: none; background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.3); color: rgba(34, 197, 94, 0.9);">
+                            Resume
+                        </button>
                         <button id="stopButton" onclick="stopDialing()" class="btn btn-control btn-stop" style="display: none;">
                             Stop Dialing
                         </button>
@@ -1274,6 +1334,11 @@
             scope: 'id api refresh_token'
         };
 
+        // SECURITY NOTE: These Supabase credentials should be moved to environment variables
+        // and accessed via Netlify serverless functions for production use.
+        // Example: Create /.netlify/functions/supabase-init.js that returns the client
+        // For now, keeping in frontend for development purposes only.
+        // TODO: Implement backend API to handle Supabase connections securely
         const SUPABASE_URL = 'https://ceuiturkokdytamvjcet.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNldWl0dXJrb2tkeXRhbXZqY2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4ODg2ODYsImV4cCI6MjA4MjQ2NDY4Nn0.mXyNlwwRldt-k4iTzUWxPsXkfRJ0uZo4WxJk-buCaHo';
         let supabaseClient = null;
@@ -1283,6 +1348,7 @@
         }
 
         let isDialing = false;
+        let isPaused = false;
         let accessToken = null;
         let instanceUrl = null;
         let sessionId = null;
@@ -1292,6 +1358,56 @@
         let currentNoteCallSid = null;
         let currentHeroCallSid = null;
         let currentHeroContact = null;
+        let autoSaveInterval = null;
+        let isAuthenticated = false;
+
+        // Audio Context for sound effects
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playPhoneRing() {
+            // Play 2 quick rings
+            playRingTone(0);
+            setTimeout(() => playRingTone(0.4), 400);
+        }
+
+        function playRingTone(startTime) {
+            const now = audioContext.currentTime + startTime;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Classic phone ring frequencies (440Hz and 480Hz)
+            oscillator.frequency.setValueAtTime(440, now);
+            oscillator.frequency.setValueAtTime(480, now + 0.05);
+            
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            
+            oscillator.start(now);
+            oscillator.stop(now + 0.2);
+        }
+
+        function playSuccessChime() {
+            const now = audioContext.currentTime;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Upward chime: C5 to E5 (523Hz to 659Hz)
+            oscillator.frequency.setValueAtTime(523.25, now);
+            oscillator.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
+            
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            
+            oscillator.type = 'sine';
+            oscillator.start(now);
+            oscillator.stop(now + 0.4);
+        }
 
         let currentSessionStats = {
             sessionId: null,
@@ -1405,11 +1521,12 @@
             const team = document.getElementById('teamSelect').value;
             const region = document.getElementById('regionSelect').value;
             
-            if (repPhone.length === 12 && !supabaseSubscription) {
+            // Only subscribe after authentication AND valid phone
+            if (isAuthenticated && repPhone.length === 12 && !supabaseSubscription) {
                 subscribeForInbound();
             }
             
-            document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing;
+            document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing || isPaused;
         }
 
         function generateCodeVerifier() {
@@ -1481,6 +1598,11 @@
                 document.getElementById('userOrg').textContent = userInfo.organization_id || 'Salesforce Org';
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboardScreen').style.display = 'block';
+                isAuthenticated = true;
+                
+                // Now that user is authenticated, check if we should subscribe for inbound
+                checkFormValid();
+                
                 showSuccess('Successfully connected to Salesforce!');
             } catch (error) {
                 showError(`Failed to load user info: ${error.message}`);
@@ -1490,7 +1612,9 @@
 
         function logout() {
             localStorage.clear();
+            isAuthenticated = false;
             unsubscribeFromSupabase();
+            stopAutoSave();
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('dashboardScreen').style.display = 'none';
         }
@@ -1514,7 +1638,16 @@
         }
         
         function subscribeForInbound() {
+            if (!supabaseClient || !isAuthenticated) return;
+            
+            // Prevent duplicate subscriptions
+            if (supabaseSubscription) {
+                console.log('Already subscribed to inbound calls');
+                return;
+            }
+            
             const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+            if (repPhone.length !== 12) return;
             
             supabaseSubscription = supabaseClient.channel('inbound_dialer')
                 .on('postgres_changes', 
@@ -1528,6 +1661,8 @@
                         handleStatusUpdate(payload.new); 
                     }
                 ).subscribe();
+            
+            console.log('Subscribed to inbound calls for:', repPhone);
         }
         
         function unsubscribeFromSupabase() {
@@ -1634,15 +1769,34 @@
                     }
                 }
                 
-                // Reset to ready state when human answers
+                // If system was paused, keep it paused after human answers
+                if (isPaused) {
+                    updateStatus('paused', 'System Paused');
+                } else {
+                    updateStatus('on-call', 'On Call');
+                }
+                
+                // Reset dialing state but maintain pause state
                 isDialing = false;
                 unsubscribeFromSupabase();
-                document.getElementById('stopButton').style.display = 'none';
-                document.getElementById('startButton').style.display = 'inline-block';
+                
+                // Update button visibility based on pause state
+                if (isPaused) {
+                    document.getElementById('stopButton').style.display = 'none';
+                    document.getElementById('pauseButton').style.display = 'none';
+                    document.getElementById('resumeButton').style.display = 'inline-block';
+                    document.getElementById('startButton').style.display = 'none';
+                } else {
+                    document.getElementById('stopButton').style.display = 'none';
+                    document.getElementById('pauseButton').style.display = 'none';
+                    document.getElementById('resumeButton').style.display = 'none';
+                    document.getElementById('startButton').style.display = 'inline-block';
+                    updateStatus('idle', 'System Ready');
+                }
+                
                 document.getElementById('repPhone').disabled = false;
                 document.getElementById('teamSelect').disabled = false;
                 document.getElementById('regionSelect').disabled = false;
-                updateStatus('on-call', 'On Call');
                 checkFormValid();
                 
                 updateStatsDisplay();
@@ -1675,6 +1829,7 @@
 
             try {
                 isDialing = true;
+                isPaused = false;
                 sessionId = 'session_' + Date.now();
 
                 // Clear previous cards and reset
@@ -1684,7 +1839,9 @@
                 currentNoteCallSid = null;
 
                 document.getElementById('startButton').style.display = 'none';
+                document.getElementById('pauseButton').style.display = 'inline-block';
                 document.getElementById('stopButton').style.display = 'inline-block';
+                document.getElementById('resumeButton').style.display = 'none';
                 document.getElementById('repPhone').disabled = true;
                 document.getElementById('teamSelect').disabled = true;
                 document.getElementById('regionSelect').disabled = true;
@@ -1693,6 +1850,9 @@
                 showEmptyRaceCards();
                 subscribeToSupabase();
 
+                // TODO: Add backend validation via /.netlify/functions/start-dialing
+                // This should validate: session_id uniqueness, rep_phone format, 
+                // team/region values, access_token validity, rate limiting
                 await fetch(`${N8N_WEBHOOK_BASE}/start-dialing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1709,15 +1869,46 @@
 
                 localStorage.setItem('current_rep_phone', repPhone);
                 showSuccess(`Dialing started for Team ${team} in ${region} region`);
+                
+                // Start auto-save
+                startAutoSave();
             } catch (error) {
                 showError(`Failed to start dialing: ${error.message}`);
                 resetDialingState();
             }
         }
 
+        function pauseDialing() {
+            isPaused = true;
+            
+            // Update UI to show paused state
+            document.getElementById('pauseButton').style.display = 'none';
+            document.getElementById('resumeButton').style.display = 'inline-block';
+            updateStatus('paused', 'System Paused');
+            
+            // Keep race cards visible but frozen (don't clear them)
+            // Don't send new dial requests (just change state, n8n will stop sending)
+            
+            showSuccess('Dialing paused - calls in progress will complete');
+        }
+
+        function resumeDialing() {
+            isPaused = false;
+            
+            // Update UI to show active state
+            document.getElementById('resumeButton').style.display = 'none';
+            document.getElementById('pauseButton').style.display = 'inline-block';
+            updateStatus('dialing', 'Dialing Active');
+            
+            // Resume dialing (n8n will continue sending requests)
+            showSuccess('Dialing resumed');
+        }
+
         async function stopDialing() {
             try {
                 const repPhone = localStorage.getItem('current_rep_phone');
+                
+                // TODO: Add backend validation via /.netlify/functions/stop-dialing
                 await fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1733,10 +1924,14 @@
                 document.getElementById('callRaceGrid').innerHTML = '';
                 currentBatchContacts.clear();
                 
-                // Reset to ready state - same as when human answers
+                // Reset to ready state
                 isDialing = false;
+                isPaused = false;
                 unsubscribeFromSupabase();
+                stopAutoSave();
                 document.getElementById('stopButton').style.display = 'none';
+                document.getElementById('pauseButton').style.display = 'none';
+                document.getElementById('resumeButton').style.display = 'none';
                 document.getElementById('startButton').style.display = 'inline-block';
                 document.getElementById('repPhone').disabled = false;
                 document.getElementById('teamSelect').disabled = false;
@@ -1752,8 +1947,12 @@
                 document.getElementById('callRaceGrid').innerHTML = '';
                 currentBatchContacts.clear();
                 isDialing = false;
+                isPaused = false;
                 unsubscribeFromSupabase();
+                stopAutoSave();
                 document.getElementById('stopButton').style.display = 'none';
+                document.getElementById('pauseButton').style.display = 'none';
+                document.getElementById('resumeButton').style.display = 'none';
                 document.getElementById('startButton').style.display = 'inline-block';
                 document.getElementById('repPhone').disabled = false;
                 document.getElementById('teamSelect').disabled = false;
@@ -1765,9 +1964,13 @@
 
         function resetDialingState() {
             isDialing = false;
+            isPaused = false;
             unsubscribeFromSupabase();
+            stopAutoSave();
             document.getElementById('startButton').style.display = 'inline-block';
             document.getElementById('stopButton').style.display = 'none';
+            document.getElementById('pauseButton').style.display = 'none';
+            document.getElementById('resumeButton').style.display = 'none';
             document.getElementById('repPhone').disabled = false;
             document.getElementById('teamSelect').disabled = false;
             document.getElementById('regionSelect').disabled = false;
@@ -1841,6 +2044,9 @@
             
             if (status === 'human') {
                 card.classList.add('human');
+                
+                // Play success chime sound
+                playSuccessChime();
                 
                 const winnerBadge = document.createElement('div');
                 winnerBadge.className = 'race-winner-badge';
@@ -1960,15 +2166,89 @@
         }
 
         function checkUnsavedNotes() {
+            // Check race card notes
             if (hasUnsavedNotes && currentNoteCallSid) {
                 const noteText = document.getElementById(`note-text-${currentNoteCallSid}`)?.value.trim();
                 const saveBtn = document.getElementById(`note-save-btn-${currentNoteCallSid}`);
                 
                 if (noteText && saveBtn && !saveBtn.classList.contains('saved')) {
-                    return confirm('You have unsaved notes. Are you sure you want to start a new session? Your notes will be lost.');
+                    return confirm('You have unsaved notes in a race card. Are you sure you want to continue? Your notes will be lost.');
                 }
             }
+            
+            // Check hero card notes
+            const heroNoteText = document.getElementById('heroNoteText')?.value.trim();
+            const heroSaveBtn = document.getElementById('heroNoteSaveBtn');
+            
+            if (heroNoteText && heroSaveBtn && !heroSaveBtn.classList.contains('saved')) {
+                return confirm('You have unsaved notes in the hero card. Are you sure you want to continue? Your notes will be lost.');
+            }
+            
             return true;
+        }
+
+        // Auto-save functionality
+        function startAutoSave() {
+            // Clear any existing interval
+            stopAutoSave();
+            
+            // Auto-save every 30 seconds
+            autoSaveInterval = setInterval(() => {
+                autoSaveNotes();
+            }, 30000);
+        }
+
+        function stopAutoSave() {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+                autoSaveInterval = null;
+            }
+        }
+
+        function autoSaveNotes() {
+            const drafts = {};
+            
+            // Save race card notes
+            currentBatchContacts.forEach((contact, callSid) => {
+                const noteText = document.getElementById(`note-text-${callSid}`)?.value.trim();
+                if (noteText) {
+                    drafts[callSid] = {
+                        text: noteText,
+                        contact: contact.name,
+                        timestamp: Date.now()
+                    };
+                }
+            });
+            
+            // Save hero card note
+            const heroNoteText = document.getElementById('heroNoteText')?.value.trim();
+            if (heroNoteText && currentHeroCallSid) {
+                drafts['hero_' + currentHeroCallSid] = {
+                    text: heroNoteText,
+                    contact: currentHeroContact?.name,
+                    timestamp: Date.now()
+                };
+            }
+            
+            if (Object.keys(drafts).length > 0) {
+                localStorage.setItem('note_drafts', JSON.stringify(drafts));
+                console.log('Auto-saved', Object.keys(drafts).length, 'note draft(s)');
+            }
+        }
+
+        function loadNoteDrafts() {
+            const drafts = JSON.parse(localStorage.getItem('note_drafts') || '{}');
+            
+            // Check if any drafts are older than 24 hours and remove them
+            const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+            Object.keys(drafts).forEach(key => {
+                if (drafts[key].timestamp < oneDayAgo) {
+                    delete drafts[key];
+                }
+            });
+            
+            localStorage.setItem('note_drafts', JSON.stringify(drafts));
+            return drafts;
         }
 
         async function saveNoteToSalesforce(callSid) {
@@ -1990,7 +2270,9 @@
             saveBtn.textContent = 'Saving...';
 
             try {
-                // Call your n8n webhook or Salesforce API to save the note
+                // TODO: Add backend validation via /.netlify/functions/save-note
+                // This should validate: call_sid format, note length limits,
+                // access_token validity, rate limiting, sanitize note content
                 const response = await fetch(`${N8N_WEBHOOK_BASE}/save-note`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2011,6 +2293,11 @@
                     saveBtn.disabled = true;
                     hasUnsavedNotes = false;
                     currentNoteCallSid = null;
+                    
+                    // Remove from drafts
+                    const drafts = JSON.parse(localStorage.getItem('note_drafts') || '{}');
+                    delete drafts[callSid];
+                    localStorage.setItem('note_drafts', JSON.stringify(drafts));
                 } else {
                     showError('Failed to save note to Salesforce.');
                     saveBtn.disabled = false;
@@ -2034,7 +2321,11 @@
 
         // Hero Card Functions
         function showHeroCard(data) {
+            // Play phone ring sound
+            playPhoneRing();
+            
             currentHeroCallSid = data.call_sid;
+            currentHeroContact = {
             currentHeroContact = {
                 name: data.contact_name,
                 company: data.contact_company,
@@ -2094,6 +2385,7 @@
             saveBtn.textContent = 'Saving...';
 
             try {
+                // TODO: Add backend validation via /.netlify/functions/save-note
                 const response = await fetch(`${N8N_WEBHOOK_BASE}/save-note`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2112,6 +2404,11 @@
                     saveBtn.textContent = 'Saved ✓';
                     saveBtn.classList.add('saved');
                     saveBtn.disabled = true;
+                    
+                    // Remove from drafts
+                    const drafts = JSON.parse(localStorage.getItem('note_drafts') || '{}');
+                    delete drafts['hero_' + currentHeroCallSid];
+                    localStorage.setItem('note_drafts', JSON.stringify(drafts));
                 } else {
                     showError('Failed to save note to Salesforce.');
                     saveBtn.disabled = false;
@@ -2126,6 +2423,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadSessionHistory();
+            loadNoteDrafts();
             
             const lastResetDate = localStorage.getItem('lastStatsReset');
             const today = new Date().toDateString();
