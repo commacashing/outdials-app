@@ -247,15 +247,16 @@
             color: rgba(239, 68, 68, 0.9);
         }
         
-       .centered-action-section {
+      .centered-action-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 16px;
     min-height: 80px;
-    margin-top: 0px;
-    margin-bottom: 0px;
+    margin-top: auto;
+    margin-bottom: 40px;
+    padding-bottom: 40px;
 }
 
 .centered-action-section .status-indicator {
@@ -627,11 +628,10 @@
         }
 
         /* Analytics Section */
-        .analytics-section {
+       .analytics-section {
     width: 100%;
-    border-top: 1px solid var(--divider-color);
-    padding-top: 40px;
-    margin-top: auto;
+    border-bottom: 1px solid var(--divider-color);
+    padding-bottom: 20px;
 }
 
         .analytics-header {
@@ -1101,8 +1101,7 @@
     </div>
 </div>
 
-        <div class="main-content-full" style="padding: 0px 40px 40px 40px;">
-    <div class="analytics-section" id="analyticsSection">
+       <div class="analytics-section" id="analyticsSection" style="padding: 20px 40px 0px 40px; border-top: none;">
                 <div class="analytics-header" onclick="toggleAnalytics()">
                     <h3>Session Analytics</h3>
                     <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1139,8 +1138,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
     <div id="heroCardContainer" class="hero-card-container">
         <div class="hero-card">
