@@ -245,7 +245,27 @@
             border-color: rgba(239, 68, 68, 0.3);
             color: rgba(239, 68, 68, 0.9);
         }
+        
+        .centered-action-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    min-height: 400px;
+    margin-bottom: 80px;
+}
 
+.centered-action-section .status-indicator {
+    margin-bottom: 0;
+}
+
+.centered-action-section .btn-start {
+    font-size: 18px;
+    padding: 16px 48px;
+    min-width: 200px;
+}
+        
         /* Main Content Area */
         .main-content {
             max-width: 1200px;
@@ -951,21 +971,20 @@
     <div id="loginScreen" class="login-screen">
         <div class="login-container">
             <div class="nav-logo" style="justify-content: center; margin-bottom: 32px;">
-                <span class="broken-o">
-                    <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <mask id="slitMask">
-                                <rect width="42" height="48" fill="white"/>
-                                <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
-                            </mask>
-                        </defs>
-                        <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask)"/>
-                    </svg>
-                </span>
-                <span>OutDials</span>
-            </div>
+    <span class="broken-o">
+        <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <mask id="slitMask">
+                    <rect width="42" height="48" fill="white"/>
+                    <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                </mask>
+            </defs>
+            <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask)"/>
+        </svg>
+    </span>
+    <span>utDials</span>
+</div>
             <h2>Welcome Back</h2>
-            <p>Connect your Salesforce account to start dialing</p>
             <button onclick="loginToSalesforce()" class="btn-primary">Connect to Salesforce</button>
         </div>
     </div>
@@ -973,94 +992,94 @@
     <!-- Dashboard -->
     <div id="dashboardScreen" style="display: none;">
         <!-- Top Navigation -->
-    <div class="top-nav">
-            <div class="nav-logo">
-                <span class="broken-o">
-                    <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <mask id="slitMask2">
-                                <rect width="42" height="48" fill="white"/>
-                                <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
-                            </mask>
-                        </defs>
-                        <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask2)"/>
-                    </svg>
-                </span>
-                <span>OutDials</span>
-            </div>
-
-            <div class="nav-user">
-                <div>
-                    <div class="user-name" id="userName">Loading...</div>
-                    <div class="user-org" id="userOrg">Connecting...</div>
-                </div>
-                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
-                <button onclick="logout()" class="btn-logout">Logout</button>
-            </div>
-        </div>
+<div class="top-nav">
+    <div class="nav-logo">
+        <span class="broken-o">
+            <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <mask id="slitMask2">
+                        <rect width="42" height="48" fill="white"/>
+                        <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                    </mask>
+                </defs>
+                <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask2)"/>
+            </svg>
+        </span>
+        <span>utDials</span>
+    </div>
+</div>
 
         <div class="controls-bar">
-            <div class="control-item">
-                <span class="control-label">Phone</span>
-                <div class="phone-wrapper">
-                    <span class="phone-prefix">+1</span>
-                    <input type="tel" id="repPhone" class="control-input" placeholder="(212) 555-1234" maxlength="14" />
-                </div>
-            </div>
-
-            <div class="controls-divider"></div>
-
-            <div class="control-item">
-                <span class="control-label">Team</span>
-                <select id="teamSelect" class="control-input">
-                    <option value="">Select team...</option>
-                    <option value="A">Team A</option>
-                    <option value="B">Team B</option>
-                    <option value="C">Team C</option>
-                    <option value="D">Team D</option>
-                </select>
-            </div>
-
-            <div class="controls-divider"></div>
-
-            <div class="control-item">
-                <span class="control-label">Region</span>
-                <select id="regionSelect" class="control-input">
-                    <option value="">Select region...</option>
-                    <option value="Northeast">Northeast</option>
-                    <option value="Southwest">Southwest</option>
-                    <option value="Southeast">Southeast</option>
-                    <option value="Midwest">Midwest</option>
-                </select>
-            </div>
-
-            <div class="controls-divider"></div>
-
-            <button id="startButton" onclick="startDialing()" class="btn-start" disabled>Start Dialing</button>
-            <button id="pauseButton" onclick="pauseDialing()" class="btn-start btn-pause" style="display: none;">Pause</button>
-            <button id="resumeButton" onclick="resumeDialing()" class="btn-start btn-resume" style="display: none;">Resume</button>
-            <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">Stop Dialing</button>
+    <div class="control-item">
+        <span class="control-label">Phone</span>
+        <div class="phone-wrapper">
+            <span class="phone-prefix">+1</span>
+            <input type="tel" id="repPhone" class="control-input" placeholder="(212) 555-1234" maxlength="14" />
         </div>
+    </div>
 
+    <div class="controls-divider"></div>
+
+    <div class="control-item">
+        <span class="control-label">Team</span>
+        <select id="teamSelect" class="control-input">
+            <option value="">Select team...</option>
+            <option value="A">Team A</option>
+            <option value="B">Team B</option>
+            <option value="C">Team C</option>
+            <option value="D">Team D</option>
+        </select>
+    </div>
+
+    <div class="controls-divider"></div>
+
+    <div class="control-item">
+        <span class="control-label">Region</span>
+        <select id="regionSelect" class="control-input">
+            <option value="">Select region...</option>
+            <option value="Northeast">Northeast</option>
+            <option value="Southwest">Southwest</option>
+            <option value="Southeast">Southeast</option>
+            <option value="Midwest">Midwest</option>
+        </select>
+    </div>
+
+    <div class="controls-divider"></div>
+
+    <div class="control-item">
+        <div>
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-org" id="userOrg">Connecting...</div>
+        </div>
+    </div>
+
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+    <button onclick="logout()" class="btn-logout">Logout</button>
+</div>
         <div class="main-content">
-            <div id="errorMessage"></div>
-            <div id="successMessage"></div>
+    <div id="errorMessage"></div>
+    <div id="successMessage"></div>
 
-            <div class="status-section">
-                <div class="status-indicator idle" id="dialerStatus">
-                    <span class="status-dot"></span>
-                    <span id="statusText">System Ready</span>
-                </div>
-            </div>
-
-            <div class="call-race-container" id="callRaceContainer">
-                <div class="call-race-grid" id="callRaceGrid">
-                </div>
-            </div>
+    <div class="centered-action-section" id="centeredActionSection">
+        <div class="status-indicator idle" id="dialerStatus">
+            <span class="status-dot"></span>
+            <span id="statusText">System Ready</span>
         </div>
 
-        <div class="main-content-full">
-            <div class="analytics-section" id="analyticsSection">
+        <button id="startButton" onclick="startDialing()" class="btn-start" disabled>Start Dialing</button>
+        <button id="pauseButton" onclick="pauseDialing()" class="btn-start btn-pause" style="display: none;">Pause</button>
+        <button id="resumeButton" onclick="resumeDialing()" class="btn-start btn-resume" style="display: none;">Resume</button>
+        <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">Stop Dialing</button>
+    </div>
+
+    <div class="call-race-container" id="callRaceContainer">
+        <div class="call-race-grid" id="callRaceGrid">
+        </div>
+    </div>
+</div>
+
+        <div class="main-content-full" style="padding-bottom: 100px;">
+    <div class="analytics-section" id="analyticsSection">
                 <div class="analytics-header" onclick="toggleAnalytics()">
                     <h3>Session Analytics</h3>
                     <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
