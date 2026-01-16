@@ -37,6 +37,7 @@
             color: var(--text-primary);
             min-height: 100vh;
             transition: background 0.3s ease, color 0.3s ease;
+            font-size: 16px;
         }
 
         /* Top Navigation Bar */
@@ -81,13 +82,13 @@
         }
 
         .user-name {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             color: var(--text-primary);
         }
 
         .user-org {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--text-secondary);
         }
 
@@ -143,7 +144,7 @@
         }
 
         .control-label {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
@@ -153,7 +154,7 @@
 
         .control-input {
             padding: 10px 14px;
-            font-size: 14px;
+            font-size: 16px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             background: var(--bg-primary);
@@ -195,7 +196,7 @@
             border-radius: 8px;
             font-weight: 600;
             color: var(--text-primary);
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .controls-divider {
@@ -251,20 +252,27 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 24px;
-    min-height: 300px;
-    margin-top: 20px;
-    margin-bottom: 40px;
+    gap: 16px;
+    min-height: 140px;
+    margin-top: 60px;
+    margin-bottom: 20px;
 }
 
 .centered-action-section .status-indicator {
     margin-bottom: 0;
+    padding: 8px 20px;  
+    font-size: 13px;  
 }
 
+.centered-action-section .status-indicator .status-dot {
+    width: 6px;  /* ADD THIS LINE */
+    height: 6px;  /* ADD THIS LINE */
+}
+        
 .centered-action-section .btn-start {
-    font-size: 18px;
-    padding: 16px 48px;
-    min-width: 200px;
+    font-size: 20px;
+    padding: 18px 56px;
+    min-width: 220px;
     margin-left: 0;
 }
         
@@ -272,7 +280,7 @@
         .main-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 60px 40px;
+            padding: 20px 40px 60px 40px;
         }
 
         .main-content-full {
@@ -321,7 +329,7 @@
         /* Race Cards */
         .call-race-container {
             display: none;
-            margin-bottom: 60px;
+            margin-bottom: 40px;
         }
 
         .call-race-container.active {
@@ -407,7 +415,7 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 16px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -443,7 +451,7 @@
 
         .race-card-name {
             color: #ffffff;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 600;
             margin-bottom: 8px;
         }
@@ -460,7 +468,7 @@
 
         .race-card-info {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
+            font-size: 15px;
             margin-bottom: 4px;
         }
 
@@ -667,7 +675,7 @@
 
         .analytics-stat-label {
             color: var(--text-secondary);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             margin-bottom: 8px;
             text-transform: uppercase;
@@ -676,7 +684,7 @@
 
         .analytics-stat-value {
             color: var(--text-primary);
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
         }
 
