@@ -284,7 +284,7 @@
     padding: 20px 40px 0px 40px;
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 200px);
+    min-height: auto;  /* ✅ This fixes scrolling */
 }
 
         .main-content-full {
@@ -1079,6 +1079,44 @@
     <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
     <button onclick="logout()" class="btn-logout">Logout</button>
 </div>
+        <div class="analytics-section" id="analyticsSection" style="padding: 20px 40px 0px 40px; border-top: none;">
+    <div class="analytics-header" onclick="toggleAnalytics()">
+        <h3>Session Analytics</h3>
+        <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    </div>
+    
+    <div class="analytics-content">
+        <div class="analytics-stats-grid">
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Total Calls</div>
+                <div class="analytics-stat-value" id="statTotalCalls">0</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Connects</div>
+                <div class="analytics-stat-value" id="statConnects">0</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Talk Time</div>
+                <div class="analytics-stat-value" id="statTalkTime">0m</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Calls/Hour</div>
+                <div class="analytics-stat-value" id="statCallsPerHour">0</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Machine Rate</div>
+                <div class="analytics-stat-value" id="statMachineRate">0%</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Avg Duration</div>
+                <div class="analytics-stat-value" id="statAvgDuration">0m</div>
+            </div>
+        </div>
+    </div>
+</div>
+
         <div class="main-content">
     <div id="errorMessage"></div>
     <div id="successMessage"></div>
@@ -1100,44 +1138,6 @@
         <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">Stop Dialing</button>
     </div>
 </div>
-
-       <div class="analytics-section" id="analyticsSection" style="padding: 20px 40px 0px 40px; border-top: none;">
-                <div class="analytics-header" onclick="toggleAnalytics()">
-                    <h3>Session Analytics</h3>
-                    <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </div>
-                
-                <div class="analytics-content">
-                    <div class="analytics-stats-grid">
-                        <div class="analytics-stat-card">
-                            <div class="analytics-stat-label">Total Calls</div>
-                            <div class="analytics-stat-value" id="statTotalCalls">0</div>
-                        </div>
-                        <div class="analytics-stat-card">
-                            <div class="analytics-stat-label">Connects</div>
-                            <div class="analytics-stat-value" id="statConnects">0</div>
-                        </div>
-                        <div class="analytics-stat-card">
-                            <div class="analytics-stat-label">Talk Time</div>
-                            <div class="analytics-stat-value" id="statTalkTime">0m</div>
-                        </div>
-                        <div class="analytics-stat-card">
-                            <div class="analytics-stat-label">Calls/Hour</div>
-                            <div class="analytics-stat-value" id="statCallsPerHour">0</div>
-                        </div>
-                        <div class="analytics-stat-card">
-                            <div class="analytics-stat-label">Machine Rate</div>
-                            <div class="analytics-stat-value" id="statMachineRate">0%</div>
-                        </div>
-                        <div class="analytics-stat-card">
-                            <div class="analytics-stat-label">Avg Duration</div>
-                            <div class="analytics-stat-value" id="statAvgDuration">0m</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
     <div id="heroCardContainer" class="hero-card-container">
         <div class="hero-card">
