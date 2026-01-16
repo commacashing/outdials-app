@@ -253,9 +253,9 @@
     align-items: center;
     justify-content: center;
     gap: 16px;
-    min-height: 140px;
-    margin-top: 60px;
-    margin-bottom: 20px;
+    min-height: 80px;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 .centered-action-section .status-indicator {
@@ -278,10 +278,13 @@
         
         /* Main Content Area */
         .main-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px 40px 60px 40px;
-        }
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 40px 0px 40px;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 200px);
+}
 
         .main-content-full {
             width: 100%;
@@ -328,9 +331,18 @@
 
         /* Race Cards */
         .call-race-container {
-            display: none;
-            margin-bottom: 40px;
-        }
+    display: block;
+    margin-bottom: 20px;
+    flex: 1;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.call-race-container:not(.active) {
+    visibility: hidden;
+}
 
         .call-race-container.active {
             display: block;
@@ -616,10 +628,11 @@
 
         /* Analytics Section */
         .analytics-section {
-            width: 100%;
-            border-top: 1px solid var(--divider-color);
-            padding-top: 40px;
-        }
+    width: 100%;
+    border-top: 1px solid var(--divider-color);
+    padding-top: 40px;
+    margin-top: auto;
+}
 
         .analytics-header {
             padding: 20px 0;
