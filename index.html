@@ -1300,10 +1300,11 @@
                         <span>Call Notes</span>
                     </div>
                     <textarea 
-                        class="hero-note-textarea" 
-                        placeholder="Type your notes here..."
-                        id="heroNoteText"
-                    ></textarea>
+    class="hero-note-textarea" 
+    placeholder="Type your notes here..."
+    id="heroNoteText"
+    oninput="markHeroNoteAsUnsaved()"
+></textarea>
                     <div class="hero-note-actions">
                         <button class="hero-note-btn hero-note-btn-cancel" onclick="toggleHeroNote()">Cancel</button>
                         <button class="hero-note-btn hero-note-btn-save" id="heroNoteSaveBtn" onclick="saveHeroNote()">Save</button>
@@ -1879,31 +1880,49 @@ async function initSupabase() {
             }
         }
 
-        function pauseDialing() {
-            isPaused = true;
-            
-            // Update UI to show paused state
-            document.getElementById('pauseButton').style.display = 'none';
-            document.getElementById('resumeButton').style.display = 'inline-block';
-            updateStatus('paused', 'System Paused');
-            
-            // Keep race cards visible but frozen (don't clear them)
-            // Don't send new dial requests (just change state, n8n will stop sending)
-            
-            showSuccess('Dialing paused - calls in progress will complete');
-        }
+        async function pauseDialing() {
+    isPaused = true;
+    
+    try {
+        await fetch(`${N8N_WEBHOOK_BASE}/pause-dialing`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                rep_phone: localStorage.getItem('current_rep_phone'),
+                session_id: sessionId
+            })
+        });
+    } catch (error) {
+        console.error('Pause failed:', error);
+    }
+    
+    document.getElementById('pauseButton').style.display = 'none';
+    document.getElementById('resumeButton').style.display = 'inline-block';
+    updateStatus('paused', 'System Paused');
+    showSuccess('Dialing paused - calls in progress will complete');
+}
 
-        function resumeDialing() {
-            isPaused = false;
-            
-            // Update UI to show active state
-            document.getElementById('resumeButton').style.display = 'none';
-            document.getElementById('pauseButton').style.display = 'inline-block';
-            updateStatus('dialing', 'Dialing Active');
-            
-            // Resume dialing (n8n will continue sending requests)
-            showSuccess('Dialing resumed');
-        }
+async function resumeDialing() {
+    isPaused = false;
+    
+    try {
+        await fetch(`${N8N_WEBHOOK_BASE}/resume-dialing`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                rep_phone: localStorage.getItem('current_rep_phone'),
+                session_id: sessionId
+            })
+        });
+    } catch (error) {
+        console.error('Resume failed:', error);
+    }
+    
+    document.getElementById('resumeButton').style.display = 'none';
+    document.getElementById('pauseButton').style.display = 'inline-block';
+    updateStatus('dialing', 'Dialing Active');
+    showSuccess('Dialing resumed');
+}
 
         async function stopDialing() {
             try {
@@ -2165,7 +2184,18 @@ async function initSupabase() {
                 currentNoteCallSid = null;
             }
         }
-
+        
+function markHeroNoteAsUnsaved() {
+    const noteText = document.getElementById('heroNoteText')?.value.trim();
+    const saveBtn = document.getElementById('heroNoteSaveBtn');
+    
+    if (saveBtn && saveBtn.classList.contains('saved') && noteText) {
+        saveBtn.classList.remove('saved');
+        saveBtn.textContent = 'Save';
+        saveBtn.disabled = false;
+    }
+}
+        
         function checkUnsavedNotes() {
             // Check race card notes
             if (hasUnsavedNotes && currentNoteCallSid) {
