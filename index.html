@@ -1334,18 +1334,19 @@
             scope: 'id api refresh_token'
         };
 
-        // SECURITY NOTE: These Supabase credentials should be moved to environment variables
-        // and accessed via Netlify serverless functions for production use.
-        // Example: Create /.netlify/functions/supabase-init.js that returns the client
-        // For now, keeping in frontend for development purposes only.
-        // TODO: Implement backend API to handle Supabase connections securely
-        const SUPABASE_URL = 'https://ceuiturkokdytamvjcet.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNldWl0dXJrb2tkeXRhbXZqY2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4ODg2ODYsImV4cCI6MjA4MjQ2NDY4Nn0.mXyNlwwRldt-k4iTzUWxPsXkfRJ0uZo4WxJk-buCaHo';
-        let supabaseClient = null;
-        
-        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
+       let supabaseClient = null;
+
+async function initSupabase() {
+  try {
+    const response = await fetch('/.netlify/functions/supabase-init', {
+      method: 'POST'
+    });
+    const { url, key } = await response.json();
+    supabaseClient = window.supabase.createClient(url, key);
+  } catch (error) {
+    console.error('Failed to initialize Supabase:', error);
+  }
+}
 
         let isDialing = false;
         let isPaused = false;
@@ -2420,52 +2421,54 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadSessionHistory();
-            loadNoteDrafts();
-            
-            const lastResetDate = localStorage.getItem('lastStatsReset');
-            const today = new Date().toDateString();
-            
-            if (lastResetDate !== today) {
-                resetSessionStats();
-                localStorage.setItem('lastStatsReset', today);
-            } else {
-                const savedStats = localStorage.getItem('dailyStats');
-                if (savedStats) {
-                    const parsed = JSON.parse(savedStats);
-                    currentSessionStats.totalCalls = parsed.totalCalls || 0;
-                    currentSessionStats.connects = parsed.connects || 0;
-                    currentSessionStats.machines = parsed.machines || 0;
-                    currentSessionStats.callDurations = parsed.callDurations || [];
-                    currentSessionStats.startTime = parsed.startTime || null;
-                    updateStatsDisplay();
-                }
-            }
-            
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get('code');
-            if (code) {
-                handleOAuthCallback(code);
-            } else if (localStorage.getItem('sf_access_token')) {
-                loadUserSession();
-            }
-            
-            document.getElementById('repPhone').addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 10) value = value.slice(0, 10);
-                if (value.length >= 6) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
-                } else if (value.length >= 3) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-                }
-                e.target.value = value;
-                checkFormValid();
-            });
-            
-            document.getElementById('teamSelect').addEventListener('change', checkFormValid);
-            document.getElementById('regionSelect').addEventListener('change', checkFormValid);
-        });
+window.addEventListener('DOMContentLoaded', async () => {
+    await initSupabase();
+    
+    loadSessionHistory();
+    loadNoteDrafts();
+    
+    const lastResetDate = localStorage.getItem('lastStatsReset');
+    const today = new Date().toDateString();
+    
+    if (lastResetDate !== today) {
+        resetSessionStats();
+        localStorage.setItem('lastStatsReset', today);
+    } else {
+        const savedStats = localStorage.getItem('dailyStats');
+        if (savedStats) {
+            const parsed = JSON.parse(savedStats);
+            currentSessionStats.totalCalls = parsed.totalCalls || 0;
+            currentSessionStats.connects = parsed.connects || 0;
+            currentSessionStats.machines = parsed.machines || 0;
+            currentSessionStats.callDurations = parsed.callDurations || [];
+            currentSessionStats.startTime = parsed.startTime || null;
+            updateStatsDisplay();
+        }
+    }
+    
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+        handleOAuthCallback(code);
+    } else if (localStorage.getItem('sf_access_token')) {
+        loadUserSession();
+    }
+    
+    document.getElementById('repPhone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 10) value = value.slice(0, 10);
+        if (value.length >= 6) {
+            value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+        } else if (value.length >= 3) {
+            value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        }
+        e.target.value = value;
+        checkFormValid();
+    });
+    
+    document.getElementById('teamSelect').addEventListener('change', checkFormValid);
+    document.getElementById('regionSelect').addEventListener('change', checkFormValid);
+});
     </script>
 </body>
 </html>
