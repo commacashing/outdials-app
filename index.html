@@ -7,6 +7,24 @@
     <link rel="icon" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --divider-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.light-mode {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #000000;
+            --text-secondary: rgba(0, 0, 0, 0.6);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --divider-color: rgba(0, 0, 0, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,39 +33,36 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #000000;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 40px 20px;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 48px;
-        }
-
-        .header h1 {
-            color: #ffffff;
-            font-size: 48px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
+        /* Top Navigation Bar */
+        .top-nav {
+            width: 100%;
+            padding: 20px 40px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
         .broken-o {
             display: inline-block;
-            width: 42px;
-            height: 48px;
+            width: 28px;
+            height: 32px;
             position: relative;
-            margin: 0 -2px;
         }
 
         .broken-o svg {
@@ -55,192 +70,236 @@
             height: 100%;
         }
 
-        .card {
-            background: #1a1a1a;
-            border-radius: 16px;
-            padding: 48px;
-            box-shadow: 0 1px 3px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(255, 255, 255, 0.04);
-            margin-bottom: 24px;
-            border: 1px solid #333333;
+        .broken-o svg circle {
+            stroke: var(--text-primary);
         }
 
-        .login-container {
-            text-align: center;
-            padding: 40px 20px;
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 24px;
         }
 
-        .login-container h2 {
-            color: #ffffff;
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 12px;
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
         }
 
-        .login-container p {
-            color: #cccccc;
-            font-size: 15px;
-            margin-bottom: 32px;
+        .user-org {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
 
-        .btn {
-            padding: 14px 28px;
-            font-size: 15px;
-            font-weight: 600;
-            border: none;
-            border-radius: 10px;
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-block;
+        }
+
+        .btn-logout:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Controls Bar */
+        .controls-bar {
+            width: 100%;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid var(--divider-color);
+            background: var(--bg-secondary);
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .control-input {
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: all 0.2s ease;
             font-family: inherit;
-            min-height: 44px;
         }
 
-        .btn-primary {
+        .control-input:focus {
+            outline: none;
+            border-color: rgba(107, 144, 128, 0.5);
+        }
+
+        .control-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        select.control-input {
+            cursor: pointer;
+            min-width: 140px;
+        }
+
+        input[type="tel"].control-input {
+            min-width: 160px;
+        }
+
+        .phone-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .phone-prefix {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .controls-divider {
+            width: 1px;
+            height: 32px;
+            background: var(--divider-color);
+            margin: 0 8px;
+        }
+
+        .btn-start {
             background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: auto;
         }
 
-        .btn-primary:hover:not(:disabled) {
+        .btn-start:hover:not(:disabled) {
             background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.15);
-        }
-
-        .btn-control {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 18px;
-            padding: 18px 48px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
-            min-height: 44px;
-        }
-
-        .btn-control:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
         }
 
-        .btn-control:active:not(:disabled) {
-            transform: translateY(0);
+        .btn-start:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-pause {
+            background: rgba(251, 191, 36, 0.15);
+            border-color: rgba(251, 191, 36, 0.3);
+            color: rgba(251, 191, 36, 0.9);
+        }
+
+        .btn-resume {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: rgba(34, 197, 94, 0.9);
         }
 
         .btn-stop {
             background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.3);
             color: rgba(239, 68, 68, 0.9);
         }
 
-        .btn-stop:hover:not(:disabled) {
-            background: rgba(239, 68, 68, 0.25);
-            border-color: rgba(239, 68, 68, 0.4);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        /* Main Content Area */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 40px;
         }
 
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .btn-logout {
-            background: #2a2a2a;
-            color: #cccccc;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 8px;
-        }
-
-        .btn-logout:hover {
-            background: #3a3a3a;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 32px;
-            padding: 24px;
-            background: #0a0a0a;
-            border-radius: 12px;
-            border: 1px solid #333333;
-        }
-
-        .user-details h3 {
-            color: #ffffff;
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .user-details p {
-            color: #cccccc;
-            font-size: 14px;
-        }
-
-        .controls-section h3 {
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        select, input[type="tel"] {
+        .main-content-full {
             width: 100%;
-            padding: 14px 16px;
-            font-size: 15px;
-            border: 1px solid #333333;
-            border-radius: 10px;
-            background: #0a0a0a;
-            color: #ffffff;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            font-family: inherit;
+            padding: 60px 40px;
         }
 
-        input[type="tel"] {
-            cursor: text;
+        /* Status Indicator */
+        .status-section {
+            text-align: center;
+            margin-bottom: 60px;
         }
 
-        select:focus, input[type="tel"]:focus {
-            outline: none;
-            border-color: #6b9080;
-            box-shadow: 0 0 0 3px rgba(107, 144, 128, 0.1);
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
         }
 
-        select:disabled, input[type="tel"]:disabled {
-            background: #1a1a1a;
-            cursor: not-allowed;
-            opacity: 0.6;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
         }
 
+        .status-indicator.dialing .status-dot,
+        .status-indicator.on-call .status-dot {
+            background: #ef4444;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Race Cards */
         .call-race-container {
             display: none;
-            padding: 40px 0;
-            margin-bottom: 32px;
+            margin-bottom: 60px;
         }
 
         .call-race-container.active {
@@ -251,7 +310,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -409,32 +468,6 @@
             box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
         }
 
-        .race-close-btn {
-            position: absolute;
-            top: -12px;
-            right: -12px;
-            background: rgba(239, 68, 68, 0.9);
-            border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
-            font-weight: bold;
-            z-index: 10;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        .race-close-btn:hover {
-            background: rgba(239, 68, 68, 1);
-            transform: scale(1.1);
-        }
-
         .race-note-btn {
             position: absolute;
             bottom: -12px;
@@ -490,9 +523,6 @@
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .note-compartment-subheader {
@@ -513,16 +543,11 @@
             font-family: inherit;
             resize: vertical;
             margin-bottom: 12px;
-            transition: border-color 0.2s ease;
         }
 
         .note-textarea:focus {
             outline: none;
             border-color: rgba(59, 130, 246, 0.5);
-        }
-
-        .note-textarea::placeholder {
-            color: rgba(255, 255, 255, 0.3);
         }
 
         .note-actions {
@@ -548,169 +573,46 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .note-btn-cancel:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-        }
-
         .note-btn-save {
             background: rgba(59, 130, 246, 0.9);
             color: white;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .note-btn-save:hover {
-            background: rgba(59, 130, 246, 1);
         }
 
         .note-btn-save.saved {
             background: rgba(255, 255, 255, 0.05);
             color: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
             cursor: default;
         }
 
-        .note-btn-save.saved:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .call-race-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 32px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .status-indicator.idle {
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .status-indicator.dialing {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .status-indicator.on-call {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .status-indicator.paused {
-            background: rgba(251, 191, 36, 0.1);
-            color: rgba(251, 191, 36, 0.9);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-        }
-
-        .status-indicator.dialing .status-dot {
-            background: #ef4444;
-            animation: pulse 2s ease-in-out infinite;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-        }
-
-        .status-indicator.on-call .status-dot {
-            background: #ef4444;
-            animation: pulse 2s ease-in-out infinite;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-        }
-
-        .status-indicator.paused .status-dot {
-            background: rgba(251, 191, 36, 1);
-            animation: none;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .error {
-            background: #2a1a1a;
-            border: 1px solid #4a2a2a;
-            color: #ff6b6b;
-            padding: 16px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .success {
-            background: #1a2a1a;
-            border: 1px solid #2a4a2a;
-            color: #6bff6b;
-            padding: 16px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-        
+        /* Analytics Section */
         .analytics-section {
-            margin-bottom: 40px;
+            width: 100%;
+            border-top: 1px solid var(--divider-color);
+            padding-top: 40px;
         }
 
         .analytics-header {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            padding: 20px 24px;
+            padding: 20px 0;
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 12px;
             transition: all 0.2s ease;
         }
 
-        .analytics-header:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-
         .analytics-header h3 {
-            color: #ffffff;
-            font-size: 16px;
+            color: var(--text-primary);
+            font-size: 14px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin: 0;
         }
 
         .analytics-chevron {
-            width: 20px;
-            height: 20px;
-            stroke: rgba(255, 255, 255, 0.6);
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-secondary);
             transition: transform 0.3s ease;
         }
 
@@ -730,74 +632,20 @@
 
         .analytics-stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin: 20px 0;
-        }
-
-        @media (max-width: 768px) {
-            .analytics-stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .analytics-stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .call-race-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-
-            .hero-card {
-                padding: 24px;
-                max-width: calc(100% - 32px);
-            }
-
-            .hero-card-name {
-                font-size: 24px;
-                margin-bottom: 16px;
-            }
-
-            .hero-card-info-value {
-                font-size: 14px;
-            }
-
-            .hero-card-btn {
-                padding: 12px 24px;
-                font-size: 14px;
-            }
-
-            .btn-control {
-                font-size: 16px;
-                padding: 14px 32px;
-            }
-
-            .header h1 {
-                font-size: 36px;
-            }
-        }
-
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .call-race-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
         }
 
         .analytics-stat-card {
-            background: rgba(255, 255, 255, 0.05);
+            text-align: center;
             padding: 20px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .analytics-stat-label {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
+            color: var(--text-secondary);
+            font-size: 11px;
             font-weight: 600;
             margin-bottom: 8px;
             text-transform: uppercase;
@@ -805,59 +653,12 @@
         }
 
         .analytics-stat-value {
-            color: #ffffff;
+            color: var(--text-primary);
             font-size: 28px;
             font-weight: 700;
         }
 
-        .session-history {
-            margin-top: 24px;
-        }
-
-        .session-history h4 {
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 16px;
-        }
-
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .history-table th {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .history-table td {
-            color: #ffffff;
-            font-size: 14px;
-            padding: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .history-table tr:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .history-empty {
-            color: rgba(255, 255, 255, 0.4);
-            text-align: center;
-            padding: 32px;
-            font-size: 14px;
-        }
-
-        /* Hero Card Styles */
+        /* Hero Card */
         .hero-card-container {
             display: none;
             position: fixed;
@@ -885,18 +686,18 @@
             max-width: 600px;
             width: 100%;
             position: relative;
-            box-shadow: 0 0 40px rgba(34, 197, 94, 0.4), 0 20px 60px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.4);
             animation: heroCardPulse 2s ease-in-out infinite;
         }
 
         @keyframes heroCardPulse {
             0%, 100% { 
                 border-color: rgba(34, 197, 94, 0.6);
-                box-shadow: 0 0 40px rgba(34, 197, 94, 0.4), 0 20px 60px rgba(0, 0, 0, 0.6);
+                box-shadow: 0 0 40px rgba(34, 197, 94, 0.4);
             }
             50% { 
                 border-color: rgba(34, 197, 94, 0.9);
-                box-shadow: 0 0 60px rgba(34, 197, 94, 0.6), 0 20px 60px rgba(0, 0, 0, 0.6);
+                box-shadow: 0 0 60px rgba(34, 197, 94, 0.6);
             }
         }
 
@@ -913,27 +714,21 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.5);
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .hero-card-content {
-            margin-top: 24px;
         }
 
         .hero-card-name {
             color: #ffffff;
             font-size: 32px;
             font-weight: 700;
-            margin-bottom: 24px;
+            margin: 24px 0;
             text-align: center;
         }
 
         .hero-card-info-grid {
             display: grid;
-            grid-template-columns: 1fr;
             gap: 16px;
             margin-bottom: 32px;
         }
@@ -942,7 +737,6 @@
             background: rgba(255, 255, 255, 0.05);
             padding: 16px 20px;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .hero-card-info-label {
@@ -950,7 +744,6 @@
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
             margin-bottom: 6px;
         }
 
@@ -964,7 +757,6 @@
             display: flex;
             gap: 12px;
             justify-content: center;
-            margin-top: 32px;
         }
 
         .hero-card-btn {
@@ -975,7 +767,6 @@
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-family: inherit;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -987,21 +778,9 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .hero-card-btn-dismiss:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.9);
-        }
-
         .hero-card-btn-note {
             background: rgba(59, 130, 246, 0.9);
             color: white;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .hero-card-btn-note:hover {
-            background: rgba(59, 130, 246, 1);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
 
         .hero-card-note-compartment {
@@ -1017,16 +796,6 @@
             opacity: 1;
         }
 
-        .hero-note-header {
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .hero-note-textarea {
             width: 100%;
             min-height: 120px;
@@ -1039,16 +808,6 @@
             font-family: inherit;
             resize: vertical;
             margin-bottom: 12px;
-            transition: border-color 0.2s ease;
-        }
-
-        .hero-note-textarea:focus {
-            outline: none;
-            border-color: rgba(59, 130, 246, 0.5);
-        }
-
-        .hero-note-textarea::placeholder {
-            color: rgba(255, 255, 255, 0.3);
         }
 
         .hero-note-actions {
@@ -1065,45 +824,133 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-family: inherit;
-        }
-
-        .hero-note-btn-cancel {
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .hero-note-btn-cancel:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
         }
 
         .hero-note-btn-save {
             background: rgba(59, 130, 246, 0.9);
             color: white;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .hero-note-btn-save:hover {
-            background: rgba(59, 130, 246, 1);
         }
 
         .hero-note-btn-save.saved {
             background: rgba(34, 197, 94, 0.9);
-            color: white;
-            cursor: default;
         }
 
-        .hero-note-btn-save.saved:hover {
-            background: rgba(34, 197, 94, 0.9);
+        /* Login Screen */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .login-container {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .login-container h2 {
+            color: var(--text-primary);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .login-container p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* Messages */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ff6b6b;
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #6bff6b;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .analytics-stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 16px 20px;
+            }
+
+            .controls-bar {
+                padding: 12px 20px;
+                flex-wrap: wrap;
+            }
+
+            .main-content {
+                padding: 40px 20px;
+            }
+
+            .call-race-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="nav-logo" style="justify-content: center; margin-bottom: 32px;">
                 <span class="broken-o">
                     <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
@@ -1112,33 +959,107 @@
                                 <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
                             </mask>
                         </defs>
-                        <circle cx="21" cy="24" r="18" stroke="white" stroke-width="6" fill="none" mask="url(#slitMask)"/>
+                        <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask)"/>
                     </svg>
                 </span>
-                <span>utDials</span>
-            </h1>
+                <span>OutDials</span>
+            </div>
+            <h2>Welcome Back</h2>
+            <p>Connect your Salesforce account to start dialing</p>
+            <button onclick="loginToSalesforce()" class="btn-primary">Connect to Salesforce</button>
         </div>
+    </div>
 
-        <div id="loginScreen" class="card">
-            <div class="login-container">
-                <h2>Welcome Back</h2>
-                <p>Connect your Salesforce account to start dialing</p>
-                <button onclick="loginToSalesforce()" class="btn btn-primary">Connect to Salesforce</button>
+    <!-- Dashboard -->
+    <div id="dashboardScreen" style="display: none;">
+        <!-- Top Navigation -->
+    <div class="top-nav">
+            <div class="nav-logo">
+                <span class="broken-o">
+                    <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <mask id="slitMask2">
+                                <rect width="42" height="48" fill="white"/>
+                                <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                            </mask>
+                        </defs>
+                        <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask2)"/>
+                    </svg>
+                </span>
+                <span>OutDials</span>
+            </div>
+
+            <div class="nav-user">
+                <div>
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-org" id="userOrg">Connecting...</div>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+                <button onclick="logout()" class="btn-logout">Logout</button>
             </div>
         </div>
 
-        <div id="dashboardScreen" class="card" style="display: none;">
+        <div class="controls-bar">
+            <div class="control-item">
+                <span class="control-label">Phone</span>
+                <div class="phone-wrapper">
+                    <span class="phone-prefix">+1</span>
+                    <input type="tel" id="repPhone" class="control-input" placeholder="(212) 555-1234" maxlength="14" />
+                </div>
+            </div>
+
+            <div class="controls-divider"></div>
+
+            <div class="control-item">
+                <span class="control-label">Team</span>
+                <select id="teamSelect" class="control-input">
+                    <option value="">Select team...</option>
+                    <option value="A">Team A</option>
+                    <option value="B">Team B</option>
+                    <option value="C">Team C</option>
+                    <option value="D">Team D</option>
+                </select>
+            </div>
+
+            <div class="controls-divider"></div>
+
+            <div class="control-item">
+                <span class="control-label">Region</span>
+                <select id="regionSelect" class="control-input">
+                    <option value="">Select region...</option>
+                    <option value="Northeast">Northeast</option>
+                    <option value="Southwest">Southwest</option>
+                    <option value="Southeast">Southeast</option>
+                    <option value="Midwest">Midwest</option>
+                </select>
+            </div>
+
+            <div class="controls-divider"></div>
+
+            <button id="startButton" onclick="startDialing()" class="btn-start" disabled>Start Dialing</button>
+            <button id="pauseButton" onclick="pauseDialing()" class="btn-start btn-pause" style="display: none;">Pause</button>
+            <button id="resumeButton" onclick="resumeDialing()" class="btn-start btn-resume" style="display: none;">Resume</button>
+            <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">Stop Dialing</button>
+        </div>
+
+        <div class="main-content">
             <div id="errorMessage"></div>
             <div id="successMessage"></div>
 
-            <div class="user-info">
-                <div class="user-details">
-                    <h3 id="userName">Loading...</h3>
-                    <p id="userOrg">Connecting to Salesforce...</p>
+            <div class="status-section">
+                <div class="status-indicator idle" id="dialerStatus">
+                    <span class="status-dot"></span>
+                    <span id="statusText">System Ready</span>
                 </div>
-                <button onclick="logout()" class="btn btn-logout">Logout</button>
             </div>
 
+            <div class="call-race-container" id="callRaceContainer">
+                <div class="call-race-grid" id="callRaceGrid">
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content-full">
             <div class="analytics-section" id="analyticsSection">
                 <div class="analytics-header" onclick="toggleAnalytics()">
                     <h3>Session Analytics</h3>
@@ -1150,7 +1071,7 @@
                 <div class="analytics-content">
                     <div class="analytics-stats-grid">
                         <div class="analytics-stat-card">
-                            <div class="analytics-stat-label">Total Calls Today</div>
+                            <div class="analytics-stat-label">Total Calls</div>
                             <div class="analytics-stat-value" id="statTotalCalls">0</div>
                         </div>
                         <div class="analytics-stat-card">
@@ -1174,93 +1095,11 @@
                             <div class="analytics-stat-value" id="statAvgDuration">0m</div>
                         </div>
                     </div>
-                    
-                    <div class="session-history">
-                        <h4>Recent Sessions</h4>
-                        <table class="history-table">
-                            <thead>
-                                <tr>
-                                    <th>Date & Time</th>
-                                    <th>Calls</th>
-                                    <th>Connects</th>
-                                    <th>Duration</th>
-                                </tr>
-                            </thead>
-                            <tbody id="historyTableBody">
-                                <tr>
-                                    <td colspan="4" class="history-empty">No session history yet</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="controls-section">
-                <h3>Dialing Parameters</h3>
-                
-                <div class="form-group">
-                    <label for="repPhone">Your Phone Number</label>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="padding: 14px 16px; background: #0a0a0a; border: 1px solid #333333; border-radius: 10px; font-weight: 600; color: #ffffff;">+1</span>
-                        <input type="tel" id="repPhone" placeholder="(212) 555-1234" maxlength="14" style="flex: 1;" />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="teamSelect">Team</label>
-                    <select id="teamSelect">
-                        <option value="">Select team...</option>
-                        <option value="A">Team A</option>
-                        <option value="B">Team B</option>
-                        <option value="C">Team C</option>
-                        <option value="D">Team D</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="regionSelect">Region</label>
-                    <select id="regionSelect">
-                        <option value="">Select region...</option>
-                        <option value="Northeast">Northeast</option>
-                        <option value="Southwest">Southwest</option>
-                        <option value="Southeast">Southeast</option>
-                        <option value="Midwest">Midwest</option>
-                    </select>
-                </div>
-
-                <div class="call-race-container" id="callRaceContainer">
-                    <div class="call-race-grid" id="callRaceGrid">
-                        <!-- Race cards will be inserted here -->
-                    </div>
-                </div>
-
-                <div style="text-align: center; padding: 40px 0 20px; display: flex; flex-direction: column; align-items: center;">
-                    <div class="status-indicator idle" id="dialerStatus">
-                        <span class="status-dot"></span>
-                        <span id="statusText">System Ready</span>
-                    </div>
-                    <br>
-                    <div class="button-group">
-                        <button id="startButton" onclick="startDialing()" class="btn btn-control" disabled>
-                            Start Dialing
-                        </button>
-                        <button id="pauseButton" onclick="pauseDialing()" class="btn btn-control" style="display: none; background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.3); color: rgba(251, 191, 36, 0.9);">
-                            Pause
-                        </button>
-                        <button id="resumeButton" onclick="resumeDialing()" class="btn btn-control" style="display: none; background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.3); color: rgba(34, 197, 94, 0.9);">
-                            Resume
-                        </button>
-                        <button id="stopButton" onclick="stopDialing()" class="btn btn-control btn-stop" style="display: none;">
-                            Stop Dialing
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Hero Card for Inbound Calls -->
     <div id="heroCardContainer" class="hero-card-container">
         <div class="hero-card">
             <div class="hero-card-badge">
@@ -1268,63 +1107,57 @@
                 <span>INCOMING CALL</span>
             </div>
             
-            <div class="hero-card-content">
-                <div class="hero-card-name" id="heroCardName">Loading...</div>
-                
-                <div class="hero-card-info-grid">
-                    <div class="hero-card-info-item">
-                        <div class="hero-card-info-label">Company</div>
-                        <div class="hero-card-info-value" id="heroCardCompany">-</div>
-                    </div>
-                    <div class="hero-card-info-item">
-                        <div class="hero-card-info-label">Phone Number</div>
-                        <div class="hero-card-info-value" id="heroCardPhone">-</div>
-                    </div>
-                    <div class="hero-card-info-item">
-                        <div class="hero-card-info-label">Region & Team</div>
-                        <div class="hero-card-info-value" id="heroCardRegionTeam">-</div>
-                    </div>
-                    <div class="hero-card-info-item">
-                        <div class="hero-card-info-label">Licenses</div>
-                        <div class="hero-card-info-value" id="heroCardLicenses">-</div>
-                    </div>
-                    <div class="hero-card-info-item">
-                        <div class="hero-card-info-label">Years at Firm</div>
-                        <div class="hero-card-info-value" id="heroCardYears">-</div>
-                    </div>
+            <div class="hero-card-name" id="heroCardName">Loading...</div>
+            
+            <div class="hero-card-info-grid">
+                <div class="hero-card-info-item">
+                    <div class="hero-card-info-label">Company</div>
+                    <div class="hero-card-info-value" id="heroCardCompany">-</div>
                 </div>
+                <div class="hero-card-info-item">
+                    <div class="hero-card-info-label">Phone Number</div>
+                    <div class="hero-card-info-value" id="heroCardPhone">-</div>
+                </div>
+                <div class="hero-card-info-item">
+                    <div class="hero-card-info-label">Region & Team</div>
+                    <div class="hero-card-info-value" id="heroCardRegionTeam">-</div>
+                </div>
+                <div class="hero-card-info-item">
+                    <div class="hero-card-info-label">Licenses</div>
+                    <div class="hero-card-info-value" id="heroCardLicenses">-</div>
+                </div>
+                <div class="hero-card-info-item">
+                    <div class="hero-card-info-label">Years at Firm</div>
+                    <div class="hero-card-info-value" id="heroCardYears">-</div>
+                </div>
+            </div>
 
-                <div class="hero-card-note-compartment" id="heroNoteCompartment">
-                    <div class="hero-note-header">
-                        <span>📝</span>
-                        <span>Call Notes</span>
-                    </div>
-                    <textarea 
-    class="hero-note-textarea" 
-    placeholder="Type your notes here..."
-    id="heroNoteText"
-    oninput="markHeroNoteAsUnsaved()"
-></textarea>
-                    <div class="hero-note-actions">
-                        <button class="hero-note-btn hero-note-btn-cancel" onclick="toggleHeroNote()">Cancel</button>
-                        <button class="hero-note-btn hero-note-btn-save" id="heroNoteSaveBtn" onclick="saveHeroNote()">Save</button>
-                    </div>
+            <div class="hero-card-note-compartment" id="heroNoteCompartment">
+                <div style="color: #ffffff; font-size: 14px; font-weight: 600; margin-bottom: 12px;">📝 Call Notes</div>
+                <textarea 
+                    class="hero-note-textarea" 
+                    placeholder="Type your notes here..."
+                    id="heroNoteText"
+                    oninput="markHeroNoteAsUnsaved()"
+                ></textarea>
+                <div class="hero-note-actions">
+                    <button class="hero-note-btn" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15);" onclick="toggleHeroNote()">Cancel</button>
+                    <button class="hero-note-btn hero-note-btn-save" id="heroNoteSaveBtn" onclick="saveHeroNote()">Save</button>
                 </div>
+            </div>
 
-                <div class="hero-card-actions">
-                    <button class="hero-card-btn hero-card-btn-dismiss" onclick="dismissHeroCard()">
-                        <span>✕</span>
-                        <span>Dismiss</span>
-                    </button>
-                    <button class="hero-card-btn hero-card-btn-note" onclick="toggleHeroNote()">
-                        <span>📝</span>
-                        <span>Add Note</span>
-                    </button>
-                </div>
+            <div class="hero-card-actions">
+                <button class="hero-card-btn hero-card-btn-dismiss" onclick="dismissHeroCard()">
+                    <span>✕</span>
+                    <span>Dismiss</span>
+                </button>
+                <button class="hero-card-btn hero-card-btn-note" onclick="toggleHeroNote()">
+                    <span>📝</span>
+                    <span>Add Note</span>
+                </button>
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const N8N_WEBHOOK_BASE = 'https://commacashing.app.n8n.cloud/webhook';
@@ -1335,19 +1168,19 @@
             scope: 'id api refresh_token'
         };
 
-       let supabaseClient = null;
+        let supabaseClient = null;
 
-async function initSupabase() {
-  try {
-    const response = await fetch('/.netlify/functions/supabase-init', {
-      method: 'POST'
-    });
-    const { url, key } = await response.json();
-    supabaseClient = window.supabase.createClient(url, key);
-  } catch (error) {
-    console.error('Failed to initialize Supabase:', error);
-  }
-}
+        async function initSupabase() {
+            try {
+                const response = await fetch('/.netlify/functions/supabase-init', {
+                    method: 'POST'
+                });
+                const { url, key } = await response.json();
+                supabaseClient = window.supabase.createClient(url, key);
+            } catch (error) {
+                console.error('Failed to initialize Supabase:', error);
+            }
+        }
 
         let isDialing = false;
         let isPaused = false;
@@ -1363,11 +1196,9 @@ async function initSupabase() {
         let autoSaveInterval = null;
         let isAuthenticated = false;
 
-        // Audio Context for sound effects
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
         function playPhoneRing() {
-            // Play 2 quick rings
             playRingTone(0);
             setTimeout(() => playRingTone(0.4), 400);
         }
@@ -1380,7 +1211,6 @@ async function initSupabase() {
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
             
-            // Classic phone ring frequencies (440Hz and 480Hz)
             oscillator.frequency.setValueAtTime(440, now);
             oscillator.frequency.setValueAtTime(480, now + 0.05);
             
@@ -1399,7 +1229,6 @@ async function initSupabase() {
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
             
-            // Upward chime: C5 to E5 (523Hz to 659Hz)
             oscillator.frequency.setValueAtTime(523.25, now);
             oscillator.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
             
@@ -1421,9 +1250,15 @@ async function initSupabase() {
             callDurations: []
         };
 
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
         function toggleAnalytics() {
-            const section = document.getElementById('analyticsSection');
-            section.classList.toggle('expanded');
+            document.getElementById('analyticsSection').classList.toggle('expanded');
         }
 
         function updateStatsDisplay() {
@@ -1470,41 +1305,6 @@ async function initSupabase() {
             }));
         }
 
-        function saveSessionToHistory() {
-            if (!currentSessionStats.sessionId) return;
-            
-            const sessions = JSON.parse(localStorage.getItem('sessionHistory') || '[]');
-            const sessionData = {
-                sessionId: currentSessionStats.sessionId,
-                startTime: currentSessionStats.startTime,
-                endTime: Date.now(),
-                totalCalls: currentSessionStats.totalCalls,
-                connects: currentSessionStats.connects,
-                duration: Math.round((Date.now() - currentSessionStats.startTime) / 60000)
-            };
-            
-            sessions.unshift(sessionData);
-            if (sessions.length > 10) sessions.pop();
-            localStorage.setItem('sessionHistory', JSON.stringify(sessions));
-            loadSessionHistory();
-        }
-
-        function loadSessionHistory() {
-            const sessions = JSON.parse(localStorage.getItem('sessionHistory') || '[]');
-            const tbody = document.getElementById('historyTableBody');
-            
-            if (sessions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="history-empty">No session history yet</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = sessions.slice(0, 5).map(session => {
-                const date = new Date(session.startTime);
-                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                return `<tr><td>${dateStr}</td><td>${session.totalCalls}</td><td>${session.connects}</td><td>${session.duration}m</td></tr>`;
-            }).join('');
-        }
-
         function resetSessionStats() {
             currentSessionStats = {
                 sessionId: null,
@@ -1523,7 +1323,6 @@ async function initSupabase() {
             const team = document.getElementById('teamSelect').value;
             const region = document.getElementById('regionSelect').value;
             
-            // Only subscribe after authentication AND valid phone
             if (isAuthenticated && repPhone.length === 12 && !supabaseSubscription) {
                 subscribeForInbound();
             }
@@ -1602,9 +1401,7 @@ async function initSupabase() {
                 document.getElementById('dashboardScreen').style.display = 'block';
                 isAuthenticated = true;
                 
-                // Now that user is authenticated, check if we should subscribe for inbound
                 checkFormValid();
-                
                 showSuccess('Successfully connected to Salesforce!');
             } catch (error) {
                 showError(`Failed to load user info: ${error.message}`);
@@ -1617,13 +1414,12 @@ async function initSupabase() {
             isAuthenticated = false;
             unsubscribeFromSupabase();
             stopAutoSave();
-            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('dashboardScreen').style.display = 'none';
         }
 
         function subscribeToSupabase() {
             if (!supabaseClient) return;
-            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
             
             supabaseSubscription = supabaseClient.channel('dialer_status')
                 .on('postgres_changes', 
@@ -1642,7 +1438,6 @@ async function initSupabase() {
         function subscribeForInbound() {
             if (!supabaseClient || !isAuthenticated) return;
             
-            // Prevent duplicate subscriptions
             if (supabaseSubscription) {
                 console.log('Already subscribed to inbound calls');
                 return;
@@ -1754,15 +1549,11 @@ async function initSupabase() {
                 currentSessionStats.humanAnsweredTime = new Date(data.created_at).getTime();
                 
                 if (status === 'inbound_call') {
-                    // Show hero card for inbound calls
                     showHeroCard(data);
-                    
-                    // Clear race cards if any
                     document.getElementById('callRaceContainer').classList.remove('active');
                     document.getElementById('callRaceGrid').innerHTML = '';
                     currentBatchContacts.clear();
                 } else {
-                    // Handle outbound human answer
                     updateRaceCard(data.call_sid, 'human');
                     
                     const contact = currentBatchContacts.get(data.call_sid);
@@ -1771,18 +1562,15 @@ async function initSupabase() {
                     }
                 }
                 
-                // If system was paused, keep it paused after human answers
                 if (isPaused) {
                     updateStatus('paused', 'System Paused');
                 } else {
                     updateStatus('on-call', 'On Call');
                 }
                 
-                // Reset dialing state but maintain pause state
                 isDialing = false;
                 unsubscribeFromSupabase();
                 
-                // Update button visibility based on pause state
                 if (isPaused) {
                     document.getElementById('stopButton').style.display = 'none';
                     document.getElementById('pauseButton').style.display = 'none';
@@ -1813,10 +1601,6 @@ async function initSupabase() {
                 }
                 updateStatsDisplay();
             }
-            else if (status === 'workflow_complete' || status === 'batches_complete') {
-                saveSessionToHistory();
-                updateStatsDisplay();
-            }
         }
 
         async function startDialing() {
@@ -1824,9 +1608,8 @@ async function initSupabase() {
             const team = document.getElementById('teamSelect').value;
             const region = document.getElementById('regionSelect').value;
 
-            // Check for unsaved notes before starting new session
             if (!checkUnsavedNotes()) {
-                return; // User cancelled, don't start new session
+                return;
             }
 
             try {
@@ -1834,7 +1617,6 @@ async function initSupabase() {
                 isPaused = false;
                 sessionId = 'session_' + Date.now();
 
-                // Clear previous cards and reset
                 currentBatchContacts.clear();
                 document.getElementById('callRaceGrid').innerHTML = '';
                 hasUnsavedNotes = false;
@@ -1852,9 +1634,6 @@ async function initSupabase() {
                 showEmptyRaceCards();
                 subscribeToSupabase();
 
-                // TODO: Add backend validation via /.netlify/functions/start-dialing
-                // This should validate: session_id uniqueness, rep_phone format, 
-                // team/region values, access_token validity, rate limiting
                 await fetch(`${N8N_WEBHOOK_BASE}/start-dialing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1872,7 +1651,6 @@ async function initSupabase() {
                 localStorage.setItem('current_rep_phone', repPhone);
                 showSuccess(`Dialing started for Team ${team} in ${region} region`);
                 
-                // Start auto-save
                 startAutoSave();
             } catch (error) {
                 showError(`Failed to start dialing: ${error.message}`);
@@ -1881,54 +1659,53 @@ async function initSupabase() {
         }
 
         async function pauseDialing() {
-    isPaused = true;
-    
-    try {
-        await fetch(`${N8N_WEBHOOK_BASE}/pause-dialing`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                rep_phone: localStorage.getItem('current_rep_phone'),
-                session_id: sessionId
-            })
-        });
-    } catch (error) {
-        console.error('Pause failed:', error);
-    }
-    
-    document.getElementById('pauseButton').style.display = 'none';
-    document.getElementById('resumeButton').style.display = 'inline-block';
-    updateStatus('paused', 'System Paused');
-    showSuccess('Dialing paused - calls in progress will complete');
-}
+            isPaused = true;
+            
+            try {
+                await fetch(`${N8N_WEBHOOK_BASE}/pause-dialing`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        rep_phone: localStorage.getItem('current_rep_phone'),
+                        session_id: sessionId
+                    })
+                });
+            } catch (error) {
+                console.error('Pause failed:', error);
+            }
+            
+            document.getElementById('pauseButton').style.display = 'none';
+            document.getElementById('resumeButton').style.display = 'inline-block';
+            updateStatus('paused', 'System Paused');
+            showSuccess('Dialing paused - calls in progress will complete');
+        }
 
-async function resumeDialing() {
-    isPaused = false;
-    
-    try {
-        await fetch(`${N8N_WEBHOOK_BASE}/resume-dialing`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                rep_phone: localStorage.getItem('current_rep_phone'),
-                session_id: sessionId
-            })
-        });
-    } catch (error) {
-        console.error('Resume failed:', error);
-    }
-    
-    document.getElementById('resumeButton').style.display = 'none';
-    document.getElementById('pauseButton').style.display = 'inline-block';
-    updateStatus('dialing', 'Dialing Active');
-    showSuccess('Dialing resumed');
-}
+        async function resumeDialing() {
+            isPaused = false;
+            
+            try {
+                await fetch(`${N8N_WEBHOOK_BASE}/resume-dialing`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        rep_phone: localStorage.getItem('current_rep_phone'),
+                        session_id: sessionId
+                    })
+                });
+            } catch (error) {
+                console.error('Resume failed:', error);
+            }
+            
+            document.getElementById('resumeButton').style.display = 'none';
+            document.getElementById('pauseButton').style.display = 'inline-block';
+            updateStatus('dialing', 'Dialing Active');
+            showSuccess('Dialing resumed');
+        }
 
         async function stopDialing() {
             try {
                 const repPhone = localStorage.getItem('current_rep_phone');
                 
-                // TODO: Add backend validation via /.netlify/functions/stop-dialing
                 await fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1939,12 +1716,10 @@ async function resumeDialing() {
                     })
                 });
                 
-                // Clear race cards
                 document.getElementById('callRaceContainer').classList.remove('active');
                 document.getElementById('callRaceGrid').innerHTML = '';
                 currentBatchContacts.clear();
                 
-                // Reset to ready state
                 isDialing = false;
                 isPaused = false;
                 unsubscribeFromSupabase();
@@ -1962,7 +1737,6 @@ async function resumeDialing() {
                 showSuccess('Dialing stopped');
             } catch (error) {
                 showError(`Failed to stop: ${error.message}`);
-                // Still reset the state even if the API call fails
                 document.getElementById('callRaceContainer').classList.remove('active');
                 document.getElementById('callRaceGrid').innerHTML = '';
                 currentBatchContacts.clear();
@@ -2001,13 +1775,6 @@ async function resumeDialing() {
         function updateStatus(state, text) {
             document.getElementById('dialerStatus').className = `status-indicator ${state}`;
             document.getElementById('statusText').textContent = text;
-        }
-
-        function closeRaceAndReset() {
-            document.getElementById('callRaceContainer').classList.remove('active');
-            document.getElementById('callRaceGrid').innerHTML = '';
-            currentBatchContacts.clear();
-            resetDialingState();
         }
 
         function showEmptyRaceCards() {
@@ -2065,7 +1832,6 @@ async function resumeDialing() {
             if (status === 'human') {
                 card.classList.add('human');
                 
-                // Play success chime sound
                 playSuccessChime();
                 
                 const winnerBadge = document.createElement('div');
@@ -2173,7 +1939,6 @@ async function resumeDialing() {
                 hasUnsavedNotes = true;
                 currentNoteCallSid = callSid;
                 
-                // If button was previously "Saved", revert it back to "Save"
                 if (saveBtn && saveBtn.classList.contains('saved')) {
                     saveBtn.classList.remove('saved');
                     saveBtn.textContent = 'Save';
@@ -2185,19 +1950,18 @@ async function resumeDialing() {
             }
         }
         
-function markHeroNoteAsUnsaved() {
-    const noteText = document.getElementById('heroNoteText')?.value.trim();
-    const saveBtn = document.getElementById('heroNoteSaveBtn');
-    
-    if (saveBtn && saveBtn.classList.contains('saved') && noteText) {
-        saveBtn.classList.remove('saved');
-        saveBtn.textContent = 'Save';
-        saveBtn.disabled = false;
-    }
-}
+        function markHeroNoteAsUnsaved() {
+            const noteText = document.getElementById('heroNoteText')?.value.trim();
+            const saveBtn = document.getElementById('heroNoteSaveBtn');
+            
+            if (saveBtn && saveBtn.classList.contains('saved') && noteText) {
+                saveBtn.classList.remove('saved');
+                saveBtn.textContent = 'Save';
+                saveBtn.disabled = false;
+            }
+        }
         
         function checkUnsavedNotes() {
-            // Check race card notes
             if (hasUnsavedNotes && currentNoteCallSid) {
                 const noteText = document.getElementById(`note-text-${currentNoteCallSid}`)?.value.trim();
                 const saveBtn = document.getElementById(`note-save-btn-${currentNoteCallSid}`);
@@ -2207,7 +1971,6 @@ function markHeroNoteAsUnsaved() {
                 }
             }
             
-            // Check hero card notes
             const heroNoteText = document.getElementById('heroNoteText')?.value.trim();
             const heroSaveBtn = document.getElementById('heroNoteSaveBtn');
             
@@ -2218,12 +1981,9 @@ function markHeroNoteAsUnsaved() {
             return true;
         }
 
-        // Auto-save functionality
         function startAutoSave() {
-            // Clear any existing interval
             stopAutoSave();
             
-            // Auto-save every 30 seconds
             autoSaveInterval = setInterval(() => {
                 autoSaveNotes();
             }, 30000);
@@ -2239,7 +1999,6 @@ function markHeroNoteAsUnsaved() {
         function autoSaveNotes() {
             const drafts = {};
             
-            // Save race card notes
             currentBatchContacts.forEach((contact, callSid) => {
                 const noteText = document.getElementById(`note-text-${callSid}`)?.value.trim();
                 if (noteText) {
@@ -2251,7 +2010,6 @@ function markHeroNoteAsUnsaved() {
                 }
             });
             
-            // Save hero card note
             const heroNoteText = document.getElementById('heroNoteText')?.value.trim();
             if (heroNoteText && currentHeroCallSid) {
                 drafts['hero_' + currentHeroCallSid] = {
@@ -2265,21 +2023,6 @@ function markHeroNoteAsUnsaved() {
                 localStorage.setItem('note_drafts', JSON.stringify(drafts));
                 console.log('Auto-saved', Object.keys(drafts).length, 'note draft(s)');
             }
-        }
-
-        function loadNoteDrafts() {
-            const drafts = JSON.parse(localStorage.getItem('note_drafts') || '{}');
-            
-            // Check if any drafts are older than 24 hours and remove them
-            const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
-            Object.keys(drafts).forEach(key => {
-                if (drafts[key].timestamp < oneDayAgo) {
-                    delete drafts[key];
-                }
-            });
-            
-            localStorage.setItem('note_drafts', JSON.stringify(drafts));
-            return drafts;
         }
 
         async function saveNoteToSalesforce(callSid) {
@@ -2301,9 +2044,6 @@ function markHeroNoteAsUnsaved() {
             saveBtn.textContent = 'Saving...';
 
             try {
-                // TODO: Add backend validation via /.netlify/functions/save-note
-                // This should validate: call_sid format, note length limits,
-                // access_token validity, rate limiting, sanitize note content
                 const response = await fetch(`${N8N_WEBHOOK_BASE}/save-note`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2325,7 +2065,6 @@ function markHeroNoteAsUnsaved() {
                     hasUnsavedNotes = false;
                     currentNoteCallSid = null;
                     
-                    // Remove from drafts
                     const drafts = JSON.parse(localStorage.getItem('note_drafts') || '{}');
                     delete drafts[callSid];
                     localStorage.setItem('note_drafts', JSON.stringify(drafts));
@@ -2342,17 +2081,22 @@ function markHeroNoteAsUnsaved() {
         }
 
         function showError(message) {
-            document.getElementById('errorMessage').innerHTML = `<div class="error">${message}</div>`;
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'message error';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
         }
 
         function showSuccess(message) {
-            document.getElementById('successMessage').innerHTML = `<div class="success">${message}</div>`;
-            setTimeout(() => { document.getElementById('successMessage').innerHTML = ''; }, 3000);
+            const successDiv = document.createElement('div');
+            successDiv.className = 'message success';
+            successDiv.textContent = message;
+            document.body.appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
         }
 
-        // Hero Card Functions
         function showHeroCard(data) {
-            // Play phone ring sound
             playPhoneRing();
             
             currentHeroCallSid = data.call_sid;
@@ -2374,7 +2118,6 @@ function markHeroNoteAsUnsaved() {
             document.getElementById('heroCardLicenses').textContent = data.licenses || '-';
             document.getElementById('heroCardYears').textContent = data.years_at_firm ? `${data.years_at_firm} years` : '-';
 
-            // Reset note compartment
             document.getElementById('heroNoteCompartment').classList.remove('open');
             document.getElementById('heroNoteText').value = '';
             document.getElementById('heroNoteSaveBtn').classList.remove('saved');
@@ -2388,7 +2131,6 @@ function markHeroNoteAsUnsaved() {
             currentHeroCallSid = null;
             currentHeroContact = null;
             
-            // Reset to idle state
             updateStatus('idle', 'System Ready');
         }
 
@@ -2415,7 +2157,6 @@ function markHeroNoteAsUnsaved() {
             saveBtn.textContent = 'Saving...';
 
             try {
-                // TODO: Add backend validation via /.netlify/functions/save-note
                 const response = await fetch(`${N8N_WEBHOOK_BASE}/save-note`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2435,7 +2176,6 @@ function markHeroNoteAsUnsaved() {
                     saveBtn.classList.add('saved');
                     saveBtn.disabled = true;
                     
-                    // Remove from drafts
                     const drafts = JSON.parse(localStorage.getItem('note_drafts') || '{}');
                     delete drafts['hero_' + currentHeroCallSid];
                     localStorage.setItem('note_drafts', JSON.stringify(drafts));
@@ -2451,54 +2191,57 @@ function markHeroNoteAsUnsaved() {
             }
         }
 
-window.addEventListener('DOMContentLoaded', async () => {
-    await initSupabase();
-    
-    loadSessionHistory();
-    loadNoteDrafts();
-    
-    const lastResetDate = localStorage.getItem('lastStatsReset');
-    const today = new Date().toDateString();
-    
-    if (lastResetDate !== today) {
-        resetSessionStats();
-        localStorage.setItem('lastStatsReset', today);
-    } else {
-        const savedStats = localStorage.getItem('dailyStats');
-        if (savedStats) {
-            const parsed = JSON.parse(savedStats);
-            currentSessionStats.totalCalls = parsed.totalCalls || 0;
-            currentSessionStats.connects = parsed.connects || 0;
-            currentSessionStats.machines = parsed.machines || 0;
-            currentSessionStats.callDurations = parsed.callDurations || [];
-            currentSessionStats.startTime = parsed.startTime || null;
-            updateStatsDisplay();
-        }
-    }
-    
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    if (code) {
-        handleOAuthCallback(code);
-    } else if (localStorage.getItem('sf_access_token')) {
-        loadUserSession();
-    }
-    
-    document.getElementById('repPhone').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 10) value = value.slice(0, 10);
-        if (value.length >= 6) {
-            value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
-        } else if (value.length >= 3) {
-            value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-        }
-        e.target.value = value;
-        checkFormValid();
-    });
-    
-    document.getElementById('teamSelect').addEventListener('change', checkFormValid);
-    document.getElementById('regionSelect').addEventListener('change', checkFormValid);
-});
+        window.addEventListener('DOMContentLoaded', async () => {
+            await initSupabase();
+            
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('themeToggle').textContent = '☀️';
+            }
+            
+            const lastResetDate = localStorage.getItem('lastStatsReset');
+            const today = new Date().toDateString();
+            
+            if (lastResetDate !== today) {
+                resetSessionStats();
+                localStorage.setItem('lastStatsReset', today);
+            } else {
+                const savedStats = localStorage.getItem('dailyStats');
+                if (savedStats) {
+                    const parsed = JSON.parse(savedStats);
+                    currentSessionStats.totalCalls = parsed.totalCalls || 0;
+                    currentSessionStats.connects = parsed.connects || 0;
+                    currentSessionStats.machines = parsed.machines || 0;
+                    currentSessionStats.callDurations = parsed.callDurations || [];
+                    currentSessionStats.startTime = parsed.startTime || null;
+                    updateStatsDisplay();
+                }
+            }
+            
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            if (code) {
+                handleOAuthCallback(code);
+            } else if (localStorage.getItem('sf_access_token')) {
+                loadUserSession();
+            }
+            
+            document.getElementById('repPhone').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 10) value = value.slice(0, 10);
+                if (value.length >= 6) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+                } else if (value.length >= 3) {
+                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+                }
+                e.target.value = value;
+                checkFormValid();
+            });
+            
+            document.getElementById('teamSelect').addEventListener('change', checkFormValid);
+            document.getElementById('regionSelect').addEventListener('change', checkFormValid);
+        });
     </script>
 </body>
 </html>
