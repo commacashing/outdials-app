@@ -1,5 +1,4 @@
 exports.handler = async (event, context) => {
-  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -8,37 +7,44 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { code, code_verifier, redirect_uri } = JSON.parse(event.body);
-
-    if (!code || !code_verifier || !redirect_uri) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Missing required parameters' })
-      };
-    }
-
-    // Get credentials from environment variables (set in Netlify)
+    const { code, code_verifier, redirect_uri, refresh_token } = JSON.parse(event.body);
+    
     const clientId = process.env.SALESFORCE_CLIENT_ID;
     const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
-
+    
     if (!clientId || !clientSecret) {
-      console.error('Missing Salesforce credentials in environment variables');
       return {
         statusCode: 500,
         body: JSON.stringify({ error: 'Server configuration error' })
       };
     }
 
-    const tokenParams = new URLSearchParams({
-      grant_type: 'authorization_code',
-      code: code,
-      client_id: clientId,
-      client_secret: clientSecret,
-      redirect_uri: redirect_uri,
-      code_verifier: code_verifier
-    });
-
-    console.log('Making token request to Salesforce...');
+    let tokenParams;
+    
+    if (refresh_token) {
+      tokenParams = new URLSearchParams({
+        grant_type: 'refresh_token',
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refresh_token
+      });
+    } else {
+      if (!code || !code_verifier || !redirect_uri) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: 'Missing required parameters' })
+        };
+      }
+      
+      tokenParams = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirect_uri,
+        code_verifier: code_verifier
+      });
+    }
 
     const response = await fetch('https://login.salesforce.com/services/oauth2/token', {
       method: 'POST',
@@ -50,9 +56,7 @@ exports.handler = async (event, context) => {
     });
 
     const responseText = await response.text();
-    console.log('Salesforce response status:', response.status);
-    console.log('Salesforce response:', responseText);
-
+    
     if (!response.ok) {
       return {
         statusCode: response.status,
@@ -63,18 +67,14 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const data = JSON.parse(responseText);
-
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(JSON.parse(responseText))
     };
-
   } catch (error) {
-    console.error('Token exchange error:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({ 
