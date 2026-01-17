@@ -1428,26 +1428,32 @@
         }
 
         async function loadUserInfo() {
-            try {
-                const response = await fetch('/.netlify/functions/userinfo', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ access_token: accessToken, instance_url: instanceUrl })
-                });
-                const userInfo = await response.json();
-                document.getElementById('userName').textContent = userInfo.name || 'User';
-                document.getElementById('userOrg').textContent = userInfo.organization_id || 'Salesforce Org';
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboardScreen').style.display = 'block';
-                isAuthenticated = true;
-                
-                checkFormValid();
-                showSuccess('Successfully connected to Salesforce!');
-            } catch (error) {
-                showError(`Failed to load user info: ${error.message}`);
-                logout();
-            }
+    try {
+        const response = await fetch('/.netlify/functions/userinfo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: accessToken, instance_url: instanceUrl })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to authenticate');
         }
+        
+        const userInfo = await response.json();
+        document.getElementById('userName').textContent = userInfo.name || 'User';
+        document.getElementById('userOrg').textContent = userInfo.organization_id || 'Salesforce Org';
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboardScreen').style.display = 'block';
+        isAuthenticated = true;
+        
+        checkFormValid();
+        showSuccess('Successfully connected to Salesforce!');
+    } catch (error) {
+        showError(`Authentication failed: ${error.message}`);
+        logout();
+    }
+}
 
         function logout() {
             localStorage.clear();
@@ -2225,11 +2231,27 @@
                     saveBtn.textContent = 'Save';
                 }
             } catch (error) {
-                showError(`Error saving note: ${error.message}`);
+                showError(`Error saving note: ${error.message}`);  // ← Fixed: use ( not `
                 saveBtn.disabled = false;
                 saveBtn.textContent = 'Save';
             }
         }
+
+        // Reconnect Supabase when tab becomes active
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                console.log('Tab became active - checking Supabase connection');
+                
+                // If we should be subscribed but aren't, reconnect
+                const repPhone = normalizePhone(document.getElementById('repPhone').value);
+                
+                if (isAuthenticated && repPhone.length === 12 && !supabaseSubscription) {
+                    console.log('Reconnecting Supabase subscription...');
+                    subscribeForInbound();
+                    showSuccess('Reconnected to real-time updates');
+                }
+            }
+        });
 
         window.addEventListener('DOMContentLoaded', async () => {
             await initSupabase();
