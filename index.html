@@ -1236,6 +1236,12 @@
         let autoSaveInterval = null;
         let isAuthenticated = false;
 
+        function normalizePhone(phone) {
+    if (!phone) return '';
+    const digits = phone.replace(/\D/g, '');
+    return '+1' + digits.slice(-10);
+}
+
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
         function playPhoneRing() {
@@ -1398,29 +1404,84 @@
         }
 
         async function handleOAuthCallback(code) {
-            try {
-                const response = await fetch('/.netlify/functions/token-exchange', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        code: code,
-                        code_verifier: sessionStorage.getItem('pkce_code_verifier'),
-                        redirect_uri: SALESFORCE_CONFIG.redirectUri
-                    })
-                });
-                const data = await response.json();
-                accessToken = data.access_token;
-                instanceUrl = data.instance_url;
-                localStorage.setItem('sf_access_token', accessToken);
-                localStorage.setItem('sf_instance_url', instanceUrl);
-                sessionStorage.removeItem('pkce_code_verifier');
-                window.history.replaceState({}, document.title, window.location.pathname);
-                await loadUserInfo();
-            } catch (error) {
-                showError(`OAuth Error: ${error.message}`);
-            }
+    try {
+        const response = await fetch('/.netlify/functions/token-exchange', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: code,
+                code_verifier: sessionStorage.getItem('pkce_code_verifier'),
+                redirect_uri: SALESFORCE_CONFIG.redirectUri
+            })
+        });
+        const data = await response.json();
+        accessToken = data.access_token;
+        instanceUrl = data.instance_url;
+        
+        if (data.refresh_token) {
+            localStorage.setItem('sf_refresh_token', data.refresh_token);
         }
+        
+        localStorage.setItem('sf_access_token', accessToken);
+        localStorage.setItem('sf_instance_url', instanceUrl);
+        sessionStorage.removeItem('pkce_code_verifier');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        await loadUserInfo();
+    } catch (error) {
+        showError(`OAuth Error: ${error.message}`);  // ← Also fixed backtick
+    }
+}
+        async function refreshAccessToken() {
+    const refreshToken = localStorage.getItem('sf_refresh_token');
+    
+    if (!refreshToken) {
+        console.log('No refresh token available, need to re-login');
+        logout();
+        return false;
+    }
+    
+    try {
+        const response = await fetch('/.netlify/functions/token-exchange', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                refresh_token: refreshToken
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Token refresh failed');
+        }
+        
+        const data = await response.json();
+        accessToken = data.access_token;
+        localStorage.setItem('sf_access_token', accessToken);
+        
+        console.log('Access token refreshed successfully');
+        return true;
+    } catch (error) {
+        console.error('Failed to refresh token:', error);
+        showError('Session expired. Please login again.');
+        logout();
+        return false;
+    }
+}
+        let tokenRefreshInterval = null;
 
+function startTokenRefresh() {
+    stopTokenRefresh();
+    tokenRefreshInterval = setInterval(async () => {
+        console.log('Auto-refreshing Salesforce token...');
+        await refreshAccessToken();
+    }, 90 * 60 * 1000);
+}
+
+function stopTokenRefresh() {
+    if (tokenRefreshInterval) {
+        clearInterval(tokenRefreshInterval);
+        tokenRefreshInterval = null;
+    }
+}
         function loadUserSession() {
             accessToken = localStorage.getItem('sf_access_token');
             instanceUrl = localStorage.getItem('sf_instance_url');
@@ -1449,6 +1510,8 @@
         
         checkFormValid();
         showSuccess('Successfully connected to Salesforce!');
+
+         startTokenRefresh();  // ← ADD THIS
     } catch (error) {
         showError(`Authentication failed: ${error.message}`);
         logout();
@@ -1456,13 +1519,14 @@
 }
 
         function logout() {
-            localStorage.clear();
-            isAuthenticated = false;
-            unsubscribeFromSupabase();
-            stopAutoSave();
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('dashboardScreen').style.display = 'none';
-        }
+    localStorage.clear();
+    isAuthenticated = false;
+    unsubscribeFromSupabase();
+    stopAutoSave();
+    stopTokenRefresh();
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboardScreen').style.display = 'none';
+}
 
         function subscribeToSupabase() {
             if (!supabaseClient) return;
@@ -2103,7 +2167,9 @@
                     })
                 });
 
-                if (response.ok) {
+                const result = await response.json();
+
+if (response.ok) {
                     showSuccess('Note saved to Salesforce!');
                     saveBtn.textContent = 'Saved';
                     saveBtn.classList.add('saved');
@@ -2216,6 +2282,8 @@
                     })
                 });
 
+                const result = await response.json();  // ← ADD THIS LINE
+
                 if (response.ok) {
                     showSuccess('Note saved to Salesforce!');
                     saveBtn.textContent = 'Saved ✓';
@@ -2226,7 +2294,7 @@
                     delete drafts['hero_' + currentHeroCallSid];
                     localStorage.setItem('note_drafts', JSON.stringify(drafts));
                 } else {
-                    showError('Failed to save note to Salesforce.');
+    showError(result.error || 'Failed to save note to Salesforce.');
                     saveBtn.disabled = false;
                     saveBtn.textContent = 'Save';
                 }
