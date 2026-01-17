@@ -2181,7 +2181,6 @@ if (response.ok) {
                     delete drafts[callSid];
                     localStorage.setItem('note_drafts', JSON.stringify(drafts));
                 } else {
-                    } else {
                         showError(result.error || 'Failed to save note to Salesforce.');
                     saveBtn.disabled = false;
                     saveBtn.textContent = 'Save';
