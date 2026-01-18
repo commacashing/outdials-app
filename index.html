@@ -1006,7 +1006,7 @@
 /* Theme toggle - top right corner */
 .theme-toggle {
     position: absolute;
-    top: 16px;
+    top: 12px;
     right: 16px;
     width: 36px;
     height: 36px;
@@ -1058,18 +1058,15 @@
     }
 
 /* Team and Region side by side */
-.control-item:has(#teamSelect) {
-    order: 2;
-    width: 48%;
-    display: inline-flex;
-    float: left;
-}
-
+.control-item:has(#teamSelect),
 .control-item:has(#regionSelect) {
     order: 2;
     width: 48%;
     display: inline-flex;
-    float: right;
+}
+
+.control-item:has(#teamSelect) {
+    margin-right: 4%;
 }
 
     .control-label {
