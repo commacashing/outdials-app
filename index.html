@@ -980,40 +980,48 @@
         flex-shrink: 0;
     }
 
-    .broken-o {
+.broken-o {
         width: 20px;
         height: 24px;
     }
 
-    /* User info, theme toggle, logout - all smaller and inline */
-    .control-item:has(.user-name) {
-        margin-left: auto !important;
-        margin-right: 8px;
-    }
-
-    .user-name {
-        font-size: 11px;
-    }
-
-    .user-org {
-        font-size: 9px;
-        max-width: 120px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .theme-toggle {
-        width: 32px;
-        height: 32px;
+    /* User info - centered in controls bar */
+    .controls-bar::before {
+        content: attr(data-username);
+        display: block;
+        width: 100%;
+        text-align: center;
         font-size: 14px;
-        margin-right: 4px;
+        font-weight: 500;
+        color: var(--text-primary);
+        order: -1;
+        margin-bottom: 8px;
     }
 
-    .btn-logout {
-        padding: 6px 12px;
-        font-size: 11px;
+    /* Hide user info from controls bar - we'll show it differently */
+    .controls-bar .control-item:has(.user-name) {
+        display: none;
     }
+
+/* Theme toggle - top right corner */
+.theme-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    z-index: 100;
+}
+
+/* Logout button - full width, centered below user name */
+.btn-logout {
+    width: calc(100% - 32px);
+    margin: 8px 16px;
+    padding: 10px 20px;
+    font-size: 13px;
+    text-align: center;
+}
 
     /* Controls bar - phone centered full width, team/region in one row below */
     .controls-bar {
@@ -1049,21 +1057,20 @@
         font-size: 14px;
     }
 
-    /* Team and Region in one row */
-    .control-item:has(#teamSelect),
-    .control-item:has(#regionSelect) {
-        order: 2;
-        width: 48%;
-        display: inline-flex;
-    }
+/* Team and Region side by side */
+.control-item:has(#teamSelect) {
+    order: 2;
+    width: 48%;
+    display: inline-flex;
+    float: left;
+}
 
-    .control-item:has(#teamSelect) {
-        margin-right: 2%;
-    }
-
-    .control-item:has(#regionSelect) {
-        margin-left: 2%;
-    }
+.control-item:has(#regionSelect) {
+    order: 2;
+    width: 48%;
+    display: inline-flex;
+    float: right;
+}
 
     .control-label {
         font-size: 10px;
@@ -1686,6 +1693,8 @@ function stopTokenRefresh() {
         const userInfo = await response.json();
         document.getElementById('userName').textContent = userInfo.name || 'User';
         document.getElementById('userOrg').textContent = userInfo.organization_id || 'Salesforce Org';
+        const controlsBar = document.querySelector('.controls-bar');
+        if (controlsBar) controlsBar.setAttribute('data-username', userInfo.name || 'User');
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardScreen').style.display = 'block';
         isAuthenticated = true;
@@ -2551,7 +2560,7 @@ if (response.ok) {
                 checkFormValid();
             });
             
-            document.getElementById('teamSelect').addEventListener('change', checkFormValid);
+document.getElementById('teamSelect').addEventListener('change', checkFormValid);
             document.getElementById('regionSelect').addEventListener('change', checkFormValid);
         });
     </script>
