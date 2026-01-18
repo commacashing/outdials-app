@@ -538,6 +538,31 @@
             transform: translateX(-50%) scale(1.1);
         }
 
+        .race-optout-btn {
+    position: absolute;
+    bottom: -12px;
+    right: 12px;
+    background: rgba(239, 68, 68, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    transition: all 0.2s ease;
+}
+
+.race-optout-btn:hover {
+    background: rgba(239, 68, 68, 1);
+    transform: scale(1.1);
+}
+
         .note-compartment {
             position: absolute;
             top: 100%;
@@ -2145,6 +2170,15 @@ function stopTokenRefresh() {
                 };
                 card.appendChild(noteBtn);
 
+                const optoutBtn = document.createElement('button');
+optoutBtn.className = 'race-optout-btn';
+optoutBtn.textContent = '🚫';
+optoutBtn.onclick = (e) => {
+    e.stopPropagation();
+    markRaceCardOptOut(callSid);
+};
+card.appendChild(optoutBtn);
+
                 const contact = currentBatchContacts.get(callSid);
                 const noteCompartment = document.createElement('div');
                 noteCompartment.className = 'note-compartment';
@@ -2432,6 +2466,40 @@ if (response.ok) {
             
             updateStatus('idle', 'System Ready');
         }
+
+        async function markRaceCardOptOut(callSid) {
+    const contact = currentBatchContacts.get(callSid);
+    
+    if (!contact) {
+        showError('Contact information not found');
+        return;
+    }
+    
+    if (!confirm(`Mark ${contact.name} as Do Not Call?\n\nThis contact will never be called again.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${N8N_WEBHOOK_BASE}/opt-out-contact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contact_phone: contact.phone,
+                contact_name: contact.name,
+                access_token: accessToken,
+                instance_url: instanceUrl
+            })
+        });
+        
+        if (response.ok) {
+            showSuccess(`${contact.name} marked as Do Not Call`);
+        } else {
+            showError('Failed to update DNC status');
+        }
+    } catch (error) {
+        showError(`Error: ${error.message}`);
+    }
+}
 
         function toggleHeroNote() {
             const compartment = document.getElementById('heroNoteCompartment');
