@@ -228,19 +228,7 @@
             opacity: 0.4;
             cursor: not-allowed;
         }
-
-        .btn-pause {
-            background: rgba(251, 191, 36, 0.15);
-            border-color: rgba(251, 191, 36, 0.3);
-            color: rgba(251, 191, 36, 0.9);
-        }
-
-        .btn-resume {
-            background: rgba(34, 197, 94, 0.15);
-            border-color: rgba(34, 197, 94, 0.3);
-            color: rgba(34, 197, 94, 0.9);
-        }
-
+        
         .btn-stop {
             background: rgba(239, 68, 68, 0.15);
             border-color: rgba(239, 68, 68, 0.3);
@@ -1344,8 +1332,6 @@
         </div>
 
         <button id="startButton" onclick="startDialing()" class="btn-start" disabled>Start Dialing</button>
-        <button id="pauseButton" onclick="pauseDialing()" class="btn-start btn-pause" style="display: none;">Pause</button>
-        <button id="resumeButton" onclick="resumeDialing()" class="btn-start btn-resume" style="display: none;">Resume</button>
         <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">Stop Dialing</button>
     </div>
 </div>
@@ -1433,7 +1419,6 @@
         }
 
         let isDialing = false;
-        let isPaused = false;
         let accessToken = null;
         let instanceUrl = null;
         let sessionId = null;
@@ -1583,7 +1568,7 @@
                 subscribeForInbound();
             }
             
-            document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing || isPaused;
+            document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing;
         }
 
         function generateCodeVerifier() {
@@ -1884,27 +1869,14 @@ function stopTokenRefresh() {
                     }
                 }
                 
-                if (isPaused) {
-                    updateStatus('paused', 'System Paused');
-                } else {
-                    updateStatus('on-call', 'On Call');
-                }
+                updateStatus('on-call', 'On Call');
                 
                 isDialing = false;
                 unsubscribeFromSupabase();
                 
-                if (isPaused) {
-                    document.getElementById('stopButton').style.display = 'none';
-                    document.getElementById('pauseButton').style.display = 'none';
-                    document.getElementById('resumeButton').style.display = 'inline-block';
-                    document.getElementById('startButton').style.display = 'none';
-                } else {
-                    document.getElementById('stopButton').style.display = 'none';
-                    document.getElementById('pauseButton').style.display = 'none';
-                    document.getElementById('resumeButton').style.display = 'none';
-                    document.getElementById('startButton').style.display = 'inline-block';
-                    updateStatus('idle', 'System Ready');
-                }
+                document.getElementById('stopButton').style.display = 'none';
+document.getElementById('startButton').style.display = 'inline-block';
+updateStatus('idle', 'System Ready');
                 
                 document.getElementById('repPhone').disabled = false;
                 document.getElementById('teamSelect').disabled = false;
@@ -1945,9 +1917,7 @@ function stopTokenRefresh() {
                 currentNoteCallSid = null;
 
                 document.getElementById('startButton').style.display = 'none';
-                document.getElementById('pauseButton').style.display = 'inline-block';
                 document.getElementById('stopButton').style.display = 'inline-block';
-                document.getElementById('resumeButton').style.display = 'none';
                 document.getElementById('repPhone').disabled = true;
                 document.getElementById('teamSelect').disabled = true;
                 document.getElementById('regionSelect').disabled = true;
@@ -1978,50 +1948,6 @@ function stopTokenRefresh() {
                 showError(`Failed to start dialing: ${error.message}`);
                 resetDialingState();
             }
-        }
-
-        async function pauseDialing() {
-            isPaused = true;
-            
-            try {
-                await fetch(`${N8N_WEBHOOK_BASE}/pause-dialing`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        rep_phone: localStorage.getItem('current_rep_phone'),
-                        session_id: sessionId
-                    })
-                });
-            } catch (error) {
-                console.error('Pause failed:', error);
-            }
-            
-            document.getElementById('pauseButton').style.display = 'none';
-            document.getElementById('resumeButton').style.display = 'inline-block';
-            updateStatus('paused', 'System Paused');
-            showSuccess('Dialing paused - calls in progress will complete');
-        }
-
-        async function resumeDialing() {
-            isPaused = false;
-            
-            try {
-                await fetch(`${N8N_WEBHOOK_BASE}/resume-dialing`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        rep_phone: localStorage.getItem('current_rep_phone'),
-                        session_id: sessionId
-                    })
-                });
-            } catch (error) {
-                console.error('Resume failed:', error);
-            }
-            
-            document.getElementById('resumeButton').style.display = 'none';
-            document.getElementById('pauseButton').style.display = 'inline-block';
-            updateStatus('dialing', 'Dialing Active');
-            showSuccess('Dialing resumed');
         }
 
         async function stopDialing() {
@@ -2085,8 +2011,6 @@ function stopTokenRefresh() {
             stopAutoSave();
             document.getElementById('startButton').style.display = 'inline-block';
             document.getElementById('stopButton').style.display = 'none';
-            document.getElementById('pauseButton').style.display = 'none';
-            document.getElementById('resumeButton').style.display = 'none';
             document.getElementById('repPhone').disabled = false;
             document.getElementById('teamSelect').disabled = false;
             document.getElementById('regionSelect').disabled = false;
