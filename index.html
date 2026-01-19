@@ -1185,6 +1185,19 @@
         padding: 14px 40px;
         min-width: 180px;
     }
+
+    /* Mobile-only: Pop up centered on screen */
+@media (max-width: 768px) {
+    .note-compartment {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin-top: 0;
+        width: calc(100% - 40px);
+        max-width: 500px;
+        z-index: 100;
+    }
 }
     </style>
 </head>
@@ -2129,6 +2142,19 @@ card.appendChild(optoutBtn);
                     <span class="race-status-icon">✓</span>
                     <span>Human Answered</span>
                 `;
+                
+// ✅ ADD THESE 12 LINES HERE:
+for (let i = 0; i < 3; i++) {
+    const placeholderCard = document.getElementById(`race-card-placeholder-${i}`);
+    if (placeholderCard) {
+        placeholderCard.classList.remove('dialing-placeholder', 'ringing');
+        placeholderCard.classList.add('ended');
+        placeholderCard.querySelector('.race-card-status').innerHTML = `
+            <span class="race-status-icon">✕</span>
+            <span>Call Ended</span>
+        `;
+    }
+}
                 
                 currentBatchContacts.forEach((contact, sid) => {
                     if (sid !== callSid && contact.status === 'ringing') {
