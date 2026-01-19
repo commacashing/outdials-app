@@ -1951,59 +1951,57 @@ updateStatus('idle', 'System Ready');
         }
 
         async function stopDialing() {
-            try {
-                const repPhone = localStorage.getItem('current_rep_phone');
-                
-                await fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'stop', 
-                        session_id: sessionId,
-                        rep_phone: repPhone
-                    })
-                });
-                
-                document.getElementById('callRaceContainer').classList.remove('active');
-                document.getElementById('callRaceGrid').innerHTML = '';
-                currentBatchContacts.clear();
-                
-                isDialing = false;
-                isPaused = false;
-                unsubscribeFromSupabase();
-                stopAutoSave();
-                document.getElementById('stopButton').style.display = 'none';
-                document.getElementById('pauseButton').style.display = 'none';
-                document.getElementById('resumeButton').style.display = 'none';
-                document.getElementById('startButton').style.display = 'inline-block';
-                document.getElementById('repPhone').disabled = false;
-                document.getElementById('teamSelect').disabled = false;
-                document.getElementById('regionSelect').disabled = false;
-                updateStatus('idle', 'System Ready');
-                checkFormValid();
-                
-                showSuccess('Dialing stopped');
-            } catch (error) {
-                showError(`Failed to stop: ${error.message}`);
-                document.getElementById('callRaceContainer').classList.remove('active');
-                document.getElementById('callRaceGrid').innerHTML = '';
-                currentBatchContacts.clear();
-                isDialing = false;
-                isPaused = false;
-                unsubscribeFromSupabase();
-                stopAutoSave();
-                document.getElementById('stopButton').style.display = 'none';
-                document.getElementById('pauseButton').style.display = 'none';
-                document.getElementById('resumeButton').style.display = 'none';
-                document.getElementById('startButton').style.display = 'inline-block';
-                document.getElementById('repPhone').disabled = false;
-                document.getElementById('teamSelect').disabled = false;
-                document.getElementById('regionSelect').disabled = false;
-                updateStatus('idle', 'System Ready');
-                checkFormValid();
-            }
-        }
-
+    try {
+        const repPhone = localStorage.getItem('current_rep_phone');
+        
+        await fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                action: 'stop', 
+                session_id: sessionId,
+                rep_phone: repPhone
+            })
+        });
+        
+        document.getElementById('callRaceContainer').classList.remove('active');
+        document.getElementById('callRaceGrid').innerHTML = '';
+        currentBatchContacts.clear();
+        
+        isDialing = false;
+        unsubscribeFromSupabase();
+        stopAutoSave();
+        
+        document.getElementById('stopButton').style.display = 'none';
+        document.getElementById('startButton').style.display = 'inline-block';
+        
+        document.getElementById('repPhone').disabled = false;
+        document.getElementById('teamSelect').disabled = false;
+        document.getElementById('regionSelect').disabled = false;
+        updateStatus('idle', 'System Ready');
+        checkFormValid();
+        
+        showSuccess('Dialing stopped');
+    } catch (error) {
+        showError(`Failed to stop: ${error.message}`);
+        
+        document.getElementById('callRaceContainer').classList.remove('active');
+        document.getElementById('callRaceGrid').innerHTML = '';
+        currentBatchContacts.clear();
+        isDialing = false;
+        unsubscribeFromSupabase();
+        stopAutoSave();
+        
+        document.getElementById('stopButton').style.display = 'none';
+        document.getElementById('startButton').style.display = 'inline-block';
+        
+        document.getElementById('repPhone').disabled = false;
+        document.getElementById('teamSelect').disabled = false;
+        document.getElementById('regionSelect').disabled = false;
+        updateStatus('idle', 'System Ready');
+        checkFormValid();
+    }
+}
         function resetDialingState() {
             isDialing = false;
             isPaused = false;
