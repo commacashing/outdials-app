@@ -1873,12 +1873,20 @@ function stopTokenRefresh() {
                     document.getElementById('callRaceContainer').classList.remove('active');
                     document.getElementById('callRaceGrid').innerHTML = '';
                     currentBatchContacts.clear();
-                } else {
-                    updateRaceCard(data.call_sid, 'human');
+               } else {
+                    // For outbound calls, find the contact by phone number since call_sid might not match
+                    let foundCallSid = null;
+                    currentBatchContacts.forEach((contact, sid) => {
+                        if (normalizePhone(contact.phone) === normalizePhone(data.contact_phone)) {
+                            foundCallSid = sid;
+                            contact.status = 'human';
+                        }
+                    });
                     
-                    const contact = currentBatchContacts.get(data.call_sid);
-                    if (contact) {
-                        contact.status = 'human';
+                    if (foundCallSid) {
+                        updateRaceCard(foundCallSid, 'human');
+                    } else {
+                        console.warn('Could not find matching contact for human_answered event', data);
                     }
                 }
                 
