@@ -1037,6 +1037,27 @@
             }
         }
 
+        .download-menu {
+    position: absolute;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 100;
+}
+
+.download-menu-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.download-menu-item:hover {
+    background: var(--bg-primary);
+}
+        
         .error {
             background: rgba(239, 68, 68, 0.15);
             border: 1px solid rgba(239, 68, 68, 0.3);
@@ -1370,11 +1391,12 @@
 </div>
         <div class="analytics-section" id="analyticsSection" style="padding: 20px 40px 0px 40px; border-top: none;">
     <div class="analytics-header" onclick="toggleAnalytics()">
-        <h3>Session Analytics</h3>
-        <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-    </div>
+    <h3>Session Analytics</h3>
+    <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+    <button onclick="event.stopPropagation(); showDownloadMenu(event)" style="margin-left: auto; background: transparent; border: none; cursor: pointer; font-size: 20px;">⬇️</button>
+</div>
     
     <div class="analytics-content">
         <div class="analytics-stats-grid">
@@ -1592,6 +1614,64 @@
             document.getElementById('analyticsSection').classList.toggle('expanded');
         }
 
+        function showDownloadMenu(e) {
+    // Remove existing menu
+    document.querySelectorAll('.download-menu').forEach(m => m.remove());
+    
+    const menu = document.createElement('div');
+    menu.className = 'download-menu';
+    menu.style.position = 'fixed';
+    menu.style.top = e.clientY + 'px';
+    menu.style.left = e.clientX + 'px';
+    
+    ['Today', 'Week', 'Month', 'All Time'].forEach(range => {
+        const item = document.createElement('div');
+        item.className = 'download-menu-item';
+        item.textContent = range;
+        item.onclick = () => downloadData(range.toLowerCase().replace(' ', '_'));
+        menu.appendChild(item);
+    });
+    
+    document.body.appendChild(menu);
+    
+    setTimeout(() => {
+        document.addEventListener('click', () => menu.remove(), { once: true });
+    }, 100);
+}
+
+async function downloadData(range) {
+    const repPhone = normalizePhone(document.getElementById('repPhone').value);
+    
+    if (!repPhone || repPhone.length !== 12) {
+        showError('Please enter your phone number first');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${N8N_WEBHOOK_BASE}/export-my-data`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                rep_phone: repPhone,
+                date_range: range 
+            })
+        });
+        
+        const csv = await response.text();
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `outdials-${range}-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        
+        showSuccess('Data downloaded!');
+    } catch (error) {
+        showError(`Download failed: ${error.message}`);
+    }
+}
+        
         function updateStatsDisplay() {
             document.getElementById('statTotalCalls').textContent = currentSessionStats.totalCalls;
             document.getElementById('statConnects').textContent = currentSessionStats.connects;
