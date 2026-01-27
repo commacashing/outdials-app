@@ -1395,15 +1395,19 @@
     <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="6 9 12 15 18 9"></polyline>
     </svg>
-    <button onclick="event.stopPropagation(); showDownloadMenu(event)" style="margin-left: auto; background: transparent; border: none; cursor: pointer; font-size: 20px;">⬇️</button>
 </div>
-    
-    <div class="analytics-content">
-        <div class="analytics-stats-grid">
-            <div class="analytics-stat-card">
-                <div class="analytics-stat-label">Total Calls</div>
-                <div class="analytics-stat-value" id="statTotalCalls">0</div>
-            </div>
+
+<div class="analytics-content">
+    <div style="display: flex; justify-content: flex-end; padding: 0 0 12px 0;">
+        <button onclick="showDownloadMenu(event)" style="background: transparent; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--text-primary); font-size: 13px; transition: all 0.2s;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v13"/>
+                <path d="M19 12l-7 7-7-7"/>
+                <line x1="5" y1="21" x2="19" y2="21"/>
+            </svg>
+            <span>Download</span>
+        </button>
+    </div>
             <div class="analytics-stat-card">
                 <div class="analytics-stat-label">Connects</div>
                 <div class="analytics-stat-value" id="statConnects">0</div>
@@ -1614,15 +1618,18 @@
             document.getElementById('analyticsSection').classList.toggle('expanded');
         }
 
-        function showDownloadMenu(e) {
-    // Remove existing menu
+function showDownloadMenu(e) {
+    e.stopPropagation();
     document.querySelectorAll('.download-menu').forEach(m => m.remove());
+    
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
     
     const menu = document.createElement('div');
     menu.className = 'download-menu';
     menu.style.position = 'fixed';
-    menu.style.top = e.clientY + 'px';
-    menu.style.left = e.clientX + 'px';
+    menu.style.top = (rect.bottom + 4) + 'px';
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
     
     ['Today', 'Week', 'Month', 'All Time'].forEach(range => {
         const item = document.createElement('div');
