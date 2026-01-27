@@ -551,6 +551,83 @@
     transform: scale(1.1);
 }
 
+.race-disposition-btn {
+    position: absolute;
+    bottom: -12px;
+    left: 12px;
+    background: rgba(147, 51, 234, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+    transition: all 0.2s ease;
+}
+
+.race-disposition-btn:hover {
+    background: rgba(147, 51, 234, 1);
+    transform: scale(1.1);
+}
+
+.disposition-compartment {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 20px;
+    width: 100%;
+    background: rgba(26, 26, 26, 0.98);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 15;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.disposition-compartment.open {
+    max-height: 400px;
+    opacity: 1;
+}
+
+.disposition-compartment-header {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.disposition-option {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.disposition-option:hover {
+    background: rgba(147, 51, 234, 0.2);
+    border-color: rgba(147, 51, 234, 0.4);
+}
+
+.disposition-option.selected {
+    background: rgba(147, 51, 234, 0.3);
+    border-color: rgba(147, 51, 234, 0.6);
+}
         .note-compartment {
             position: absolute;
             top: 100%;
@@ -2104,6 +2181,15 @@ updateStatus('idle', 'System Ready');
                 winnerBadge.textContent = 'WINNER';
                 card.appendChild(winnerBadge);
 
+                const dispositionBtn = document.createElement('button');
+dispositionBtn.className = 'race-disposition-btn';
+dispositionBtn.textContent = '🏷️';
+dispositionBtn.onclick = (e) => {
+    e.stopPropagation();
+    toggleDispositionCompartment(callSid);
+};
+card.appendChild(dispositionBtn);
+
                 const noteBtn = document.createElement('button');
                 noteBtn.className = 'race-note-btn';
                 noteBtn.textContent = '📝';
@@ -2112,7 +2198,7 @@ updateStatus('idle', 'System Ready');
                     toggleNoteCompartment(callSid);
                 };
                 card.appendChild(noteBtn);
-
+                
                 const optoutBtn = document.createElement('button');
 optoutBtn.className = 'race-optout-btn';
 optoutBtn.textContent = '🚫';
@@ -2121,6 +2207,28 @@ optoutBtn.onclick = (e) => {
     markRaceCardOptOut(callSid);
 };
 card.appendChild(optoutBtn);
+
+                const dispositionCompartment = document.createElement('div');
+dispositionCompartment.className = 'disposition-compartment';
+dispositionCompartment.id = `disposition-compartment-${callSid}`;
+dispositionCompartment.innerHTML = `
+    <div class="disposition-compartment-header">
+        Select Call Outcome
+    </div>
+    <div class="disposition-option" onclick="selectDisposition('${callSid}', 'Interested')">
+        ✅ Interested
+    </div>
+    <div class="disposition-option" onclick="selectDisposition('${callSid}', 'Not Interested')">
+        ❌ Not Interested
+    </div>
+    <div class="disposition-option" onclick="selectDisposition('${callSid}', 'Callback')">
+        📞 Callback Requested
+    </div>
+    <div class="disposition-option" onclick="selectDisposition('${callSid}', 'Wrong Number')">
+        ❓ Wrong Number
+    </div>
+`;
+card.appendChild(dispositionCompartment);
 
                 const contact = currentBatchContacts.get(callSid);
                 const noteCompartment = document.createElement('div');
@@ -2369,6 +2477,52 @@ if (response.ok) {
             }
         }
 
+function toggleDispositionCompartment(callSid) {
+    const compartment = document.getElementById(`disposition-compartment-${callSid}`);
+    if (compartment) {
+        compartment.classList.toggle('open');
+    }
+}
+
+async function selectDisposition(callSid, disposition) {
+    const contact = currentBatchContacts.get(callSid);
+    
+    if (!contact) {
+        showError('Contact not found');
+        return;
+    }
+    
+    // Visual feedback
+    const compartment = document.getElementById(`disposition-compartment-${callSid}`);
+    const options = compartment.querySelectorAll('.disposition-option');
+    options.forEach(opt => opt.classList.remove('selected'));
+    event.target.classList.add('selected');
+    
+    // Save to Salesforce
+    try {
+        await fetch(`${N8N_WEBHOOK_BASE}/save-disposition`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                call_sid: callSid,
+                contact_phone: contact.phone,
+                contact_name: contact.name,
+                disposition: disposition,
+                access_token: accessToken,
+                instance_url: instanceUrl
+            })
+        });
+        
+        showSuccess(`Disposition saved: ${disposition}`);
+        
+        setTimeout(() => {
+            compartment.classList.remove('open');
+        }, 1000);
+    } catch (error) {
+        showError(`Failed to save disposition: ${error.message}`);
+    }
+}
+        
         function showError(message) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'message error';
