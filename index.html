@@ -755,10 +755,20 @@
             transition: transform 0.3s ease;
         }
 
-        .analytics-section.expanded .analytics-chevron {
+       .analytics-section.expanded .analytics-chevron {
             transform: rotate(180deg);
         }
 
+        .download-btn-wrapper {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .analytics-section.expanded .download-btn-wrapper {
+            opacity: 1;
+            visibility: visible;
+        }
         .analytics-content {
             max-height: 0;
             overflow: hidden;
