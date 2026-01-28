@@ -932,6 +932,28 @@
             color: white;
         }
 
+        .hero-disposition-btn {
+    background: rgba(147, 51, 234, 0.9);
+    color: white;
+}
+
+.hero-disposition-btn:hover {
+    background: rgba(147, 51, 234, 1);
+}
+
+.hero-disposition-compartment {
+    margin-top: 24px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.hero-disposition-compartment.open {
+    max-height: 400px;
+    opacity: 1;
+}
+
         .hero-card-note-compartment {
             margin-top: 24px;
             max-height: 0;
@@ -1502,6 +1524,22 @@
                 </div>
             </div>
 
+            <div class="hero-disposition-compartment" id="heroDispositionCompartment">
+    <div style="color: #ffffff; font-size: 14px; font-weight: 600; margin-bottom: 16px;">Select Call Outcome</div>
+    <div class="disposition-option" onclick="selectHeroDisposition('Interested')">
+        ✅ Interested
+    </div>
+    <div class="disposition-option" onclick="selectHeroDisposition('Not Interested')">
+        ❌ Not Interested
+    </div>
+    <div class="disposition-option" onclick="selectHeroDisposition('Callback')">
+        📞 Callback Requested
+    </div>
+    <div class="disposition-option" onclick="selectHeroDisposition('Wrong Number')">
+        ❓ Wrong Number
+    </div>
+</div>
+            
             <div class="hero-card-note-compartment" id="heroNoteCompartment">
                 <div style="color: #ffffff; font-size: 14px; font-weight: 600; margin-bottom: 12px;">📝 Call Notes</div>
                 <textarea 
@@ -1516,16 +1554,24 @@
                 </div>
             </div>
 
-            <div class="hero-card-actions">
-                <button class="hero-card-btn hero-card-btn-dismiss" onclick="dismissHeroCard()">
-                    <span>✕</span>
-                    <span>Dismiss</span>
-                </button>
-                <button class="hero-card-btn hero-card-btn-note" onclick="toggleHeroNote()">
-                    <span>📝</span>
-                    <span>Add Note</span>
-                </button>
-            </div>
+<div class="hero-card-actions">
+    <button class="hero-card-btn hero-card-btn-dismiss" onclick="dismissHeroCard()">
+        <span>✕</span>
+        <span>Dismiss</span>
+    </button>
+    <button class="hero-card-btn hero-disposition-btn" onclick="toggleHeroDisposition()">
+        <span>🏷️</span>
+        <span>Disposition</span>
+    </button>
+    <button class="hero-card-btn hero-card-btn-note" onclick="toggleHeroNote()">
+        <span>📝</span>
+        <span>Add Note</span>
+    </button>
+    <button class="hero-card-btn" style="background: rgba(239, 68, 68, 0.9);" onclick="markHeroOptOut()">
+        <span>🚫</span>
+        <span>Do Not Call</span>
+    </button>
+</div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2716,6 +2762,78 @@ async function selectDisposition(callSid, disposition) {
     }
 }
 
+        function toggleHeroDisposition() {
+    const compartment = document.getElementById('heroDispositionCompartment');
+    compartment.classList.toggle('open');
+}
+
+async function selectHeroDisposition(disposition) {
+    if (!currentHeroContact) {
+        showError('Contact not found');
+        return;
+    }
+    
+    const compartment = document.getElementById('heroDispositionCompartment');
+    const options = compartment.querySelectorAll('.disposition-option');
+    options.forEach(opt => opt.classList.remove('selected'));
+    event.target.classList.add('selected');
+    
+    try {
+        await fetch(`${N8N_WEBHOOK_BASE}/save-disposition`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                call_sid: currentHeroCallSid,
+                contact_phone: currentHeroContact.phone,
+                contact_name: currentHeroContact.name,
+                disposition: disposition,
+                access_token: accessToken,
+                instance_url: instanceUrl
+            })
+        });
+        
+        showSuccess(`Disposition saved: ${disposition}`);
+        
+        setTimeout(() => {
+            compartment.classList.remove('open');
+        }, 1000);
+    } catch (error) {
+        showError(`Failed to save disposition: ${error.message}`);
+    }
+}
+
+async function markHeroOptOut() {
+    if (!currentHeroContact) {
+        showError('Contact information not found');
+        return;
+    }
+    
+    if (!confirm(`Mark ${currentHeroContact.name} as Do Not Call?\n\nThis contact will never be called again.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${N8N_WEBHOOK_BASE}/opt-out-contact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contact_phone: currentHeroContact.phone,
+                contact_name: currentHeroContact.name,
+                access_token: accessToken,
+                instance_url: instanceUrl
+            })
+        });
+        
+        if (response.ok) {
+            showSuccess(`${currentHeroContact.name} marked as Do Not Call`);
+        } else {
+            showError('Failed to update DNC status');
+        }
+    } catch (error) {
+        showError(`Error: ${error.message}`);
+    }
+}
+        
         function toggleHeroNote() {
             const compartment = document.getElementById('heroNoteCompartment');
             compartment.classList.toggle('open');
