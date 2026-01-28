@@ -903,42 +903,67 @@
         }
 
         .hero-card-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
 
-        .hero-card-btn {
-            padding: 14px 32px;
-            font-size: 15px;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+.hero-card-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
 
-        .hero-card-btn-dismiss {
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
+.hero-card-btn-dismiss {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
 
-        .hero-card-btn-note {
-            background: rgba(59, 130, 246, 0.9);
-            color: white;
-        }
+.hero-card-btn-dismiss:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+}
 
-        .hero-disposition-btn {
+.hero-disposition-btn {
     background: rgba(147, 51, 234, 0.9);
     color: white;
 }
 
 .hero-disposition-btn:hover {
     background: rgba(147, 51, 234, 1);
+    transform: scale(1.1);
+}
+
+.hero-card-btn-note {
+    background: rgba(59, 130, 246, 0.9);
+    color: white;
+}
+
+.hero-card-btn-note:hover {
+    background: rgba(59, 130, 246, 1);
+    transform: scale(1.1);
+}
+
+.hero-card-btn-dnc {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+}
+
+.hero-card-btn-dnc:hover {
+    background: rgba(239, 68, 68, 1);
+    transform: scale(1.1);
 }
 
 .hero-disposition-compartment {
@@ -1555,22 +1580,12 @@
             </div>
 
 <div class="hero-card-actions">
-    <button class="hero-card-btn hero-card-btn-dismiss" onclick="dismissHeroCard()">
-        <span>✕</span>
-        <span>Dismiss</span>
-    </button>
-    <button class="hero-card-btn hero-disposition-btn" onclick="toggleHeroDisposition()">
-        <span>🏷️</span>
-        <span>Disposition</span>
-    </button>
-    <button class="hero-card-btn hero-card-btn-note" onclick="toggleHeroNote()">
-        <span>📝</span>
-        <span>Add Note</span>
-    </button>
-    <button class="hero-card-btn" style="background: rgba(239, 68, 68, 0.9);" onclick="markHeroOptOut()">
-        <span>🚫</span>
-        <span>Do Not Call</span>
-    </button>
+    <button class="hero-card-btn hero-card-btn-dismiss" onclick="dismissHeroCard()">✕</button>
+
+<div class="hero-card-actions">
+    <button class="hero-card-btn hero-disposition-btn" onclick="toggleHeroDisposition()">🏷️</button>
+    <button class="hero-card-btn hero-card-btn-note" onclick="toggleHeroNote()">📝</button>
+    <button class="hero-card-btn hero-card-btn-dnc" onclick="markHeroOptOut()">🚫</button>
 </div>
         </div>
     </div>
