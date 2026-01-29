@@ -1625,6 +1625,9 @@
         let currentHeroContact = null;
         let autoSaveInterval = null;
         let isAuthenticated = false;
+        let inactivityTimer = null;
+        let inactivityWarningShown = false;
+        let lastActivityTime = Date.now();
 
         function normalizePhone(phone) {
     if (!phone) return '';
@@ -2208,6 +2211,7 @@ updateStatus('idle', 'System Ready');
                 showSuccess(`Dialing started for Team ${team} in ${region} region`);
                 
                 startAutoSave();
+                startInactivityMonitor();
             } catch (error) {
                 showError(`Failed to start dialing: ${error.message}`);
                 resetDialingState();
@@ -2235,6 +2239,7 @@ updateStatus('idle', 'System Ready');
         isDialing = false;
         unsubscribeFromSupabase();
         stopAutoSave();
+        stopInactivityMonitor();
         
         document.getElementById('stopButton').style.display = 'none';
         document.getElementById('startButton').style.display = 'inline-block';
@@ -2271,6 +2276,7 @@ updateStatus('idle', 'System Ready');
             isPaused = false;
             unsubscribeFromSupabase();
             stopAutoSave();
+            stopInactivityMonitor();
             document.getElementById('startButton').style.display = 'inline-block';
             document.getElementById('stopButton').style.display = 'none';
             document.getElementById('repPhone').disabled = false;
@@ -2542,8 +2548,111 @@ for (let i = 0; i < 3; i++) {
             return true;
         }
 
+        function trackActivity() {
+    lastActivityTime = Date.now();
+    
+    if (inactivityWarningShown) {
+        dismissInactivityWarning();
+    }
+}
+
+function startInactivityMonitor() {
+    stopInactivityMonitor();
+    
+    // Reset activity tracking
+    lastActivityTime = Date.now();
+    inactivityWarningShown = false;
+    
+    // Add activity listeners
+    ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
+        document.addEventListener(event, trackActivity);
+    });
+    
+    // Check every minute
+    inactivityTimer = setInterval(() => {
+        const inactiveMinutes = (Date.now() - lastActivityTime) / 60000;
+        
+        // 30 min inactive → show warning
+        if (inactiveMinutes >= 30 && !inactivityWarningShown) {
+            showInactivityWarning();
+        }
+        
+        // 32 min inactive (30 + 2 min grace) → auto-stop
+        if (inactiveMinutes >= 32) {
+            console.log('Auto-stopping due to inactivity');
+            stopDialing();
+        }
+    }, 60000); // Check every minute
+}
+
+function stopInactivityMonitor() {
+    if (inactivityTimer) {
+        clearInterval(inactivityTimer);
+        inactivityTimer = null;
+    }
+    
+    ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
+        document.removeEventListener(event, trackActivity);
+    });
+    
+    dismissInactivityWarning();
+}
+
+function showInactivityWarning() {
+    inactivityWarningShown = true;
+    
+    const warning = document.createElement('div');
+    warning.id = 'inactivityWarning';
+    warning.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #1a1a1a;
+        border: 2px solid rgba(239, 68, 68, 0.6);
+        border-radius: 16px;
+        padding: 32px;
+        z-index: 10000;
+        text-align: center;
+        box-shadow: 0 0 40px rgba(239, 68, 68, 0.4);
+    `;
+    
+    warning.innerHTML = `
+        <div style="color: #ffffff; font-size: 24px; font-weight: 700; margin-bottom: 16px;">
+            ⏰ Are you still there?
+        </div>
+        <div style="color: rgba(255, 255, 255, 0.7); font-size: 16px; margin-bottom: 24px;">
+            No activity detected for 30 minutes.<br>
+            Session will auto-stop in 2 minutes.
+        </div>
+        <button onclick="trackActivity()" style="
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+        ">
+            Yes, I'm Still Here
+        </button>
+    `;
+    
+    document.body.appendChild(warning);
+}
+
+function dismissInactivityWarning() {
+    const warning = document.getElementById('inactivityWarning');
+    if (warning) {
+        warning.remove();
+        inactivityWarningShown = false;
+    }
+}
+        
         function startAutoSave() {
             stopAutoSave();
+            stopInactivityMonitor();
             
             autoSaveInterval = setInterval(() => {
                 autoSaveNotes();
