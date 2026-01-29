@@ -460,6 +460,10 @@ body.light-mode .race-card {
             color: rgba(255, 255, 255, 0.5);
         }
 
+        body.light-mode .race-card.dialing-placeholder .race-card-status {
+    color: rgba(0, 0, 0, 0.6);
+}
+
         .race-card.human .race-card-status {
             color: rgba(34, 197, 94, 1);
         }
@@ -488,8 +492,9 @@ body.light-mode .race-card {
 }
 
         .race-card.dialing-placeholder .race-card-name {
-            opacity: 0.5;
-        }
+    opacity: 0.5;
+    color: var(--text-primary);
+}
 
         .race-card.machine .race-card-name,
         .race-card.busy .race-card-name,
@@ -504,8 +509,9 @@ body.light-mode .race-card {
 }
 
         .race-card.dialing-placeholder .race-card-info {
-            opacity: 0.4;
-        }
+    opacity: 0.4;
+    color: var(--text-secondary);
+}
 
         .race-card.machine .race-card-info,
         .race-card.busy .race-card-info,
