@@ -357,7 +357,7 @@
 
 body.light-mode .race-card {
     border-color: rgba(0, 0, 0, 0.25);
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.04);
 }
 
         .race-card.ringing {
@@ -369,8 +369,8 @@ body.light-mode .race-card {
         }
 
         body.light-mode .race-card.dialing-placeholder {
-    background: rgba(0, 0, 0, 0.12);
-    border-color: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.3);
 }
 
         @keyframes dialingShimmer {
@@ -390,12 +390,12 @@ body.light-mode .race-card {
 
 @keyframes dialingShimmerLight {
     0%, 100% { 
-        background: rgba(0, 0, 0, 0.12);
-        border-color: rgba(0, 0, 0, 0.35);
+        background: rgba(0, 0, 0, 0.06);
+        border-color: rgba(0, 0, 0, 0.3);
     }
     50% { 
-        background: rgba(0, 0, 0, 0.18);
-        border-color: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.1);
+        border-color: rgba(0, 0, 0, 0.4);
     }
 }
 
@@ -453,8 +453,8 @@ body.light-mode .race-card {
 }
 
         .race-card.ringing .race-card-status {
-            color: rgba(255, 255, 255, 0.7);
-        }
+    color: var(--text-secondary);
+}
 
         .race-card.dialing-placeholder .race-card-status {
             color: rgba(255, 255, 255, 0.5);
