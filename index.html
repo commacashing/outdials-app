@@ -2212,7 +2212,7 @@ updateStatus('idle', 'System Ready');
             try {
                 isDialing = true;
                 isPaused = false;
-                sessionId = 'session_' + Date.now();
+                sessionId = `session_${repPhone.replace('+1', '')}_${Date.now()}`;
 
                 currentBatchContacts.clear();
                 document.getElementById('callRaceGrid').innerHTML = '';
