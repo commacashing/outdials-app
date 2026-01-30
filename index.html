@@ -2369,6 +2369,7 @@ updateStatus('idle', 'System Ready');
                 <div class="race-card-info">Region: ${contact.region || '-'} | Team: ${contact.team || '-'}</div>
                 <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
                 <div class="race-card-info">Years: ${contact.years_at_firm || '-'}</div>
+                ${contact.notes ? `<div class="race-card-info" style="margin-top: 8px; font-style: italic; opacity: 0.8;">Notes: ${contact.notes.substring(0, 100)}${contact.notes.length > 100 ? '...' : ''}</div>` : ''}
             `;
         }
 
