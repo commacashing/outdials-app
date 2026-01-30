@@ -2084,16 +2084,17 @@ function stopTokenRefresh() {
                 currentSessionStats.totalCalls++;
                 
                 const contact = {
-                    name: data.contact_name,
-                    company: data.contact_company,
-                    phone: data.contact_phone,
-                    region: data.contact_region,
-                    team: data.contact_team,
-                    licenses: data.licenses,
-                    years_at_firm: data.years_at_firm,
-                    call_sid: data.call_sid,
-                    status: 'ringing'
-                };
+    name: data.contact_name,
+    company: data.contact_company,
+    phone: data.contact_phone,
+    region: data.contact_region,
+    team: data.contact_team,
+    licenses: data.licenses,
+    years_at_firm: data.years_at_firm,
+    notes: data.notes,
+    call_sid: data.call_sid,
+    status: 'ringing'
+};
                 
                 currentBatchContacts.set(data.call_sid, contact);
                 
