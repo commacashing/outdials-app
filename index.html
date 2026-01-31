@@ -370,9 +370,9 @@
 
 @keyframes spinFloat {
     0% { transform: rotateY(0deg) translateY(0px); }
-    25% { transform: rotateY(90deg) translateY(-10px); }
+    25% { transform: rotateY(90deg) translateY(-8px); }
     50% { transform: rotateY(180deg) translateY(0px); }
-    75% { transform: rotateY(270deg) translateY(-10px); }
+    75% { transform: rotateY(270deg) translateY(-8px); }
     100% { transform: rotateY(360deg) translateY(0px); }
 }
 
@@ -391,13 +391,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: shimmerBackground 2s ease-in-out infinite;
+    position: relative;
+    background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px),
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);
 }
 
 body.light-mode .race-card-back {
     border-color: rgba(0, 0, 0, 0.25);
     background: rgba(0, 0, 0, 0.04);
-    animation: shimmerBackgroundLight 2s ease-in-out infinite;
+    background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 20px),
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 20px);
 }
 
 @keyframes shimmerBackground {
@@ -442,10 +447,39 @@ body.light-mode .race-card-back {
 }
 
 .race-card-front {
-    transform: rotateX(180deg);
+    transform: rotateY(180deg);
     background: var(--bg-secondary);
     border: 2px solid rgba(255, 255, 255, 0.15);
     padding: 24px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.corner-number {
+    position: absolute;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    opacity: 0.3;
+}
+
+.corner-number.top-left {
+    top: 12px;
+    left: 12px;
+}
+
+.corner-number.bottom-right {
+    bottom: 12px;
+    right: 12px;
+    transform: rotate(180deg);
+}
+
+.race-card-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 body.light-mode .race-card-front {
@@ -2363,61 +2397,40 @@ updateStatus('idle', 'System Ready');
         }
 
 async function stopDialing() {
-    // Immediate UI feedback
-    document.getElementById('stopButton').disabled = true;
-    document.getElementById('stopButton').textContent = 'Stopping...';
+    // IMMEDIATE UI STOP - don't wait for backend
+    document.getElementById('callRaceContainer').classList.remove('active');
+    document.getElementById('callRaceGrid').innerHTML = '';
+    currentBatchContacts.clear();
     
-    try {
-        const repPhone = localStorage.getItem('current_rep_phone');
-        
-        await fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                action: 'stop', 
-                session_id: sessionId,
-                rep_phone: repPhone
-            })
-        });
-        
-        document.getElementById('callRaceContainer').classList.remove('active');
-        document.getElementById('callRaceGrid').innerHTML = '';
-        currentBatchContacts.clear();
-        
-        isDialing = false;
-        unsubscribeFromSupabase();
-        stopAutoSave();
-        stopInactivityMonitor();
-        
-        document.getElementById('stopButton').style.display = 'none';
-        document.getElementById('startButton').style.display = 'inline-block';
-        
-        document.getElementById('repPhone').disabled = false;
-        document.getElementById('teamSelect').disabled = false;
-        document.getElementById('regionSelect').disabled = false;
-        updateStatus('idle', 'System Ready');
-        checkFormValid();
-        
-        showSuccess('Dialing stopped');
-    } catch (error) {
-        showError(`Failed to stop: ${error.message}`);
-        
-        document.getElementById('callRaceContainer').classList.remove('active');
-        document.getElementById('callRaceGrid').innerHTML = '';
-        currentBatchContacts.clear();
-        isDialing = false;
-        unsubscribeFromSupabase();
-        stopAutoSave();
-        
-        document.getElementById('stopButton').style.display = 'none';
-        document.getElementById('startButton').style.display = 'inline-block';
-        
-        document.getElementById('repPhone').disabled = false;
-        document.getElementById('teamSelect').disabled = false;
-        document.getElementById('regionSelect').disabled = false;
-        updateStatus('idle', 'System Ready');
-        checkFormValid();
-    }
+    isDialing = false;
+    unsubscribeFromSupabase();
+    stopAutoSave();
+    stopInactivityMonitor();
+    
+    document.getElementById('stopButton').style.display = 'none';
+    document.getElementById('startButton').style.display = 'inline-block';
+    
+    document.getElementById('repPhone').disabled = false;
+    document.getElementById('teamSelect').disabled = false;
+    document.getElementById('regionSelect').disabled = false;
+    updateStatus('idle', 'System Ready');
+    checkFormValid();
+    
+    showSuccess('Dialing stopped');
+    
+    // Call backend in background (don't wait)
+    const repPhone = localStorage.getItem('current_rep_phone');
+    fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            action: 'stop', 
+            session_id: sessionId,
+            rep_phone: repPhone
+        })
+    }).catch(error => {
+        console.error('Backend stop failed:', error);
+    });
 }
         function resetDialingState() {
             isDialing = false;
@@ -2452,16 +2465,29 @@ function showEmptyRaceCards() {
         
         wrapper.innerHTML = `
             <div class="race-card-inner">
-<div class="race-card-back">
-                    <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">Dialing...</div>
+                <div class="race-card-back">
+                    <div class="corner-number top-left">${i + 1}</div>
+                    <div class="corner-number bottom-right">${i + 1}</div>
+                    <div class="logo-container">
+                        <span class="broken-o">
+                            <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <mask id="slitMask${i}">
+                                        <rect width="42" height="48" fill="white"/>
+                                        <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                                    </mask>
+                                </defs>
+                                <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask${i})"/>
+                            </svg>
+                        </span>
+                    </div>
                 </div>
                 <div class="race-card-front" id="race-card-${i}">
-                    <div class="race-card-status">
-                        <span class="race-status-icon">⏳</span>
-                        <span>Dialing...</span>
+                    <div class="corner-number top-left">${i + 1}</div>
+                    <div class="corner-number bottom-right">${i + 1}</div>
+                    <div class="race-card-content">
+                        <div class="race-card-name">Searching For Contact</div>
                     </div>
-                    <div class="race-card-name">Searching for contact</div>
-                    <div class="race-card-info">Preparing call ${i + 1}</div>
                 </div>
             </div>
         `;
