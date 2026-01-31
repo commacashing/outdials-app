@@ -342,8 +342,12 @@
     gap: 20px;
     max-width: 1000px;
     margin: 0 auto;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
     height: 100%;
-    align-items: center;
 }
 
         /* 3D Card Wrapper */
@@ -365,13 +369,71 @@
     transform: rotateX(180deg);
 }
 
-.race-card-wrapper.spinning .race-card-inner {
-    animation: spinFloat 5s linear infinite;
+.race-card-wrapper.spinning.card-1 .race-card-inner,
+.race-card-wrapper.spinning.card-3 .race-card-inner {
+    animation: slideInSpin 1s ease-out forwards;
 }
 
+.race-card-wrapper.spinning.card-2 .race-card-inner {
+    animation: slideInSpinReverse 1s ease-out forwards;
+}
+
+.race-card-wrapper.dealing-out.card-1 .race-card-inner,
+.race-card-wrapper.dealing-out.card-3 .race-card-inner {
+    animation: slideOutFlip 0.8s ease-in forwards;
+}
+
+.race-card-wrapper.dealing-out.card-2 .race-card-inner {
+    animation: slideOutFlipReverse 0.8s ease-in forwards;
+}
+        
 @keyframes spinFloat {
-    from { transform: rotateY(0deg) translateY(0); }
-    to { transform: rotateY(360deg) translateY(0); }
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+}
+
+@keyframes slideInSpin {
+    0% { 
+        transform: translateX(-200%) rotateY(0deg);
+        opacity: 0;
+    }
+    100% { 
+        transform: translateX(0) rotateY(360deg);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInSpinReverse {
+    0% { 
+        transform: translateX(-200%) rotateY(0deg);
+        opacity: 0;
+    }
+    100% { 
+        transform: translateX(0) rotateY(-360deg);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutFlip {
+    0% { 
+        transform: translateX(0) rotateY(180deg);
+        opacity: 1;
+    }
+    100% { 
+        transform: translateX(-200%) rotateY(540deg);
+        opacity: 0;
+    }
+}
+
+@keyframes slideOutFlipReverse {
+    0% { 
+        transform: translateX(0) rotateY(180deg);
+        opacity: 1;
+    }
+    100% { 
+        transform: translateX(-200%) rotateY(-180deg);
+        opacity: 0;
+    }
 }
 
 .race-card-front, .race-card-back {
@@ -390,11 +452,6 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    background-image: 
-        linear-gradient(135deg, transparent 25%, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.03) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.03) 75%),
-        linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.03) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.03) 75%);
-    background-size: 40px 40px;
-    background-position: 0 0, 20px 20px;
 }
 
 body.light-mode .race-card-back {
@@ -2409,7 +2466,17 @@ updateStatus('idle', 'System Ready');
         }
 
 async function stopDialing() {
-    // IMMEDIATE UI STOP - don't wait for backend
+    // Trigger card slide-out animation
+    const wrappers = document.querySelectorAll('.race-card-wrapper');
+    wrappers.forEach(wrapper => {
+        wrapper.classList.remove('spinning');
+        wrapper.classList.add('flipped', 'dealing-out');
+    });
+    
+    // Wait for animation to complete
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // THEN clear everything
     document.getElementById('callRaceContainer').classList.remove('active');
     document.getElementById('callRaceGrid').innerHTML = '';
     currentBatchContacts.clear();
@@ -2472,7 +2539,7 @@ function showEmptyRaceCards() {
     
     for (let i = 0; i < 3; i++) {
         const wrapper = document.createElement('div');
-        wrapper.className = 'race-card-wrapper spinning';
+        wrapper.className = `race-card-wrapper spinning card-${i + 1}`;
         wrapper.id = `race-card-wrapper-${i}`;
         
         wrapper.innerHTML = `
