@@ -365,7 +365,7 @@
 }
 
 .race-card-wrapper.spinning .race-card-inner {
-    animation: spinFloat 3s linear infinite;
+    animation: spinFloat 5s linear infinite;
 }
 
 @keyframes spinFloat {
@@ -2362,7 +2362,11 @@ updateStatus('idle', 'System Ready');
             }
         }
 
-        async function stopDialing() {
+async function stopDialing() {
+    // Immediate UI feedback
+    document.getElementById('stopButton').disabled = true;
+    document.getElementById('stopButton').textContent = 'Stopping...';
+    
     try {
         const repPhone = localStorage.getItem('current_rep_phone');
         
@@ -2448,21 +2452,8 @@ function showEmptyRaceCards() {
         
         wrapper.innerHTML = `
             <div class="race-card-inner">
-                <div class="race-card-back">
-                    <div class="logo-container">
-                        <span class="broken-o">
-                            <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <mask id="slitMask${i}">
-                                        <rect width="42" height="48" fill="white"/>
-                                        <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
-                                    </mask>
-                                </defs>
-                                <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask${i})"/>
-                            </svg>
-                        </span>
-                        <span class="logo-text">utDials</span>
-                    </div>
+<div class="race-card-back">
+                    <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">Dialing...</div>
                 </div>
                 <div class="race-card-front" id="race-card-${i}">
                     <div class="race-card-status">
