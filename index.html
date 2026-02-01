@@ -364,19 +364,19 @@
     transform: rotateX(180deg) translate(0, 0);
 }
 
-.race-card-wrapper.dealing.card-1 .race-card-inner,
-.race-card-wrapper.dealing.card-2 .race-card-inner,
-.race-card-wrapper.dealing.card-3 .race-card-inner {
-    animation: slideInSpin 0.8s ease-out forwards;
+.race-card-wrapper.dealing .race-card-inner {
+    animation: slideIn 0.6s ease-out forwards;
 }
 
-.race-card-wrapper.spinning .race-card-inner {
-    animation: continuousSpin 2s linear infinite;
-}
-
-@keyframes continuousSpin {
-    from { transform: rotateY(0deg); }
-    to { transform: rotateY(360deg); }
+@keyframes slideIn {
+    0% { 
+        transform: translate(-50vw, 50vh) scale(0.3);
+        opacity: 0;
+    }
+    100% { 
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
 }
 
 .race-card-wrapper.dealing-out.card-1 .race-card-inner,
@@ -393,26 +393,39 @@
     to { transform: rotateY(360deg) translate(0, 0); }
 }
 
-@keyframes slideInSpin {
+@keyframes slideIn {
     0% { 
-        transform: translateX(-50vw) scale(0.8);
+        transform: translate(-50vw, 50vh) scale(0.3);
         opacity: 0;
     }
     100% { 
-        transform: translateX(0) scale(1);
+        transform: translate(0, 0) scale(1);
         opacity: 1;
     }
 }
 
-@keyframes slideInSpinReverse {
-    0% { 
-        transform: translateX(-50vw) scale(0.8);
-        opacity: 0;
-    }
-    100% { 
-        transform: translateX(0) scale(1);
-        opacity: 1;
-    }
+.race-card-wrapper.waiting .race-card-back::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 16px;
+    padding: 4px;
+    background: linear-gradient(45deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.6) 25%, 
+        transparent 50%,
+        rgba(255, 255, 255, 0.6) 75%,
+        transparent 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: rotateBorder 3s linear infinite;
+}
+
+@keyframes rotateBorder {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 @keyframes slideOutFlip {
@@ -2535,7 +2548,7 @@ function showEmptyRaceCards() {
     
     for (let i = 0; i < 3; i++) {
         const wrapper = document.createElement('div');
-        wrapper.className = `race-card-wrapper dealing card-${i + 1}`;
+        wrapper.className = `race-card-wrapper card-${i + 1}`;
         wrapper.id = `race-card-wrapper-${i}`;
         
         wrapper.innerHTML = `
@@ -2573,16 +2586,19 @@ grid.appendChild(wrapper);
 
 container.classList.add('active');
 
-// Switch to spinning after slide-in completes
-setTimeout(() => {
-    for (let i = 0; i < 3; i++) {
+// Deal cards one at a time with stagger
+for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
         const wrapper = document.getElementById(`race-card-wrapper-${i}`);
         if (wrapper) {
-            wrapper.classList.remove('dealing');
-            wrapper.classList.add('spinning');
+            wrapper.classList.add('dealing');
+            setTimeout(() => {
+                wrapper.classList.remove('dealing');
+                wrapper.classList.add('waiting');
+            }, 600);
         }
-    }
-}, 800);
+    }, i * 200);
+}
 }
         
 function populateRaceCard(callSid, contact, index) {
