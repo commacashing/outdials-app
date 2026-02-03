@@ -507,57 +507,56 @@ body.light-mode .race-card-front {
     border: 2px solid rgba(255, 255, 255, 0.3);
     background: var(--bg-secondary);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .race-card.searching::before {
     content: '';
     position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
     border-radius: 16px;
-    padding: 2px;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        transparent 45%, 
-        rgba(255, 255, 255, 1) 50%, 
-        transparent 55%, 
-        transparent 100%);
-    -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
+    background: transparent;
+    box-shadow: 
+        0 0 0 3px var(--bg-secondary),
+        0 0 20px 3px rgba(255, 255, 255, 0.8);
     animation: borderGlowTrace 2.5s linear infinite;
-    filter: blur(3px);
+    pointer-events: none;
 }
 
 body.light-mode .race-card.searching::before {
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        transparent 45%, 
-        rgba(0, 0, 0, 1) 50%, 
-        transparent 55%, 
-        transparent 100%);
+    box-shadow: 
+        0 0 0 3px var(--bg-secondary),
+        0 0 20px 3px rgba(0, 0, 0, 0.8);
 }
 
 @keyframes borderGlowTrace {
     0% {
-        clip-path: inset(0 100% 100% 0);
+        clip-path: polygon(
+            16px 0%, 16px 0%, 16px 0%, 16px 0%
+        );
     }
     25% {
-        clip-path: inset(0 0 100% 0);
+        clip-path: polygon(
+            16px 0%, 100% 0%, 100% 0%, 16px 0%
+        );
     }
     50% {
-        clip-path: inset(0 0 0 100%);
+        clip-path: polygon(
+            16px 0%, 100% 0%, 100% 100%, 16px 0%
+        );
     }
     75% {
-        clip-path: inset(100% 0 0 0);
+        clip-path: polygon(
+            16px 0%, 100% 0%, 100% 100%, 0% 100%
+        );
     }
     100% {
-        clip-path: inset(0 100% 100% 0);
+        clip-path: polygon(
+            16px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 16px, 16px 0%
+        );
     }
 }
 
