@@ -417,7 +417,7 @@ body.light-mode .race-card-back {
 
 @keyframes dealFromButton {
     0% {
-        transform: translateY(var(--deal-offset-y, 400px)) translateX(0) scale(1);
+        transform: translateY(var(--deal-offset-y, 400px)) translateX(var(--deal-offset-x, 0px)) scale(0.8);
         opacity: 0;
     }
     100% {
@@ -448,7 +448,7 @@ body.light-mode .race-card-back {
         opacity: 1;
     }
     100% {
-        transform: translateY(var(--deal-offset-y, 400px)) translateX(0) scale(1);
+        transform: translateY(var(--deal-offset-y, 400px)) translateX(var(--deal-offset-x, 0px)) scale(0.8);
         opacity: 0;
     }
 }
@@ -518,31 +518,35 @@ body.light-mode .race-card-front {
     right: -2px;
     bottom: -2px;
     border-radius: 16px;
-    padding: 2px;
-    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
-    -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        transparent 40%, 
+        rgba(255, 255, 255, 0.9) 50%, 
+        transparent 60%, 
+        transparent 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    animation: borderTrace 2.25s linear infinite;
+    padding: 2px;
+    animation: borderGlowTrace 2.5s linear infinite;
+    filter: blur(2px);
 }
 
-@keyframes borderTrace {
+body.light-mode .race-card.searching::before {
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        transparent 40%, 
+        rgba(0, 0, 0, 0.9) 50%, 
+        transparent 60%, 
+        transparent 100%);
+}
+
+@keyframes borderGlowTrace {
     0% {
-        clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-    }
-    25% {
-        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
-    }
-    50% {
-        clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
-    }
-    75% {
-        clip-path: polygon(100% 100%, 0 100%, 0 100%, 100% 100%);
+        transform: rotate(0deg);
     }
     100% {
-        clip-path: polygon(0 100%, 0 0, 0 0, 0 100%);
+        transform: rotate(360deg);
     }
 }
 
@@ -2532,13 +2536,21 @@ for (let i = 0; i < 3; i++) {
     const wrapper = document.createElement('div');
     wrapper.className = `race-card-wrapper dealing card-${i + 1}`;
     wrapper.id = `race-card-wrapper-${i}`;
-    
-// Calculate vertical offset from bottom center of viewport
+
+// Calculate vertical and horizontal offset from bottom center of viewport
 const viewportHeight = window.innerHeight;
+const viewportWidth = window.innerWidth;
 const cardGridBottom = containerRect.bottom;
 const offsetY = viewportHeight - cardGridBottom + 200; // 200px below screen
 
+// Calculate horizontal offset to center point
+const cardRect = wrapper.getBoundingClientRect();
+const cardCenterX = cardRect.left + cardRect.width / 2;
+const viewportCenterX = viewportWidth / 2;
+const offsetX = viewportCenterX - cardCenterX;
+
 wrapper.style.setProperty('--deal-offset-y', `${offsetY}px`);
+wrapper.style.setProperty('--deal-offset-x', `${offsetX}px`);
         
         wrapper.innerHTML = `
             <div class="race-card-back">
