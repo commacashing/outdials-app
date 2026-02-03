@@ -507,49 +507,57 @@ body.light-mode .race-card-front {
     border: 2px solid rgba(255, 255, 255, 0.3);
     background: var(--bg-secondary);
     position: relative;
-    overflow: visible;
+    overflow: hidden;
 }
 
 .race-card.searching::before {
     content: '';
     position: absolute;
-    top: -4px;
-    left: -4px;
-    right: -4px;
-    bottom: -4px;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
     border-radius: 16px;
-    background: conic-gradient(
-        from 0deg,
-        transparent 0deg,
-        transparent 80deg,
-        rgba(255, 255, 255, 1) 90deg,
-        rgba(255, 255, 255, 1) 100deg,
-        transparent 110deg,
-        transparent 360deg
-    );
+    padding: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        transparent 45%, 
+        rgba(255, 255, 255, 1) 50%, 
+        transparent 55%, 
+        transparent 100%);
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
     animation: borderGlowTrace 2.5s linear infinite;
-    filter: blur(4px);
-    z-index: -1;
+    filter: blur(3px);
 }
 
 body.light-mode .race-card.searching::before {
-    background: conic-gradient(
-        from 0deg,
-        transparent 0deg,
-        transparent 80deg,
-        rgba(0, 0, 0, 1) 90deg,
-        rgba(0, 0, 0, 1) 100deg,
-        transparent 110deg,
-        transparent 360deg
-    );
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        transparent 45%, 
+        rgba(0, 0, 0, 1) 50%, 
+        transparent 55%, 
+        transparent 100%);
 }
 
 @keyframes borderGlowTrace {
     0% {
-        transform: rotate(0deg);
+        clip-path: inset(0 100% 100% 0);
+    }
+    25% {
+        clip-path: inset(0 0 100% 0);
+    }
+    50% {
+        clip-path: inset(0 0 0 100%);
+    }
+    75% {
+        clip-path: inset(100% 0 0 0);
     }
     100% {
-        transform: rotate(360deg);
+        clip-path: inset(0 100% 100% 0);
     }
 }
 
