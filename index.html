@@ -390,7 +390,7 @@ body.light-mode .race-card-back {
 
 /* Dealing animation */
 .race-card-wrapper.dealing {
-    animation: dealFromButton 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: dealFromButton 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     opacity: 0;
 }
 
@@ -399,16 +399,16 @@ body.light-mode .race-card-back {
 }
 
 .race-card-wrapper.dealing.card-2 {
-    animation-delay: 0.15s;
+    animation-delay: 0.25s;
 }
 
 .race-card-wrapper.dealing.card-3 {
-    animation-delay: 0.3s;
+    animation-delay: 0.5s;
 }
 
 @keyframes dealFromButton {
     0% {
-        transform: translateY(-400px) translateX(0) scale(0.3);
+        transform: translateY(400px) translateX(0) scale(1);
         opacity: 0;
     }
     100% {
@@ -418,7 +418,19 @@ body.light-mode .race-card-back {
 }
         
 .race-card-wrapper.dealing-back {
-    animation: dealBackToButton 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: dealBackToButton 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.race-card-wrapper.dealing-back.card-1 {
+    animation-delay: 0s;
+}
+
+.race-card-wrapper.dealing-back.card-2 {
+    animation-delay: 0.25s;
+}
+
+.race-card-wrapper.dealing-back.card-3 {
+    animation-delay: 0.5s;
 }
 
 @keyframes dealBackToButton {
@@ -427,7 +439,7 @@ body.light-mode .race-card-back {
         opacity: 1;
     }
     100% {
-        transform: translateY(-400px) translateX(-50%) scale(0.3);
+        transform: translateY(400px) translateX(0) scale(1);
         opacity: 0;
     }
 }
@@ -493,19 +505,21 @@ body.light-mode .race-card-front {
 .race-card.searching::before {
     content: '';
     position: absolute;
-    inset: -2px;
+    inset: -3px;
     border-radius: 16px;
-    padding: 2px;
+    padding: 3px;
     background: conic-gradient(
         from 0deg,
-        rgba(107, 144, 128, 0),
-        rgba(107, 144, 128, 0.8),
-        rgba(107, 144, 128, 0)
+        transparent,
+        transparent,
+        rgba(107, 144, 128, 0.9),
+        transparent,
+        transparent
     );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    animation: rotateGlow 2s linear infinite;
+    animation: rotateGlow 2.25s linear infinite;
 }
 
 @keyframes rotateGlow {
@@ -2413,17 +2427,17 @@ updateStatus('idle', 'System Ready');
 
 async function stopDialing() {
     // Flip cards back one by one
-    for (let i = 2; i >= 0; i--) {
+    for (let i = 0; i < 3; i++) {
         const wrapper = document.getElementById(`race-card-wrapper-${i}`);
         if (wrapper) {
             wrapper.classList.remove('flipped');
             wrapper.classList.add('dealing-back');
         }
-        await new Promise(resolve => setTimeout(resolve, 150));
+        await new Promise(resolve => setTimeout(resolve, 250));
     }
     
     // Wait for animations to complete
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Clear everything
     document.getElementById('callRaceContainer').classList.remove('active');
@@ -2520,7 +2534,7 @@ function showEmptyRaceCards() {
     
     container.classList.add('active');
     
-    // Flip all cards after dealing completes
+    // Flip all cards after ALL cards are dealt (0.8s animation + 0.5s last card delay = 1.3s)
     setTimeout(() => {
         for (let i = 0; i < 3; i++) {
             const wrapper = document.getElementById(`race-card-wrapper-${i}`);
@@ -2534,7 +2548,7 @@ function showEmptyRaceCards() {
                 }
             }
         }
-    }, 800);
+    }, 1400);
 }
         
 function populateRaceCard(callSid, contact, index) {
