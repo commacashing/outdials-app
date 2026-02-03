@@ -504,9 +504,36 @@ body.light-mode .race-card-front {
 }
 
 .race-card.searching {
-    border: 2px solid rgba(107, 144, 128, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.15);
     background: var(--bg-secondary);
-    box-shadow: 0 0 20px rgba(107, 144, 128, 0.5);
+    position: relative;
+}
+
+.race-card.searching::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 2px;
+    animation: borderGlow 2.25s linear infinite;
+}
+
+@keyframes borderGlow {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
         .race-card.ringing {
@@ -2404,11 +2431,21 @@ updateStatus('idle', 'System Ready');
         }
 
 async function stopDialing() {
-    // Flip cards back one by one
+    // First, flip all cards back to show backs
     for (let i = 0; i < 3; i++) {
         const wrapper = document.getElementById(`race-card-wrapper-${i}`);
         if (wrapper) {
             wrapper.classList.remove('flipped');
+        }
+    }
+    
+    // Wait for flip animation
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    // Then deal cards back one by one
+    for (let i = 0; i < 3; i++) {
+        const wrapper = document.getElementById(`race-card-wrapper-${i}`);
+        if (wrapper) {
             wrapper.classList.add('dealing-back');
         }
         await new Promise(resolve => setTimeout(resolve, 250));
@@ -2478,24 +2515,19 @@ function showEmptyRaceCards() {
     
     grid.innerHTML = '';
     
-    // Get button position for animation origin
-    const button = document.getElementById('stopButton').style.display !== 'none' 
-        ? document.getElementById('stopButton') 
-        : document.getElementById('startButton');
-    const buttonRect = button.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
+    // Calculate offset from bottom center of screen
+const containerRect = container.getBoundingClientRect();
+
+for (let i = 0; i < 3; i++) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `race-card-wrapper dealing card-${i + 1}`;
+    wrapper.id = `race-card-wrapper-${i}`;
     
-    for (let i = 0; i < 3; i++) {
-        const wrapper = document.createElement('div');
-        wrapper.className = `race-card-wrapper dealing card-${i + 1}`;
-        wrapper.id = `race-card-wrapper-${i}`;
-        
-        // Calculate vertical offset from button to card position
-        const cardTop = containerRect.top;
-        const buttonBottom = buttonRect.bottom;
-        const offsetY = buttonBottom - cardTop;
-        
-        wrapper.style.setProperty('--deal-offset-y', `${offsetY}px`);
+    // Calculate vertical offset from bottom center of viewport
+    const viewportHeight = window.innerHeight;
+    const offsetY = viewportHeight - containerRect.top + 100;
+    
+    wrapper.style.setProperty('--deal-offset-y', `${offsetY}px`);
         
         wrapper.innerHTML = `
             <div class="race-card-back">
