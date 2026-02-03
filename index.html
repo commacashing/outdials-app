@@ -380,6 +380,15 @@ body.light-mode .race-card-back {
     transform: rotateY(180deg);
 }
 
+.race-card-front .race-card {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .race-card-wrapper.flipped .race-card-back {
     transform: rotateY(180deg);
 }
@@ -408,7 +417,7 @@ body.light-mode .race-card-back {
 
 @keyframes dealFromButton {
     0% {
-        transform: translateY(400px) translateX(0) scale(1);
+        transform: translateY(var(--deal-offset-y, 400px)) translateX(0) scale(1);
         opacity: 0;
     }
     100% {
@@ -439,7 +448,7 @@ body.light-mode .race-card-back {
         opacity: 1;
     }
     100% {
-        transform: translateY(400px) translateX(0) scale(1);
+        transform: translateY(var(--deal-offset-y, 400px)) translateX(0) scale(1);
         opacity: 0;
     }
 }
@@ -484,8 +493,7 @@ body.light-mode .race-card-front {
     border-color: rgba(0, 0, 0, 0.25);
     background: rgba(0, 0, 0, 0.04);
 }
-        
-        
+                
 .race-card {
     background: var(--bg-secondary);
     border: 2px solid rgba(255, 255, 255, 0.15);
@@ -496,39 +504,9 @@ body.light-mode .race-card-front {
 }
 
 .race-card.searching {
-    border: 2px solid transparent;
+    border: 2px solid rgba(107, 144, 128, 0.9);
     background: var(--bg-secondary);
-    background-clip: padding-box;
-    position: relative;
-}
-
-.race-card.searching::before {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 16px;
-    padding: 3px;
-    background: conic-gradient(
-        from 0deg,
-        transparent,
-        transparent,
-        rgba(107, 144, 128, 0.9),
-        transparent,
-        transparent
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: rotateGlow 2.25s linear infinite;
-}
-
-@keyframes rotateGlow {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+    box-shadow: 0 0 20px rgba(107, 144, 128, 0.5);
 }
 
         .race-card.ringing {
@@ -2500,10 +2478,24 @@ function showEmptyRaceCards() {
     
     grid.innerHTML = '';
     
+    // Get button position for animation origin
+    const button = document.getElementById('stopButton').style.display !== 'none' 
+        ? document.getElementById('stopButton') 
+        : document.getElementById('startButton');
+    const buttonRect = button.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    
     for (let i = 0; i < 3; i++) {
         const wrapper = document.createElement('div');
         wrapper.className = `race-card-wrapper dealing card-${i + 1}`;
         wrapper.id = `race-card-wrapper-${i}`;
+        
+        // Calculate vertical offset from button to card position
+        const cardTop = containerRect.top;
+        const buttonBottom = buttonRect.bottom;
+        const offsetY = buttonBottom - cardTop;
+        
+        wrapper.style.setProperty('--deal-offset-y', `${offsetY}px`);
         
         wrapper.innerHTML = `
             <div class="race-card-back">
@@ -2534,7 +2526,7 @@ function showEmptyRaceCards() {
     
     container.classList.add('active');
     
-    // Flip all cards after ALL cards are dealt (0.8s animation + 0.5s last card delay = 1.3s)
+    // Flip all cards after ALL cards are dealt
     setTimeout(() => {
         for (let i = 0; i < 3; i++) {
             const wrapper = document.getElementById(`race-card-wrapper-${i}`);
