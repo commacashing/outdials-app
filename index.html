@@ -504,35 +504,45 @@ body.light-mode .race-card-front {
 }
 
 .race-card.searching {
-    border: 2px solid rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     background: var(--bg-secondary);
     position: relative;
+    overflow: hidden;
 }
 
 .race-card.searching::before {
     content: '';
     position: absolute;
-    inset: -2px;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
     border-radius: 16px;
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.6) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    padding: 2px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    padding: 2px;
-    animation: borderGlow 2.25s linear infinite;
+    animation: borderTrace 2.25s linear infinite;
 }
 
-@keyframes borderGlow {
+@keyframes borderTrace {
     0% {
-        transform: rotate(0deg);
+        clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+    }
+    25% {
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    }
+    50% {
+        clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+    }
+    75% {
+        clip-path: polygon(100% 100%, 0 100%, 0 100%, 100% 100%);
     }
     100% {
-        transform: rotate(360deg);
+        clip-path: polygon(0 100%, 0 0, 0 0, 0 100%);
     }
 }
 
@@ -2448,11 +2458,11 @@ async function stopDialing() {
         if (wrapper) {
             wrapper.classList.add('dealing-back');
         }
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise(resolve => setTimeout(resolve, 150));
     }
     
     // Wait for animations to complete
-    await new Promise(resolve => setTimeout(resolve, 1000));
+await new Promise(resolve => setTimeout(resolve, 800));
     
     // Clear everything
     document.getElementById('callRaceContainer').classList.remove('active');
@@ -2523,11 +2533,12 @@ for (let i = 0; i < 3; i++) {
     wrapper.className = `race-card-wrapper dealing card-${i + 1}`;
     wrapper.id = `race-card-wrapper-${i}`;
     
-    // Calculate vertical offset from bottom center of viewport
-    const viewportHeight = window.innerHeight;
-    const offsetY = viewportHeight - containerRect.top + 100;
-    
-    wrapper.style.setProperty('--deal-offset-y', `${offsetY}px`);
+// Calculate vertical offset from bottom center of viewport
+const viewportHeight = window.innerHeight;
+const cardGridBottom = containerRect.bottom;
+const offsetY = viewportHeight - cardGridBottom + 200; // 200px below screen
+
+wrapper.style.setProperty('--deal-offset-y', `${offsetY}px`);
         
         wrapper.innerHTML = `
             <div class="race-card-back">
