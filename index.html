@@ -345,118 +345,22 @@
     width: 100%;
 }
 
-        /* 3D Card Wrapper */
+/* Card Wrapper */
 .race-card-wrapper {
-    perspective: 1000px;
     height: 100%;
     min-height: 380px;
-}
-
-.race-card-inner {
     position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
 }
 
-.race-card-wrapper.flipped .race-card-inner {
-    transform: rotateX(180deg) translate(0, 0);
-}
-
-.race-card-wrapper.dealing .race-card-inner {
-    animation: slideIn 0.6s ease-out forwards;
-}
-
-@keyframes slideIn {
-    0% { 
-        transform: translate(-50vw, 50vh) scale(0.3);
-        opacity: 0;
-    }
-    100% { 
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-    }
-}
-
-.race-card-wrapper.dealing-out.card-1 .race-card-inner,
-.race-card-wrapper.dealing-out.card-3 .race-card-inner {
-    animation: slideOutFlip 0.8s ease-in forwards;
-}
-
-.race-card-wrapper.dealing-out.card-2 .race-card-inner {
-    animation: slideOutFlipReverse 0.8s ease-in forwards;
-}
-        
-@keyframes spinFloat {
-    from { transform: rotateY(0deg) translate(0, 0); }
-    to { transform: rotateY(360deg) translate(0, 0); }
-}
-
-@keyframes slideIn {
-    0% { 
-        transform: translate(-50vw, 50vh) scale(0.3);
-        opacity: 0;
-    }
-    100% { 
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-    }
-}
-
-.race-card-wrapper.waiting .race-card-back::after {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 16px;
-    padding: 4px;
-    background: linear-gradient(45deg, 
-        transparent 0%, 
-        rgba(255, 255, 255, 0.6) 25%, 
-        transparent 50%,
-        rgba(255, 255, 255, 0.6) 75%,
-        transparent 100%
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: rotateBorder 3s linear infinite;
-}
-
-@keyframes rotateBorder {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes slideOutFlip {
-    0% { 
-        transform: translateX(0) rotateY(180deg);
-        opacity: 1;
-    }
-    100% { 
-        transform: translateX(-200%) rotateY(540deg);
-        opacity: 0;
-    }
-}
-
-@keyframes slideOutFlipReverse {
-    0% { 
-        transform: translateX(0) rotateY(180deg);
-        opacity: 1;
-    }
-    100% { 
-        transform: translateX(-200%) rotateY(-180deg);
-        opacity: 0;
-    }
-}
-
-.race-card-front, .race-card-back {
+/* Card faces */
+.race-card-back, .race-card-front {
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
     border-radius: 16px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.6s;
 }
 
 .race-card-back {
@@ -465,7 +369,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
 }
 
 body.light-mode .race-card-back {
@@ -473,57 +376,62 @@ body.light-mode .race-card-back {
     background: rgba(0, 0, 0, 0.04);
 }
 
-@keyframes shimmerBackground {
-    0%, 100% {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.15);
-    }
-    50% {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.3);
-    }
-}
-
-@keyframes shimmerBackgroundLight {
-    0%, 100% {
-        background: rgba(0, 0, 0, 0.06);
-        border-color: rgba(0, 0, 0, 0.3);
-    }
-    50% {
-        background: rgba(0, 0, 0, 0.1);
-        border-color: rgba(0, 0, 0, 0.4);
-    }
-}
-
-.race-card-back .logo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.race-card-back .broken-o {
-    width: 56px;
-    height: 64px;
-}
-
-.race-card-back .logo-text {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.5px;
-}
-
 .race-card-front {
     transform: rotateY(180deg);
-    background: var(--bg-secondary);
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
 }
 
+.race-card-wrapper.flipped .race-card-back {
+    transform: rotateY(180deg);
+}
+
+.race-card-wrapper.flipped .race-card-front {
+    transform: rotateY(0deg);
+}
+
+/* Dealing animation */
+.race-card-wrapper.dealing {
+    animation: dealFromButton 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+}
+
+.race-card-wrapper.dealing.card-1 {
+    animation-delay: 0s;
+}
+
+.race-card-wrapper.dealing.card-2 {
+    animation-delay: 0.15s;
+}
+
+.race-card-wrapper.dealing.card-3 {
+    animation-delay: 0.3s;
+}
+
+@keyframes dealFromButton {
+    0% {
+        transform: translateY(-400px) translateX(0) scale(0.3);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+        
+.race-card-wrapper.dealing-back {
+    animation: dealBackToButton 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes dealBackToButton {
+    0% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-400px) translateX(-50%) scale(0.3);
+        opacity: 0;
+    }
+}
+        
 .corner-number {
     position: absolute;
     font-size: 24px;
@@ -566,7 +474,7 @@ body.light-mode .race-card-front {
 }
         
         
-        .race-card {
+.race-card {
     background: var(--bg-secondary);
     border: 2px solid rgba(255, 255, 255, 0.15);
     border-radius: 16px;
@@ -575,9 +483,38 @@ body.light-mode .race-card-front {
     position: relative;
 }
 
-body.light-mode .race-card {
-    border-color: rgba(0, 0, 0, 0.25);
-    background: rgba(0, 0, 0, 0.04);
+.race-card.searching {
+    border: 2px solid transparent;
+    background: var(--bg-secondary);
+    background-clip: padding-box;
+    position: relative;
+}
+
+.race-card.searching::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 16px;
+    padding: 2px;
+    background: conic-gradient(
+        from 0deg,
+        rgba(107, 144, 128, 0),
+        rgba(107, 144, 128, 0.8),
+        rgba(107, 144, 128, 0)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: rotateGlow 2s linear infinite;
+}
+
+@keyframes rotateGlow {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
         .race-card.ringing {
@@ -2475,17 +2412,20 @@ updateStatus('idle', 'System Ready');
         }
 
 async function stopDialing() {
-    // Trigger card slide-out animation
-    const wrappers = document.querySelectorAll('.race-card-wrapper');
-    wrappers.forEach(wrapper => {
-        wrapper.classList.remove('spinning');
-        wrapper.classList.add('flipped', 'dealing-out');
-    });
+    // Flip cards back one by one
+    for (let i = 2; i >= 0; i--) {
+        const wrapper = document.getElementById(`race-card-wrapper-${i}`);
+        if (wrapper) {
+            wrapper.classList.remove('flipped');
+            wrapper.classList.add('dealing-back');
+        }
+        await new Promise(resolve => setTimeout(resolve, 150));
+    }
     
-    // Wait for animation to complete
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Wait for animations to complete
+    await new Promise(resolve => setTimeout(resolve, 500));
     
-    // THEN clear everything
+    // Clear everything
     document.getElementById('callRaceContainer').classList.remove('active');
     document.getElementById('callRaceGrid').innerHTML = '';
     currentBatchContacts.clear();
@@ -2506,7 +2446,7 @@ async function stopDialing() {
     
     showSuccess('Dialing stopped');
     
-    // Call backend in background (don't wait)
+    // Call backend in background
     const repPhone = localStorage.getItem('current_rep_phone');
     fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
         method: 'POST',
@@ -2548,87 +2488,75 @@ function showEmptyRaceCards() {
     
     for (let i = 0; i < 3; i++) {
         const wrapper = document.createElement('div');
-        wrapper.className = `race-card-wrapper card-${i + 1}`;
+        wrapper.className = `race-card-wrapper dealing card-${i + 1}`;
         wrapper.id = `race-card-wrapper-${i}`;
         
         wrapper.innerHTML = `
-            <div class="race-card-inner">
-<div class="race-card-back">
-                    <div class="logo-container">
-                        <span class="broken-o">
-                            <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <mask id="slitMask${i}">
-                                        <rect width="42" height="48" fill="white"/>
-                                        <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
-                                    </mask>
-                                </defs>
-                                <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask${i})"/>
-                            </svg>
-                        </span>
-                    </div>
+            <div class="race-card-back">
+                <div class="logo-container">
+                    <span class="broken-o">
+                        <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <mask id="slitMask${i}">
+                                    <rect width="42" height="48" fill="white"/>
+                                    <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                                </mask>
+                            </defs>
+                            <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask${i})"/>
+                        </svg>
+                    </span>
                 </div>
-<div class="race-card-front" id="race-card-${i}">
-                    <div class="corner-number top-left">${i + 1}</div>
-                    <div class="corner-number bottom-right">${i + 1}</div>
-                    <div class="race-card-content">
-                        <div>
-                            <div class="race-card-name">Searching For Contact</div>
-                            <div class="race-card-subtitle">Dialing in progress...</div>
-                        </div>
-                    </div>
+            </div>
+            <div class="race-card-front">
+                <div class="race-card" id="race-card-${i}">
+                    <div class="race-card-name">Searching For Contact</div>
+                    <div class="race-card-subtitle">Dialing in progress...</div>
                 </div>
             </div>
         `;
         
-grid.appendChild(wrapper);
-}
-
-container.classList.add('active');
-
-// Deal cards one at a time with stagger
-for (let i = 0; i < 3; i++) {
+        grid.appendChild(wrapper);
+    }
+    
+    container.classList.add('active');
+    
+    // Flip all cards after dealing completes
     setTimeout(() => {
-        const wrapper = document.getElementById(`race-card-wrapper-${i}`);
-        if (wrapper) {
-            wrapper.classList.add('dealing');
-            setTimeout(() => {
+        for (let i = 0; i < 3; i++) {
+            const wrapper = document.getElementById(`race-card-wrapper-${i}`);
+            if (wrapper) {
                 wrapper.classList.remove('dealing');
-                wrapper.classList.add('waiting');
-            }, 600);
+                wrapper.classList.add('flipped');
+                
+                const card = document.getElementById(`race-card-${i}`);
+                if (card) {
+                    card.classList.add('searching');
+                }
+            }
         }
-    }, i * 200);
-}
+    }, 800);
 }
         
 function populateRaceCard(callSid, contact, index) {
-    const wrapper = document.getElementById(`race-card-wrapper-${index}`);
-    if (!wrapper) return;
-    
-    // Stop spinning and flip to front
-    wrapper.classList.remove('spinning');
-    wrapper.classList.add('flipped');
-    
     const card = document.getElementById(`race-card-${index}`);
     if (!card) return;
     
     card.id = `race-card-${callSid}`;
     card.className = 'race-card ringing';
     card.innerHTML = `
-                <div class="race-card-status">
-                    <span class="race-status-icon">📞</span>
-                    <span>Ringing...</span>
-                </div>
-                <div class="race-card-name">${contact.name}</div>
-                <div class="race-card-info"><strong>${contact.company || 'No company'}</strong></div>
-                <div class="race-card-info">${contact.phone || 'No phone'}</div>
-                <div class="race-card-info">Region: ${contact.region || '-'} | Team: ${contact.team || '-'}</div>
-                <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
-                <div class="race-card-info">Years: ${contact.years_at_firm || '-'}</div>
-                ${contact.notes ? `<div class="race-card-info" style="margin-top: 8px; font-style: italic; opacity: 0.8;">Notes: ${contact.notes.substring(0, 100)}${contact.notes.length > 100 ? '...' : ''}</div>` : ''}
-             `;
-    }
-
+        <div class="race-card-status">
+            <span class="race-status-icon">📞</span>
+            <span>Ringing...</span>
+        </div>
+        <div class="race-card-name">${contact.name}</div>
+        <div class="race-card-info"><strong>${contact.company || 'No company'}</strong></div>
+        <div class="race-card-info">${contact.phone || 'No phone'}</div>
+        <div class="race-card-info">Region: ${contact.region || '-'} | Team: ${contact.team || '-'}</div>
+        <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
+        <div class="race-card-info">Years: ${contact.years_at_firm || '-'}</div>
+        ${contact.notes ? `<div class="race-card-info" style="margin-top: 8px; font-style: italic; opacity: 0.8;">Notes: ${contact.notes.substring(0, 100)}${contact.notes.length > 100 ? '...' : ''}</div>` : ''}
+    `;
+}
         function updateRaceCard(callSid, status, busyType = null) {
             const card = document.getElementById(`race-card-${callSid}`);
             if (!card) return;
