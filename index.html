@@ -510,53 +510,48 @@ body.light-mode .race-card-front {
     overflow: visible;
 }
 
-.race-card.searching::before {
+.race-card.searching::after {
     content: '';
     position: absolute;
-    top: -3px;
-    left: -3px;
-    right: -3px;
-    bottom: -3px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     border-radius: 16px;
-    background: transparent;
-    box-shadow: 
-        0 0 0 3px var(--bg-secondary),
-        0 0 20px 3px rgba(255, 255, 255, 0.8);
+    padding: 3px;
+    background: linear-gradient(
+        var(--angle, 0deg),
+        transparent 0%,
+        transparent 30%,
+        rgba(255, 255, 255, 1) 50%,
+        transparent 70%,
+        transparent 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
     animation: borderGlowTrace 2.5s linear infinite;
+    filter: blur(2px);
     pointer-events: none;
 }
 
-body.light-mode .race-card.searching::before {
-    box-shadow: 
-        0 0 0 3px var(--bg-secondary),
-        0 0 20px 3px rgba(0, 0, 0, 0.8);
+body.light-mode .race-card.searching::after {
+    background: linear-gradient(
+        var(--angle, 0deg),
+        transparent 0%,
+        transparent 30%,
+        rgba(0, 0, 0, 1) 50%,
+        transparent 70%,
+        transparent 100%
+    );
 }
 
 @keyframes borderGlowTrace {
     0% {
-        clip-path: polygon(
-            16px 0%, 16px 0%, 16px 0%, 16px 0%
-        );
-    }
-    25% {
-        clip-path: polygon(
-            16px 0%, 100% 0%, 100% 0%, 16px 0%
-        );
-    }
-    50% {
-        clip-path: polygon(
-            16px 0%, 100% 0%, 100% 100%, 16px 0%
-        );
-    }
-    75% {
-        clip-path: polygon(
-            16px 0%, 100% 0%, 100% 100%, 0% 100%
-        );
+        --angle: 0deg;
     }
     100% {
-        clip-path: polygon(
-            16px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 16px, 16px 0%
-        );
+        --angle: 360deg;
     }
 }
 
