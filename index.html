@@ -507,38 +507,41 @@ body.light-mode .race-card-front {
     border: 2px solid rgba(255, 255, 255, 0.3);
     background: var(--bg-secondary);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .race-card.searching::before {
     content: '';
     position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
     border-radius: 16px;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        transparent 40%, 
-        rgba(255, 255, 255, 0.9) 50%, 
-        transparent 60%, 
-        transparent 100%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    padding: 2px;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        transparent 80deg,
+        rgba(255, 255, 255, 1) 90deg,
+        rgba(255, 255, 255, 1) 100deg,
+        transparent 110deg,
+        transparent 360deg
+    );
     animation: borderGlowTrace 2.5s linear infinite;
-    filter: blur(2px);
+    filter: blur(4px);
+    z-index: -1;
 }
 
 body.light-mode .race-card.searching::before {
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        transparent 40%, 
-        rgba(0, 0, 0, 0.9) 50%, 
-        transparent 60%, 
-        transparent 100%);
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        transparent 80deg,
+        rgba(0, 0, 0, 1) 90deg,
+        rgba(0, 0, 0, 1) 100deg,
+        transparent 110deg,
+        transparent 360deg
+    );
 }
 
 @keyframes borderGlowTrace {
@@ -2537,20 +2540,22 @@ for (let i = 0; i < 3; i++) {
     wrapper.className = `race-card-wrapper dealing card-${i + 1}`;
     wrapper.id = `race-card-wrapper-${i}`;
 
-// Calculate vertical and horizontal offset from bottom center of viewport
+// Calculate vertical offset from bottom center of viewport
 const viewportHeight = window.innerHeight;
 const viewportWidth = window.innerWidth;
 const cardGridBottom = containerRect.bottom;
-const offsetY = viewportHeight - cardGridBottom + 200; // 200px below screen
-
-// Calculate horizontal offset to center point
-const cardRect = wrapper.getBoundingClientRect();
-const cardCenterX = cardRect.left + cardRect.width / 2;
-const viewportCenterX = viewportWidth / 2;
-const offsetX = viewportCenterX - cardCenterX;
+const offsetY = viewportHeight - cardGridBottom + 200;
 
 wrapper.style.setProperty('--deal-offset-y', `${offsetY}px`);
-wrapper.style.setProperty('--deal-offset-x', `${offsetX}px`);
+
+// Need to wait for grid to render to get proper position
+setTimeout(() => {
+    const cardRect = wrapper.getBoundingClientRect();
+    const cardCenterX = cardRect.left + cardRect.width / 2;
+    const viewportCenterX = viewportWidth / 2;
+    const offsetX = viewportCenterX - cardCenterX;
+    wrapper.style.setProperty('--deal-offset-x', `${offsetX}px`);
+}, 10);
         
         wrapper.innerHTML = `
             <div class="race-card-back">
