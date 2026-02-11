@@ -2202,6 +2202,8 @@ async function loginToSalesforce() {
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
     localStorage.setItem('pkce_code_verifier', codeVerifier);
+console.log('💾 Saved code_verifier to localStorage:', codeVerifier);
+console.log('✅ Verify it saved:', localStorage.getItem('pkce_code_verifier'));
     
     const authParams = new URLSearchParams({
         response_type: 'code',
@@ -2212,7 +2214,9 @@ async function loginToSalesforce() {
         code_challenge_method: 'S256'
     });
     
-    window.location.href = `${SALESFORCE_CONFIG.authUrl}?${authParams}`;
+    console.log('🚀 About to redirect to Salesforce');
+console.log('🔑 code_verifier in localStorage before redirect:', localStorage.getItem('pkce_code_verifier'));
+window.location.href = `${SALESFORCE_CONFIG.authUrl}?${authParams}`;
 }
 
 async function handleOAuthCallback(code) {
