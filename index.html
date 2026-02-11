@@ -3450,8 +3450,7 @@ async function markHeroOptOut() {
             }
         });
 
-        window.addEventListener('DOMContentLoaded', async () => {
-    // Save OAuth code BEFORE any redirects
+       window.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const oauthCode = params.get('code');
     if (oauthCode) {
