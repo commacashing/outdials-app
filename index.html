@@ -2201,7 +2201,7 @@ async function loginToSalesforce() {
     
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
-    sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+    localStorage.setItem('pkce_code_verifier', codeVerifier);
     
     const authParams = new URLSearchParams({
         response_type: 'code',
@@ -2219,7 +2219,7 @@ async function handleOAuthCallback(code) {
     try {
         console.log('📤 Sending to token-exchange:', {
             code: code,
-            code_verifier: sessionStorage.getItem('pkce_code_verifier'),
+            code_verifier: localStorage.getItem('pkce_code_verifier'),
             redirect_uri: SALESFORCE_CONFIG.redirectUri
         });
         
@@ -2228,7 +2228,7 @@ async function handleOAuthCallback(code) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 code: code,
-                code_verifier: sessionStorage.getItem('pkce_code_verifier'),
+                code_verifier: localStorage.getItem('pkce_code_verifier'),
                 redirect_uri: SALESFORCE_CONFIG.redirectUri
             })
         });
@@ -2249,7 +2249,7 @@ async function handleOAuthCallback(code) {
         
         localStorage.setItem('sf_access_token', accessToken);
         localStorage.setItem('sf_instance_url', instanceUrl);
-        sessionStorage.removeItem('pkce_code_verifier');
+        localStorage.removeItem('pkce_code_verifier');
         const companyCode = localStorage.getItem('company_code');
         window.history.replaceState({}, document.title, `/${companyCode}`);
         await loadUserInfo();
