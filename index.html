@@ -1913,11 +1913,19 @@ let currentCompany = null;
         SALESFORCE_CONFIG.redirectUri = data.salesforce_redirect_uri || 'https://app.outdials.com';
         
         localStorage.setItem('company_code', data.company_code);
-        localStorage.setItem('company_name', data.company_name);
-        
-        document.getElementById('companyNameDisplay').textContent = data.company_name;
-        
-        console.log('Loaded company:', data.company_name);
+localStorage.setItem('company_name', data.company_name);
+localStorage.setItem('crm_display_name', data.crm_display_name || 'Salesforce');
+
+document.getElementById('companyNameDisplay').textContent = data.company_name;
+
+// Update login button text dynamically
+const crmName = data.crm_display_name || 'Salesforce';
+const loginBtn = document.querySelector('.btn-primary');
+if (loginBtn) {
+    loginBtn.textContent = `Connect to ${crmName}`;
+}
+
+console.log('Loaded company:', data.company_name);
         
     } catch (error) {
         showError(`Error loading company: ${error.message}`);
@@ -2156,6 +2164,12 @@ async function downloadData(range) {
         async function loginToSalesforce() {
     if (!currentCompany) {
         showError('Company not loaded. Please refresh the page.');
+        return;
+    }
+    
+    // Check if CRM is supported
+    if (currentCompany.crm_type !== 'salesforce') {
+        showError(`${currentCompany.crm_display_name} integration coming soon! Currently only Salesforce is supported.`);
         return;
     }
     
