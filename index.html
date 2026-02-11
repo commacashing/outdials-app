@@ -3451,66 +3451,73 @@ async function markHeroOptOut() {
         });
 
         window.addEventListener('DOMContentLoaded', async () => {
-            await initSupabase();
-            
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-mode');
-                document.getElementById('themeToggle').textContent = '☀️';
-            }
-            
-            const lastResetDate = localStorage.getItem('lastStatsReset');
-            const today = new Date().toDateString();
-            
-            if (lastResetDate !== today) {
-                resetSessionStats();
-                localStorage.setItem('lastStatsReset', today);
-            } else {
-                const savedStats = localStorage.getItem('dailyStats');
-                if (savedStats) {
-                    const parsed = JSON.parse(savedStats);
-                    currentSessionStats.totalCalls = parsed.totalCalls || 0;
-                    currentSessionStats.connects = parsed.connects || 0;
-                    currentSessionStats.machines = parsed.machines || 0;
-                    currentSessionStats.callDurations = parsed.callDurations || [];
-                    currentSessionStats.startTime = parsed.startTime || null;
-                    updateStatsDisplay();
-                }
-            }
-            
-            // Check for OAuth callback FIRST before anything else
-const params = new URLSearchParams(window.location.search);
-const code = params.get('code');
-
-console.log('🔍 Checking for OAuth code:', code);
-console.log('🔍 Current URL:', window.location.href);
-console.log('🔍 Search params:', window.location.search);
-
-if (code) {
-    console.log('✅ Found OAuth code, calling handleOAuthCallback');
-    handleOAuthCallback(code);
-} else if (localStorage.getItem('sf_access_token')) {
-    console.log('✅ Found saved session, loading user info');
-    loadUserSession();
-} else {
-    console.log('❌ No code and no saved session');
-}
-            
-            document.getElementById('repPhone').addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 10) value = value.slice(0, 10);
-                if (value.length >= 6) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
-                } else if (value.length >= 3) {
-                    value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-                }
-                e.target.value = value;
-                checkFormValid();
-            });
-            
-document.getElementById('teamSelect').addEventListener('change', checkFormValid);
-            document.getElementById('regionSelect').addEventListener('change', checkFormValid);
-        });
+    // Save OAuth code BEFORE any redirects
+    const params = new URLSearchParams(window.location.search);
+    const oauthCode = params.get('code');
+    if (oauthCode) {
+        sessionStorage.setItem('pending_oauth_code', oauthCode);
+    }
+    
+    await initSupabase();
+    
+    // NOW check for OAuth code (either from URL or from sessionStorage)
+    const code = oauthCode || sessionStorage.getItem('pending_oauth_code');
+    
+    if (code) {
+        console.log('✅ Processing OAuth callback');
+        sessionStorage.removeItem('pending_oauth_code');
+        handleOAuthCallback(code);
+        return;
+    }
+    
+    // No OAuth code, check for existing session
+    if (localStorage.getItem('sf_access_token')) {
+        loadUserSession();
+    }
+    
+    // Theme setup
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        document.getElementById('themeToggle').textContent = '☀️';
+    }
+    
+    // Stats setup
+    const lastResetDate = localStorage.getItem('lastStatsReset');
+    const today = new Date().toDateString();
+    
+    if (lastResetDate !== today) {
+        resetSessionStats();
+        localStorage.setItem('lastStatsReset', today);
+    } else {
+        const savedStats = localStorage.getItem('dailyStats');
+        if (savedStats) {
+            const parsed = JSON.parse(savedStats);
+            currentSessionStats.totalCalls = parsed.totalCalls || 0;
+            currentSessionStats.connects = parsed.connects || 0;
+            currentSessionStats.machines = parsed.machines || 0;
+            currentSessionStats.callDurations = parsed.callDurations || [];
+            currentSessionStats.startTime = parsed.startTime || null;
+            updateStatsDisplay();
+        }
+    }
+    
+    // Phone formatting
+    document.getElementById('repPhone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 10) value = value.slice(0, 10);
+        if (value.length >= 6) {
+            value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6)}`;
+        } else if (value.length >= 3) {
+            value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        }
+        e.target.value = value;
+        checkFormValid();
+    });
+    
+    document.getElementById('teamSelect').addEventListener('change', checkFormValid);
+    document.getElementById('regionSelect').addEventListener('change', checkFormValid);
+});
     </script>
 </body>
 </html>
