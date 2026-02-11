@@ -1643,7 +1643,8 @@ body.light-mode .race-card.searching::before {
     <span>utDials</span>
 </div>
             <h2>Welcome Back</h2>
-            <button onclick="loginToSalesforce()" class="btn-primary">Connect to Salesforce</button>
+<p id="companyNameDisplay">Loading...</p>
+<button onclick="loginToSalesforce()" class="btn-primary">Connect to Salesforce</button>
         </div>
     </div>
 
@@ -1855,26 +1856,73 @@ body.light-mode .race-card.searching::before {
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const N8N_WEBHOOK_BASE = 'https://commacashing.app.n8n.cloud/webhook';
-        const SALESFORCE_CONFIG = {
-    clientId: '3MVG9HtWXcDGV.nHzF1EzyN.bUajy5rX.YWM11RQGgy_mRqB4oxWWkvtCN2eh5gRZPENJUZjaKqyyDUo0kfvR',
+let SALESFORCE_CONFIG = {
+    clientId: '',  // Will be loaded from company
     redirectUri: 'https://app.outdials.com',
     authUrl: 'https://login.salesforce.com/services/oauth2/authorize',
     scope: 'id api refresh_token'
 };
 
+let currentCompany = null;
+
         let supabaseClient = null;
 
         async function initSupabase() {
-            try {
-                const response = await fetch('/.netlify/functions/supabase-init', {
-                    method: 'POST'
-                });
-                const { url, key } = await response.json();
-                supabaseClient = window.supabase.createClient(url, key);
-            } catch (error) {
-                console.error('Failed to initialize Supabase:', error);
-            }
+    try {
+        const response = await fetch('/.netlify/functions/supabase-init', {
+            method: 'POST'
+        });
+        const { url, key } = await response.json();
+        supabaseClient = window.supabase.createClient(url, key);
+        await loadCompanyFromURL();  // ← NEW LINE
+    } catch (error) {
+        console.error('Failed to initialize Supabase:', error);
+    }
+}
+
+        async function loadCompanyFromURL() {
+    const path = window.location.pathname;
+    const companyCode = path.split('/')[1];
+    
+    if (!companyCode || companyCode === '') {
+        const savedCompany = localStorage.getItem('company_code');
+        if (savedCompany) {
+            window.location.href = `/${savedCompany}`;
+            return;
+        } else {
+            showError('Invalid company link. Please use the link provided.');
+            return;
         }
+    }
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('companies')
+            .select('*')
+            .eq('company_code', companyCode)
+            .eq('active', true)
+            .single();
+
+        if (error || !data) {
+            showError(`Company "${companyCode}" not found.`);
+            return;
+        }
+
+        currentCompany = data;
+        SALESFORCE_CONFIG.clientId = data.salesforce_client_id;
+        SALESFORCE_CONFIG.redirectUri = data.salesforce_redirect_uri || 'https://app.outdials.com';
+        
+        localStorage.setItem('company_code', data.company_code);
+        localStorage.setItem('company_name', data.company_name);
+        
+        document.getElementById('companyNameDisplay').textContent = data.company_name;
+        
+        console.log('Loaded company:', data.company_name);
+        
+    } catch (error) {
+        showError(`Error loading company: ${error.message}`);
+    }
+}
 
         let isDialing = false;
         let accessToken = null;
@@ -2106,7 +2154,12 @@ async function downloadData(range) {
         }
 
         async function loginToSalesforce() {
-            const codeVerifier = generateCodeVerifier();
+    if (!currentCompany) {
+        showError('Company not loaded. Please refresh the page.');
+        return;
+    }
+    
+    const codeVerifier = generateCodeVerifier();
             const codeChallenge = await generateCodeChallenge(codeVerifier);
             sessionStorage.setItem('pkce_code_verifier', codeVerifier);
             const authParams = new URLSearchParams({
@@ -2142,7 +2195,8 @@ async function downloadData(range) {
         localStorage.setItem('sf_access_token', accessToken);
         localStorage.setItem('sf_instance_url', instanceUrl);
         sessionStorage.removeItem('pkce_code_verifier');
-        window.history.replaceState({}, document.title, window.location.pathname);
+        const companyCode = localStorage.getItem('company_code');
+window.history.replaceState({}, document.title, `/${companyCode}`);
         await loadUserInfo();
     } catch (error) {
         showError(`OAuth Error: ${error.message}`);  // ← Also fixed backtick
