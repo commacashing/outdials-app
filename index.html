@@ -1887,11 +1887,18 @@ async function loadCompanyFromURL() {
     console.log('Loading company from URL:', path, 'Code:', companyCode); // DEBUG
     
     if (!companyCode || companyCode === '') {
-        const savedCompany = localStorage.getItem('company_code');
-        if (savedCompany) {
-            window.location.href = `/${savedCompany}`;
-            return;
+    const savedCompany = localStorage.getItem('company_code');
+    if (savedCompany) {
+        // Preserve OAuth code parameter during redirect
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        if (code) {
+            window.location.href = `/${savedCompany}?code=${code}`;
         } else {
+            window.location.href = `/${savedCompany}`;
+        }
+        return;
+    } else {
             showError('Invalid company link. Please use the link provided.');
             return;
         }
