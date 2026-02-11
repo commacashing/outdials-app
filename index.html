@@ -2215,8 +2215,14 @@ async function loginToSalesforce() {
     window.location.href = `${SALESFORCE_CONFIG.authUrl}?${authParams}`;
 }
 
-        async function handleOAuthCallback(code) {
+async function handleOAuthCallback(code) {
     try {
+        console.log('📤 Sending to token-exchange:', {
+            code: code,
+            code_verifier: sessionStorage.getItem('pkce_code_verifier'),
+            redirect_uri: SALESFORCE_CONFIG.redirectUri
+        });
+        
         const response = await fetch('/.netlify/functions/token-exchange', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2226,7 +2232,14 @@ async function loginToSalesforce() {
                 redirect_uri: SALESFORCE_CONFIG.redirectUri
             })
         });
+        
         const data = await response.json();
+        console.log('📥 Token exchange response:', data);
+        
+        if (!response.ok) {
+            throw new Error(data.error || data.details || 'Token exchange failed');
+        }
+        
         accessToken = data.access_token;
         instanceUrl = data.instance_url;
         
@@ -2238,10 +2251,11 @@ async function loginToSalesforce() {
         localStorage.setItem('sf_instance_url', instanceUrl);
         sessionStorage.removeItem('pkce_code_verifier');
         const companyCode = localStorage.getItem('company_code');
-window.history.replaceState({}, document.title, `/${companyCode}`);
+        window.history.replaceState({}, document.title, `/${companyCode}`);
         await loadUserInfo();
     } catch (error) {
-        showError(`OAuth Error: ${error.message}`);  // ← Also fixed backtick
+        console.error('❌ OAuth Error:', error);
+        showError(`OAuth Error: ${error.message}`);
     }
 }
         async function refreshAccessToken() {
