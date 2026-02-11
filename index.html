@@ -1880,9 +1880,11 @@ let currentCompany = null;
     }
 }
 
-        async function loadCompanyFromURL() {
+async function loadCompanyFromURL() {
     const path = window.location.pathname;
     const companyCode = path.split('/')[1];
+    
+    console.log('Loading company from URL:', path, 'Code:', companyCode); // DEBUG
     
     if (!companyCode || companyCode === '') {
         const savedCompany = localStorage.getItem('company_code');
@@ -1896,12 +1898,16 @@ let currentCompany = null;
     }
 
     try {
+        console.log('Fetching company data for:', companyCode); // DEBUG
+        
         const { data, error } = await supabaseClient
             .from('companies')
             .select('*')
             .eq('company_code', companyCode)
             .eq('active', true)
             .single();
+
+        console.log('Company data:', data, 'Error:', error); // DEBUG
 
         if (error || !data) {
             showError(`Company "${companyCode}" not found.`);
@@ -1913,21 +1919,22 @@ let currentCompany = null;
         SALESFORCE_CONFIG.redirectUri = data.salesforce_redirect_uri || 'https://app.outdials.com';
         
         localStorage.setItem('company_code', data.company_code);
-localStorage.setItem('company_name', data.company_name);
-localStorage.setItem('crm_display_name', data.crm_display_name || 'Salesforce');
+        localStorage.setItem('company_name', data.company_name);
+        localStorage.setItem('crm_display_name', data.crm_display_name || 'Salesforce');
 
-document.getElementById('companyNameDisplay').textContent = data.company_name;
+        document.getElementById('companyNameDisplay').textContent = data.company_name;
 
-// Update login button text dynamically
-const crmName = data.crm_display_name || 'Salesforce';
-const loginBtn = document.querySelector('.btn-primary');
-if (loginBtn) {
-    loginBtn.textContent = `Connect to ${crmName}`;
-}
+        // Update login button text dynamically
+        const crmName = data.crm_display_name || 'Salesforce';
+        const loginBtn = document.querySelector('.btn-primary');
+        if (loginBtn) {
+            loginBtn.textContent = `Connect to ${crmName}`;
+        }
 
-console.log('Loaded company:', data.company_name);
+        console.log('✅ Company loaded successfully:', data.company_name);
         
     } catch (error) {
+        console.error('Error loading company:', error); // DEBUG
         showError(`Error loading company: ${error.message}`);
     }
 }
@@ -2161,10 +2168,16 @@ async function downloadData(range) {
             return btoa(String.fromCharCode.apply(null, new Uint8Array(hash))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
         }
 
-        async function loginToSalesforce() {
+async function loginToSalesforce() {
+    // Wait for company to load if it's not loaded yet
     if (!currentCompany) {
-        showError('Company not loaded. Please refresh the page.');
-        return;
+        showError('Loading company information...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (!currentCompany) {
+            showError('Company not loaded. Please refresh the page.');
+            return;
+        }
     }
     
     // Check if CRM is supported
@@ -2173,19 +2186,27 @@ async function downloadData(range) {
         return;
     }
     
+    // Check if we have the client ID
+    if (!SALESFORCE_CONFIG.clientId) {
+        showError('Salesforce configuration missing. Please contact support.');
+        return;
+    }
+    
     const codeVerifier = generateCodeVerifier();
-            const codeChallenge = await generateCodeChallenge(codeVerifier);
-            sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-            const authParams = new URLSearchParams({
-                response_type: 'code',
-                client_id: SALESFORCE_CONFIG.clientId,
-                redirect_uri: SALESFORCE_CONFIG.redirectUri,
-                scope: SALESFORCE_CONFIG.scope,
-                code_challenge: codeChallenge,
-                code_challenge_method: 'S256'
-            });
-            window.location.href = `${SALESFORCE_CONFIG.authUrl}?${authParams}`;
-        }
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
+    sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+    
+    const authParams = new URLSearchParams({
+        response_type: 'code',
+        client_id: SALESFORCE_CONFIG.clientId,
+        redirect_uri: SALESFORCE_CONFIG.redirectUri,
+        scope: SALESFORCE_CONFIG.scope,
+        code_challenge: codeChallenge,
+        code_challenge_method: 'S256'
+    });
+    
+    window.location.href = `${SALESFORCE_CONFIG.authUrl}?${authParams}`;
+}
 
         async function handleOAuthCallback(code) {
     try {
