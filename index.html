@@ -3478,13 +3478,23 @@ async function markHeroOptOut() {
                 }
             }
             
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get('code');
-            if (code) {
-                handleOAuthCallback(code);
-            } else if (localStorage.getItem('sf_access_token')) {
-                loadUserSession();
-            }
+            // Check for OAuth callback FIRST before anything else
+const params = new URLSearchParams(window.location.search);
+const code = params.get('code');
+
+console.log('🔍 Checking for OAuth code:', code);
+console.log('🔍 Current URL:', window.location.href);
+console.log('🔍 Search params:', window.location.search);
+
+if (code) {
+    console.log('✅ Found OAuth code, calling handleOAuthCallback');
+    handleOAuthCallback(code);
+} else if (localStorage.getItem('sf_access_token')) {
+    console.log('✅ Found saved session, loading user info');
+    loadUserSession();
+} else {
+    console.log('❌ No code and no saved session');
+}
             
             document.getElementById('repPhone').addEventListener('input', function(e) {
                 let value = e.target.value.replace(/\D/g, '');
