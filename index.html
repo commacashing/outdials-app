@@ -2283,7 +2283,8 @@ async function handleOAuthCallback(code) {
             console.error('  Status:', response.status);
             console.error('  Error:', data.error);
             console.error('  Details:', data.details);
-            throw new Error(data.error || data.details || 'Token exchange failed');
+            showError(`Login failed: ${data.details || data.error}`);
+            return;  // ← STOP HERE - don't call loadUserInfo
         }
         
         accessToken = data.access_token;
@@ -2298,24 +2299,23 @@ async function handleOAuthCallback(code) {
         deleteCookie('pkce_code_verifier');
         sessionStorage.removeItem('pkce_code_verifier_backup');
         
-        // State param is the most reliable source — passed directly through Salesforce redirect
         const urlParams = new URLSearchParams(window.location.search);
         let companyCode = urlParams.get('state') ||
                          localStorage.getItem('company_code') ||
                          sessionStorage.getItem('company_code_backup');
-
-        // Guard against bad values
+        
         if (!companyCode || companyCode === 'null' || companyCode === 'undefined') {
             const path = window.location.pathname;
             const pathParts = path.split('/').filter(p => p && p !== 'null' && p !== 'undefined');
             companyCode = pathParts[0] || null;
         }
-
+        
         if (companyCode) {
             localStorage.setItem('company_code', companyCode);
             sessionStorage.setItem('company_code_backup', companyCode);
             window.history.replaceState({}, document.title, `/${companyCode}`);
         }
+        
         await loadUserInfo();
     } catch (error) {
         console.error('❌ OAuth Error:', error);
