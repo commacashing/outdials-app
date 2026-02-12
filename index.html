@@ -2202,6 +2202,7 @@ async function loginToSalesforce() {
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
     localStorage.setItem('pkce_code_verifier', codeVerifier);
+    sessionStorage.setItem('pkce_code_verifier_backup', codeVerifier);
 console.log('💾 Saved code_verifier to localStorage:', codeVerifier);
 console.log('✅ Verify it saved:', localStorage.getItem('pkce_code_verifier'));
     
@@ -2221,9 +2222,17 @@ window.location.href = `${SALESFORCE_CONFIG.authUrl}?${authParams}`;
 
 async function handleOAuthCallback(code) {
     try {
+        // Get code_verifier from either localStorage OR sessionStorage as backup
+        let codeVerifier = localStorage.getItem('pkce_code_verifier');
+        
+        // If not in localStorage, check if we saved it to sessionStorage
+        if (!codeVerifier) {
+            codeVerifier = sessionStorage.getItem('pkce_code_verifier_backup');
+        }
+        
         console.log('📤 Sending to token-exchange:', {
             code: code,
-            code_verifier: localStorage.getItem('pkce_code_verifier'),
+            code_verifier: codeVerifier,
             redirect_uri: SALESFORCE_CONFIG.redirectUri
         });
         
@@ -2232,7 +2241,7 @@ async function handleOAuthCallback(code) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 code: code,
-                code_verifier: localStorage.getItem('pkce_code_verifier'),
+                code_verifier: codeVerifier,
                 redirect_uri: SALESFORCE_CONFIG.redirectUri
             })
         });
@@ -2254,6 +2263,8 @@ async function handleOAuthCallback(code) {
         localStorage.setItem('sf_access_token', accessToken);
         localStorage.setItem('sf_instance_url', instanceUrl);
         localStorage.removeItem('pkce_code_verifier');
+        sessionStorage.removeItem('pkce_code_verifier_backup');
+        
         const companyCode = localStorage.getItem('company_code');
         window.history.replaceState({}, document.title, `/${companyCode}`);
         await loadUserInfo();
