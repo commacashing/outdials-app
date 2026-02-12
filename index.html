@@ -2195,7 +2195,13 @@ async function loginToSalesforce() {
     // Wait for company to load if it's not loaded yet
     if (!currentCompany) {
         showError('Loading company information...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Wait up to 5 seconds for company to load
+        let attempts = 0;
+        while (!currentCompany && attempts < 10) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            attempts++;
+        }
         
         if (!currentCompany) {
             showError('Company not loaded. Please refresh the page.');
@@ -2243,10 +2249,18 @@ async function handleOAuthCallback(code) {
         // Get code_verifier from either localStorage OR sessionStorage as backup
         let codeVerifier = getCookie('pkce_code_verifier') || localStorage.getItem('pkce_code_verifier') || sessionStorage.getItem('pkce_code_verifier_backup');
         
+        console.log('🔍 DEBUG - Code verifier sources:');
+        console.log('  Cookie:', getCookie('pkce_code_verifier'));
+        console.log('  localStorage:', localStorage.getItem('pkce_code_verifier'));
+        console.log('  sessionStorage:', sessionStorage.getItem('pkce_code_verifier_backup'));
+        console.log('  Selected verifier:', codeVerifier);
+        
         console.log('📤 Sending to token-exchange:', {
             code: code,
             code_verifier: codeVerifier,
-            redirect_uri: SALESFORCE_CONFIG.redirectUri
+            redirect_uri: SALESFORCE_CONFIG.redirectUri,
+            client_id: SALESFORCE_CONFIG.clientId,
+            company_code: currentCompany?.company_code || localStorage.getItem('company_code')
         });
         
                 const response = await fetch('/.netlify/functions/token-exchange', {
@@ -2265,6 +2279,10 @@ async function handleOAuthCallback(code) {
         console.log('📥 Token exchange response:', data);
         
         if (!response.ok) {
+            console.error('❌ Token exchange failed:');
+            console.error('  Status:', response.status);
+            console.error('  Error:', data.error);
+            console.error('  Details:', data.details);
             throw new Error(data.error || data.details || 'Token exchange failed');
         }
         
@@ -3519,10 +3537,16 @@ async function markHeroOptOut() {
 
     // If Salesforce redirected back with state (company code), fix routing FIRST
     if (oauthCode && stateCompanyCode) {
+        console.log('🔄 OAuth redirect detected - fixing routing');
+        console.log('  State company code:', stateCompanyCode);
+        console.log('  Current path:', window.location.pathname);
+        
         localStorage.setItem('company_code', stateCompanyCode);
         sessionStorage.setItem('company_code_backup', stateCompanyCode);
+        
         // If we're at root (not /companycode), redirect to the right URL
         if (window.location.pathname !== `/${stateCompanyCode}`) {
+            console.log('  → Redirecting to:', `/${stateCompanyCode}`);
             window.location.href = `/${stateCompanyCode}?code=${oauthCode}&state=${stateCompanyCode}`;
             return;
         }
