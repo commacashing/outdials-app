@@ -3535,11 +3535,11 @@ async function markHeroOptOut() {
     const oauthCode = params.get('code');
     const stateCompanyCode = params.get('state');
 
-    // If Salesforce redirected back with state (company code), fix routing FIRST
+    // 🔑 CRITICAL: If this is an OAuth callback, DON'T initialize anything yet
+    // Just fix the routing and let the callback handler take over
     if (oauthCode && stateCompanyCode) {
-        console.log('🔄 OAuth redirect detected - fixing routing');
-        console.log('  State company code:', stateCompanyCode);
-        console.log('  Current path:', window.location.pathname);
+        console.log('🔄 OAuth redirect detected - preserving code_verifier');
+        console.log('  Stored verifier:', localStorage.getItem('pkce_code_verifier'));
         
         localStorage.setItem('company_code', stateCompanyCode);
         sessionStorage.setItem('company_code_backup', stateCompanyCode);
@@ -3548,27 +3548,22 @@ async function markHeroOptOut() {
         if (window.location.pathname !== `/${stateCompanyCode}`) {
             console.log('  → Redirecting to:', `/${stateCompanyCode}`);
             window.location.href = `/${stateCompanyCode}?code=${oauthCode}&state=${stateCompanyCode}`;
-            return;
+            return;  // STOP HERE - don't initialize Supabase yet
         }
-    }
-
-    if (oauthCode) {
-        sessionStorage.setItem('pending_oauth_code', oauthCode);
+        
+        // We're at the right URL, now initialize Supabase
+        await initSupabase();
+        
+        // Process OAuth immediately
+        console.log('✅ Processing OAuth callback');
+        await handleOAuthCallback(oauthCode);
+        return;  // STOP HERE - don't run normal initialization
     }
     
+    // Normal page load (no OAuth code)
     await initSupabase();
     
-    // NOW check for OAuth code (either from URL or from sessionStorage)
-    const code = oauthCode || sessionStorage.getItem('pending_oauth_code');
-    
-    if (code) {
-        console.log('✅ Processing OAuth callback');
-        sessionStorage.removeItem('pending_oauth_code');
-        handleOAuthCallback(code);
-        return;
-    }
-    
-    // No OAuth code, check for existing session
+    // Check for existing session
     if (localStorage.getItem('sf_access_token')) {
         loadUserSession();
     }
