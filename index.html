@@ -2229,7 +2229,8 @@ console.log('✅ Verify it saved:', localStorage.getItem('pkce_code_verifier'));
         redirect_uri: SALESFORCE_CONFIG.redirectUri,
         scope: SALESFORCE_CONFIG.scope,
         code_challenge: codeChallenge,
-        code_challenge_method: 'S256'
+        code_challenge_method: 'S256',
+        state: currentCompany.company_code
     });
     
     console.log('🚀 About to redirect to Salesforce');
@@ -2277,22 +2278,24 @@ async function handleOAuthCallback(code) {
         deleteCookie('pkce_code_verifier');
         sessionStorage.removeItem('pkce_code_verifier_backup');
         
-        let companyCode = localStorage.getItem('company_code') || sessionStorage.getItem('company_code_backup');
+        // State param is the most reliable source — passed directly through Salesforce redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        let companyCode = urlParams.get('state') ||
+                         localStorage.getItem('company_code') ||
+                         sessionStorage.getItem('company_code_backup');
 
-if (!companyCode) {
-    // Extract from current URL if available
-    const path = window.location.pathname;
-    const pathParts = path.split('/').filter(p => p);
-    companyCode = pathParts[0] || 'demo';
-}
+        // Guard against bad values
+        if (!companyCode || companyCode === 'null' || companyCode === 'undefined') {
+            const path = window.location.pathname;
+            const pathParts = path.split('/').filter(p => p && p !== 'null' && p !== 'undefined');
+            companyCode = pathParts[0] || null;
+        }
 
-// Save it back to storage
-if (companyCode && companyCode !== 'null') {
-    localStorage.setItem('company_code', companyCode);
-    sessionStorage.setItem('company_code_backup', companyCode);
-}
-
-window.history.replaceState({}, document.title, `/${companyCode}`);
+        if (companyCode) {
+            localStorage.setItem('company_code', companyCode);
+            sessionStorage.setItem('company_code_backup', companyCode);
+            window.history.replaceState({}, document.title, `/${companyCode}`);
+        }
         await loadUserInfo();
     } catch (error) {
         console.error('❌ OAuth Error:', error);
@@ -3510,6 +3513,19 @@ async function markHeroOptOut() {
        window.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const oauthCode = params.get('code');
+    const stateCompanyCode = params.get('state');
+
+    // If Salesforce redirected back with state (company code), fix routing FIRST
+    if (oauthCode && stateCompanyCode) {
+        localStorage.setItem('company_code', stateCompanyCode);
+        sessionStorage.setItem('company_code_backup', stateCompanyCode);
+        // If we're at root (not /companycode), redirect to the right URL
+        if (window.location.pathname !== `/${stateCompanyCode}`) {
+            window.location.href = `/${stateCompanyCode}?code=${oauthCode}&state=${stateCompanyCode}`;
+            return;
+        }
+    }
+
     if (oauthCode) {
         sessionStorage.setItem('pending_oauth_code', oauthCode);
     }
