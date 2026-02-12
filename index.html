@@ -1856,6 +1856,21 @@ body.light-mode .race-card.searching::before {
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const N8N_WEBHOOK_BASE = 'https://commacashing.app.n8n.cloud/webhook';
+        function setCookie(name, value, minutes) {
+    const expires = new Date(Date.now() + minutes * 60000).toUTCString();
+    document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+function deleteCookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
 let SALESFORCE_CONFIG = {
     clientId: '',  // Will be loaded from company
     redirectUri: 'https://app.outdials.com',
@@ -2202,8 +2217,9 @@ async function loginToSalesforce() {
     
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
-    localStorage.setItem('pkce_code_verifier', codeVerifier);
-    sessionStorage.setItem('pkce_code_verifier_backup', codeVerifier);
+    setCookie('pkce_code_verifier', codeVerifier, 10);
+localStorage.setItem('pkce_code_verifier', codeVerifier);
+sessionStorage.setItem('pkce_code_verifier_backup', codeVerifier);
 console.log('💾 Saved code_verifier to localStorage:', codeVerifier);
 console.log('✅ Verify it saved:', localStorage.getItem('pkce_code_verifier'));
     
@@ -2224,12 +2240,7 @@ window.location.href = `${SALESFORCE_CONFIG.authUrl}?${authParams}`;
 async function handleOAuthCallback(code) {
     try {
         // Get code_verifier from either localStorage OR sessionStorage as backup
-        let codeVerifier = localStorage.getItem('pkce_code_verifier');
-        
-        // If not in localStorage, check if we saved it to sessionStorage
-        if (!codeVerifier) {
-            codeVerifier = sessionStorage.getItem('pkce_code_verifier_backup');
-        }
+        let codeVerifier = getCookie('pkce_code_verifier') || localStorage.getItem('pkce_code_verifier') || sessionStorage.getItem('pkce_code_verifier_backup');
         
         console.log('📤 Sending to token-exchange:', {
             code: code,
@@ -2263,7 +2274,7 @@ async function handleOAuthCallback(code) {
         
         localStorage.setItem('sf_access_token', accessToken);
         localStorage.setItem('sf_instance_url', instanceUrl);
-        localStorage.removeItem('pkce_code_verifier');
+        deleteCookie('pkce_code_verifier');
         sessionStorage.removeItem('pkce_code_verifier_backup');
         
         const companyCode = localStorage.getItem('company_code') || sessionStorage.getItem('company_code_backup') || 'demo';
