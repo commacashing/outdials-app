@@ -1,26 +1,31 @@
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   try {
-    const { code, code_verifier, redirect_uri, refresh_token } = JSON.parse(event.body);
+    const { code, code_verifier, redirect_uri, refresh_token, client_id, company_code } = JSON.parse(event.body);
+
+    // Look up client secret by company code, fallback to default env var
+    const secretKey = company_code 
+      ? `SALESFORCE_CLIENT_SECRET_${company_code.toUpperCase()}`
+      : null;
     
-    const clientId = process.env.SALESFORCE_CLIENT_ID;
-    const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
-    
+    const clientSecret = (secretKey && process.env[secretKey]) 
+      || process.env.SALESFORCE_CLIENT_SECRET;
+
+    // Use client_id sent from frontend (company-specific), fallback to env var
+    const clientId = client_id || process.env.SALESFORCE_CLIENT_ID;
+
     if (!clientId || !clientSecret) {
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: 'Server configuration error' })
+        body: JSON.stringify({ error: `Server configuration error — missing credentials for company: ${company_code}` })
       };
     }
 
     let tokenParams;
-    
+
     if (refresh_token) {
       tokenParams = new URLSearchParams({
         grant_type: 'refresh_token',
@@ -35,7 +40,7 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ error: 'Missing required parameters' })
         };
       }
-      
+
       tokenParams = new URLSearchParams({
         grant_type: 'authorization_code',
         code: code,
@@ -56,31 +61,24 @@ exports.handler = async (event, context) => {
     });
 
     const responseText = await response.text();
-    
+
     if (!response.ok) {
       return {
         statusCode: response.status,
-        body: JSON.stringify({ 
-          error: 'Token exchange failed',
-          details: responseText 
-        })
+        body: JSON.stringify({ error: 'Token exchange failed', details: responseText })
       };
     }
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(JSON.parse(responseText))
     };
+
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ 
-        error: 'Internal server error',
-        message: error.message 
-      })
+      body: JSON.stringify({ error: 'Internal server error', message: error.message })
     };
   }
 };
