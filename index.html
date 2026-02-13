@@ -2801,6 +2801,7 @@ setTimeout(() => {
             </div>
             <div class="race-card-front">
                 <div class="race-card" id="race-card-${i}">
+                    <div class="race-card-status"></div>
                     <div class="race-card-name">Searching For Contact</div>
                     <div class="race-card-subtitle">Dialing in progress...</div>
                 </div>
@@ -2956,9 +2957,9 @@ for (let i = 0; i < 3; i++) {
     }
 }
 
-// Mark all other ringing contacts (already assigned) as ended
+// Mark only still-ringing contacts as ended (not voicemail/busy/already resolved)
 currentBatchContacts.forEach((contact, sid) => {
-    if (sid !== callSid) {
+    if (sid !== callSid && contact.status === 'ringing') {
         contact.status = 'ended';
         const otherCard = document.getElementById(`race-card-${sid}`);
         if (otherCard) {
