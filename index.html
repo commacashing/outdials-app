@@ -3239,9 +3239,13 @@ function dismissInactivityWarning() {
                     })
                 });
 
-                const result = await response.json();
+               let result = {};
+                try {
+                    const text = await response.text();
+                    if (text) result = JSON.parse(text);
+                } catch(e) { /* n8n may return non-JSON on success */ }
 
-if (response.ok) {
+                if (response.ok) {
                     showSuccess('Note saved to Salesforce!');
                     saveBtn.textContent = 'Saved';
                     saveBtn.classList.add('saved');
@@ -3506,9 +3510,13 @@ async function markHeroOptOut() {
                     })
                 });
 
-                const result = await response.json();  // ← ADD THIS LINE
+                let result = {};
+                try {
+                    const text = await response.text();
+                    if (text) result = JSON.parse(text);
+                } catch(e) { /* n8n may return non-JSON on success */ }
 
-                if (response.ok) {
+if (response.ok) {
                     showSuccess('Note saved to Salesforce!');
                     saveBtn.textContent = 'Saved ✓';
                     saveBtn.classList.add('saved');
