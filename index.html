@@ -2181,16 +2181,18 @@ async function downloadData(range) {
         }
 
         function checkFormValid() {
-            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-            const team = document.getElementById('teamSelect').value;
-            const region = document.getElementById('regionSelect').value;
-            
-            if (isAuthenticated && repPhone.length === 12 && !supabaseSubscription) {
-                subscribeForInbound();
-            }
-            
-            document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing;
-        }
+    const digits = document.getElementById('repPhone').value.replace(/\D/g, '');
+    const repPhone = '+1' + digits;
+    const team = document.getElementById('teamSelect').value;
+    const region = document.getElementById('regionSelect').value;
+    const phoneValid = digits.length === 10;
+
+    if (isAuthenticated && phoneValid && !supabaseSubscription) {
+        subscribeForInbound();
+    }
+
+    document.getElementById('startButton').disabled = !phoneValid || !team || !region || isDialing;
+}
 
         function generateCodeVerifier() {
             const array = new Uint8Array(32);
