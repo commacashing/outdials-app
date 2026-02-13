@@ -2943,32 +2943,34 @@ card.appendChild(dispositionCompartment);
                     <span>Human Answered</span>
                 `;
                 
-// ✅ ADD THESE 12 LINES HERE:
+// Mark index-based searching cards (not yet assigned a contact) as ended
 for (let i = 0; i < 3; i++) {
-    const placeholderCard = document.getElementById(`race-card-placeholder-${i}`);
-    if (placeholderCard) {
-        placeholderCard.classList.remove('dialing-placeholder', 'ringing');
-        placeholderCard.classList.add('ended');
-        placeholderCard.querySelector('.race-card-status').innerHTML = `
-            <span class="race-status-icon">✕</span>
-            <span>Call Ended</span>
-        `;
+    const searchingCard = document.getElementById(`race-card-${i}`);
+    if (searchingCard) {
+        searchingCard.classList.remove('searching', 'ringing', 'dialing-placeholder');
+        searchingCard.classList.add('ended');
+        const statusEl = searchingCard.querySelector('.race-card-status');
+        if (statusEl) {
+            statusEl.innerHTML = `<span class="race-status-icon">✕</span><span>Call Ended</span>`;
+        }
     }
 }
-                
-                currentBatchContacts.forEach((contact, sid) => {
-                    if (sid !== callSid && contact.status === 'ringing') {
-                        const otherCard = document.getElementById(`race-card-${sid}`);
-                        if (otherCard) {
-                            otherCard.classList.remove('ringing');
-                            otherCard.classList.add('ended');
-                            otherCard.querySelector('.race-card-status').innerHTML = `
-                                <span class="race-status-icon">✕</span>
-                                <span>Call Ended</span>
-                            `;
-                        }
-                    }
-                });
+
+// Mark all other ringing contacts (already assigned) as ended
+currentBatchContacts.forEach((contact, sid) => {
+    if (sid !== callSid) {
+        contact.status = 'ended';
+        const otherCard = document.getElementById(`race-card-${sid}`);
+        if (otherCard) {
+            otherCard.classList.remove('ringing', 'searching');
+            otherCard.classList.add('ended');
+            const statusEl = otherCard.querySelector('.race-card-status');
+            if (statusEl) {
+                statusEl.innerHTML = `<span class="race-status-icon">✕</span><span>Call Ended</span>`;
+            }
+        }
+    }
+});
             } 
             else if (status === 'machine') {
                 card.classList.add('machine');
