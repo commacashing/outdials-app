@@ -1761,6 +1761,7 @@ body.light-mode .race-card.searching::before {
         </div>
     </div>
 </div>
+</div>      
         <div class="main-content">
     <div id="errorMessage"></div>
     <div id="successMessage"></div>
@@ -1845,8 +1846,6 @@ body.light-mode .race-card.searching::before {
 
 <div class="hero-card-actions">
     <button class="hero-card-btn hero-card-btn-dismiss" onclick="dismissHeroCard()">✕</button>
-
-<div class="hero-card-actions">
     <button class="hero-card-btn hero-disposition-btn" onclick="toggleHeroDisposition()">🏷️</button>
     <button class="hero-card-btn hero-card-btn-note" onclick="toggleHeroNote()">📝</button>
     <button class="hero-card-btn hero-card-btn-dnc" onclick="markHeroOptOut()">🚫</button>
@@ -2181,16 +2180,18 @@ async function downloadData(range) {
         }
 
         function checkFormValid() {
-            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-            const team = document.getElementById('teamSelect').value;
-            const region = document.getElementById('regionSelect').value;
-            
-            if (isAuthenticated && repPhone.length === 12 && !supabaseSubscription) {
-                subscribeForInbound();
-            }
-            
-            document.getElementById('startButton').disabled = !(repPhone && team && region) || isDialing;
-        }
+    const digits = document.getElementById('repPhone').value.replace(/\D/g, '');
+    const repPhone = '+1' + digits;
+    const team = document.getElementById('teamSelect').value;
+    const region = document.getElementById('regionSelect').value;
+    const phoneValid = digits.length === 10;
+
+    if (isAuthenticated && phoneValid && !supabaseSubscription) {
+        subscribeForInbound();
+    }
+
+    document.getElementById('startButton').disabled = !phoneValid || !team || !region || isDialing;
+}
 
         function generateCodeVerifier() {
             const array = new Uint8Array(32);
@@ -2628,7 +2629,6 @@ updateStatus('idle', 'System Ready');
 
             try {
                 isDialing = true;
-                isPaused = false;
                 sessionId = `session_${repPhone.replace('+1', '')}_${Date.now()}`;
 
                 currentBatchContacts.clear();
@@ -2732,7 +2732,6 @@ await new Promise(resolve => setTimeout(resolve, 800));
 }
         function resetDialingState() {
             isDialing = false;
-            isPaused = false;
             unsubscribeFromSupabase();
             stopAutoSave();
             stopInactivityMonitor();
@@ -3161,8 +3160,12 @@ function dismissInactivityWarning() {
 }
         
         function startAutoSave() {
-            stopAutoSave();
-            stopInactivityMonitor();
+    stopAutoSave();
+    
+    autoSaveInterval = setInterval(() => {
+        autoSaveNotes();
+    }, 30000);
+}
             
             autoSaveInterval = setInterval(() => {
                 autoSaveNotes();
