@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outdials Admin</title>
+    <link rel="icon" href="icon.png">
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-card: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --divider-color: rgba(255, 255, 255, 0.08);
+            --green: rgba(34, 197, 94, 1);
+            --green-dim: rgba(34, 197, 94, 0.15);
+            --green-border: rgba(34, 197, 94, 0.3);
+            --red: rgba(239, 68, 68, 1);
+            --red-dim: rgba(239, 68, 68, 0.15);
+            --blue: rgba(59, 130, 246, 1);
+            --blue-dim: rgba(59, 130, 246, 0.15);
+            --purple: rgba(147, 51, 234, 1);
+            --purple-dim: rgba(147, 51, 234, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-size: 16px;
+        }
+
+        /* ── PASSCODE SCREEN ── */
+        .passcode-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .passcode-container {
+            text-align: center;
+            max-width: 380px;
+            width: 100%;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .broken-o {
+            display: inline-block;
+            width: 28px;
+            height: 32px;
+        }
+
+        .broken-o svg { width: 100%; height: 100%; }
+
+        .passcode-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .passcode-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .passcode-input {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 18px;
+            letter-spacing: 0.2em;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            text-align: center;
+            font-family: inherit;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .passcode-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .passcode-input.error {
+            border-color: var(--red);
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .passcode-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .passcode-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .passcode-error {
+            color: var(--red);
+            font-size: 13px;
+            margin-top: 12px;
+            min-height: 20px;
+        }
+
+        /* ── TOP NAV ── */
+        .top-nav {
+            width: 100%;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--divider-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            z-index: 100;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-company {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .nav-badge {
+            background: var(--green-dim);
+            border: 1px solid var(--green-border);
+            color: var(--green);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-logout:hover { background: var(--bg-secondary); }
+
+        /* ── TAB NAV ── */
+        .tab-nav {
+            padding: 0 40px;
+            border-bottom: 1px solid var(--divider-color);
+            display: flex;
+            gap: 0;
+        }
+
+        .tab-btn {
+            padding: 16px 24px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn:hover { color: var(--text-primary); }
+
+        .tab-btn.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--text-primary);
+        }
+
+        /* ── MAIN CONTENT ── */
+        .admin-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 40px;
+        }
+
+        /* ── SECTION HEADER ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ── DATE RANGE PICKER ── */
+        .date-range-pills {
+            display: flex;
+            gap: 8px;
+        }
+
+        .date-pill {
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .date-pill:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.2); }
+
+        .date-pill.active {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+
+        /* ── LIVE REPS ── */
+        .live-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .live-rep-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .live-rep-card.active {
+            border-color: var(--green-border);
+            background: rgba(34, 197, 94, 0.03);
+        }
+
+        .live-rep-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .live-rep-name {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .live-rep-phone {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .live-status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .live-status-badge.dialing {
+            background: var(--green-dim);
+            border: 1px solid var(--green-border);
+            color: var(--green);
+        }
+
+        .live-status-badge.idle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .live-dot.pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .live-rep-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .live-stat {
+            text-align: center;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .live-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .live-stat-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 2px;
+        }
+
+        .live-rep-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .live-rep-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .last-session-note {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .empty-state-text {
+            font-size: 15px;
+        }
+
+        /* ── STATS TABLE ── */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stats-table th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stats-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stats-table tr:last-child td { border-bottom: none; }
+
+        .stats-table tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        .stats-table .rep-name-cell {
+            font-weight: 600;
+        }
+
+        .stats-table .rep-phone-cell {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .connect-rate {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .connect-bar {
+            width: 60px;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .connect-bar-fill {
+            height: 100%;
+            background: var(--green);
+            border-radius: 2px;
+        }
+
+        /* ── LEADERBOARD ── */
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .leaderboard-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .leaderboard-row:hover { border-color: rgba(255,255,255,0.15); }
+
+        .leaderboard-row.rank-1 {
+            border-color: rgba(251, 191, 36, 0.4);
+            background: rgba(251, 191, 36, 0.03);
+        }
+
+        .leaderboard-row.rank-2 {
+            border-color: rgba(156, 163, 175, 0.4);
+        }
+
+        .leaderboard-row.rank-3 {
+            border-color: rgba(180, 120, 60, 0.4);
+        }
+
+        .leaderboard-rank {
+            font-size: 18px;
+            font-weight: 800;
+            width: 32px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .leaderboard-row.rank-1 .leaderboard-rank { color: rgba(251, 191, 36, 1); }
+        .leaderboard-row.rank-2 .leaderboard-rank { color: rgba(156, 163, 175, 1); }
+        .leaderboard-row.rank-3 .leaderboard-rank { color: rgba(180, 120, 60, 1); }
+
+        .leaderboard-name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .leaderboard-phone {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .leaderboard-stats {
+            display: flex;
+            gap: 24px;
+            text-align: right;
+        }
+
+        .leaderboard-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .leaderboard-stat-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── SUMMARY STATS ROW ── */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── MESSAGES ── */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .message.error {
+            background: var(--red-dim);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ff6b6b;
+        }
+
+        /* ── LOADING ── */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* ── TAB PANELS ── */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .top-nav { padding: 12px 16px; }
+            .tab-nav { padding: 0 16px; overflow-x: auto; }
+            .admin-content { padding: 20px 16px; }
+            .summary-stats { grid-template-columns: repeat(2, 1fr); }
+            .live-grid { grid-template-columns: 1fr; }
+            .leaderboard-stats { gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Passcode Screen -->
+    <div id="passcodeScreen" class="passcode-screen">
+        <div class="passcode-container">
+            <div class="nav-logo">
+                <span class="broken-o">
+                    <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <mask id="slitMask">
+                                <rect width="42" height="48" fill="white"/>
+                                <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                            </mask>
+                        </defs>
+                        <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask)"/>
+                    </svg>
+                </span>
+                <span>utDials</span>
+            </div>
+            <div class="passcode-title">Admin Access</div>
+            <div class="passcode-subtitle" id="passcodeCompanyName">Loading...</div>
+            <input 
+                type="password" 
+                id="passcodeInput" 
+                class="passcode-input" 
+                placeholder="••••••••"
+                onkeydown="if(event.key==='Enter') submitPasscode()"
+                autocomplete="off"
+            />
+            <button class="passcode-btn" onclick="submitPasscode()">Enter Dashboard</button>
+            <div class="passcode-error" id="passcodeError"></div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" style="display: none;">
+        <div class="top-nav">
+            <div class="nav-logo">
+                <span class="broken-o">
+                    <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <mask id="slitMask2">
+                                <rect width="42" height="48" fill="white"/>
+                                <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                            </mask>
+                        </defs>
+                        <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMask2)"/>
+                    </svg>
+                </span>
+                <span>utDials</span>
+            </div>
+            <div class="nav-right">
+                <span class="nav-company" id="navCompanyName"></span>
+                <span class="nav-badge">Admin</span>
+                <button class="btn-logout" onclick="adminLogout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('live', this)">🟢 Live</button>
+            <button class="tab-btn" onclick="switchTab('stats', this)">📊 Rep Stats</button>
+            <button class="tab-btn" onclick="switchTab('leaderboard', this)">🏆 Leaderboard</button>
+        </div>
+
+        <div class="admin-content">
+
+            <!-- Live Tab -->
+            <div id="tab-live" class="tab-panel active">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">Live Activity</div>
+                        <div class="section-subtitle" id="liveLastUpdated">Updating in real time</div>
+                    </div>
+                </div>
+                <div id="liveGrid" class="live-grid">
+                    <div class="loading">Loading live data...</div>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="tab-stats" class="tab-panel">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">Rep Performance</div>
+                        <div class="section-subtitle">Session stats by rep</div>
+                    </div>
+                    <div class="date-range-pills">
+                        <button class="date-pill active" onclick="setDateRange('today', this)">Today</button>
+                        <button class="date-pill" onclick="setDateRange('week', this)">Week</button>
+                        <button class="date-pill" onclick="setDateRange('month', this)">Month</button>
+                        <button class="date-pill" onclick="setDateRange('all', this)">All Time</button>
+                    </div>
+                </div>
+                <div class="summary-stats" id="summaryStats">
+                    <div class="summary-card">
+                        <div class="summary-value" id="summaryTotalCalls">-</div>
+                        <div class="summary-label">Total Calls</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="summaryConnects">-</div>
+                        <div class="summary-label">Connects</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="summaryTalkTime">-</div>
+                        <div class="summary-label">Talk Time</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="summaryReps">-</div>
+                        <div class="summary-label">Active Reps</div>
+                    </div>
+                </div>
+                <div id="statsTableContainer">
+                    <div class="loading">Loading stats...</div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Tab -->
+            <div id="tab-leaderboard" class="tab-panel">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">Leaderboard</div>
+                        <div class="section-subtitle">Ranked by connects</div>
+                    </div>
+                    <div class="date-range-pills">
+                        <button class="date-pill active" onclick="setLeaderboardRange('today', this)">Today</button>
+                        <button class="date-pill" onclick="setLeaderboardRange('week', this)">Week</button>
+                        <button class="date-pill" onclick="setLeaderboardRange('month', this)">Month</button>
+                        <button class="date-pill" onclick="setLeaderboardRange('all', this)">All Time</button>
+                    </div>
+                </div>
+                <div id="leaderboardList" class="leaderboard-list">
+                    <div class="loading">Loading leaderboard...</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        let supabaseClient = null;
+        let currentCompany = null;
+        let liveSubscription = null;
+        let currentStatsRange = 'today';
+        let currentLeaderboardRange = 'today';
+        let liveRefreshInterval = null;
+
+        // ── INIT ──
+        window.addEventListener('DOMContentLoaded', async () => {
+            await initSupabase();
+        });
+
+        async function initSupabase() {
+            try {
+                const response = await fetch('/.netlify/functions/supabase-init', { method: 'POST' });
+                const { url, key } = await response.json();
+                supabaseClient = window.supabase.createClient(url, key);
+                await loadCompanyFromURL();
+            } catch (error) {
+                showError('Failed to connect. Please refresh.');
+            }
+        }
+
+        async function loadCompanyFromURL() {
+            // URL is /companycode/admin
+            const parts = window.location.pathname.split('/').filter(p => p);
+            const companyCode = parts[0];
+
+            if (!companyCode) {
+                showError('Invalid admin URL.');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('companies')
+                    .select('*')
+                    .eq('company_code', companyCode)
+                    .eq('active', true)
+                    .single();
+
+                if (error || !data) {
+                    showError(`Company "${companyCode}" not found.`);
+                    return;
+                }
+
+                currentCompany = data;
+                document.getElementById('passcodeCompanyName').textContent = data.company_name;
+
+                // Check if already authenticated this session
+                const savedAuth = sessionStorage.getItem(`admin_auth_${companyCode}`);
+                if (savedAuth === 'true') {
+                    showDashboard();
+                }
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+            }
+        }
+
+        // ── PASSCODE ──
+        async function submitPasscode() {
+            const input = document.getElementById('passcodeInput');
+            const errorEl = document.getElementById('passcodeError');
+            const entered = input.value.trim();
+
+            if (!entered) return;
+
+            if (!currentCompany) {
+                errorEl.textContent = 'Still loading. Please wait.';
+                return;
+            }
+
+            if (entered === currentCompany.admin_passcode) {
+                sessionStorage.setItem(`admin_auth_${currentCompany.company_code}`, 'true');
+                showDashboard();
+            } else {
+                input.classList.add('error');
+                errorEl.textContent = 'Incorrect passcode.';
+                input.value = '';
+                setTimeout(() => input.classList.remove('error'), 500);
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('passcodeScreen').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            document.getElementById('navCompanyName').textContent = currentCompany.company_name;
+            loadLiveData();
+            loadStatsData('today');
+            loadLeaderboardData('today');
+            startLiveRefresh();
+        }
+
+        function adminLogout() {
+            sessionStorage.removeItem(`admin_auth_${currentCompany.company_code}`);
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('passcodeScreen').style.display = 'flex';
+            stopLiveRefresh();
+        }
+
+        // ── TABS ──
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+
+        // ── DATE RANGE HELPERS ──
+        function getDateFilter(range) {
+            const now = new Date();
+            if (range === 'today') {
+                const start = new Date(now);
+                start.setHours(0, 0, 0, 0);
+                return start.toISOString();
+            } else if (range === 'week') {
+                const start = new Date(now);
+                start.setDate(start.getDate() - 7);
+                return start.toISOString();
+            } else if (range === 'month') {
+                const start = new Date(now);
+                start.setDate(start.getDate() - 30);
+                return start.toISOString();
+            }
+            return null; // all time
+        }
+
+        function formatTalkTime(seconds) {
+            if (!seconds) return '0m';
+            const hours = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            if (hours > 0) return `${hours}h ${mins}m`;
+            return `${mins}m`;
+        }
+
+        function timeAgo(dateStr) {
+            if (!dateStr) return 'Never';
+            const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            return `${Math.floor(diff / 86400)}d ago`;
+        }
+
+        function sessionDuration(start, end) {
+            if (!start) return '-';
+            const endTime = end ? new Date(end) : new Date();
+            const diff = (endTime - new Date(start)) / 1000;
+            return formatTalkTime(diff);
+        }
+
+        // ── LIVE DATA ──
+        async function loadLiveData() {
+            if (!supabaseClient || !currentCompany) return;
+
+            try {
+                // Get all sessions for this company, most recent per rep
+                const { data, error } = await supabaseClient
+                    .from('dialer_sessions')
+                    .select('*')
+                    .eq('company_name', currentCompany.company_name)
+                    .order('session_start', { ascending: false });
+
+                if (error) throw error;
+
+                // Group by rep_phone, get most recent session per rep
+                const repMap = new Map();
+                (data || []).forEach(session => {
+                    if (!repMap.has(session.rep_phone)) {
+                        repMap.set(session.rep_phone, { latest: session, sessions: [] });
+                    }
+                    repMap.get(session.rep_phone).sessions.push(session);
+                });
+
+                renderLiveGrid(repMap);
+
+                const now = new Date();
+                document.getElementById('liveLastUpdated').textContent =
+                    `Last updated ${now.toLocaleTimeString()}`;
+
+            } catch (error) {
+                document.getElementById('liveGrid').innerHTML =
+                    `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading live data</div></div>`;
+            }
+        }
+
+        function renderLiveGrid(repMap) {
+            const grid = document.getElementById('liveGrid');
+
+            if (repMap.size === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">📵</div>
+                        <div class="empty-state-text">No reps have dialed today</div>
+                    </div>`;
+                return;
+            }
+
+            // Sort: active first, then by most recent session
+            const sorted = [...repMap.values()].sort((a, b) => {
+                const aActive = !a.latest.session_end;
+                const bActive = !b.latest.session_end;
+                if (aActive && !bActive) return -1;
+                if (!aActive && bActive) return 1;
+                return new Date(b.latest.session_start) - new Date(a.latest.session_start);
+            });
+
+            grid.innerHTML = sorted.map(({ latest, sessions }) => {
+                const isActive = !latest.session_end;
+
+                // Today's totals across all sessions
+                const todaySessions = sessions.filter(s => {
+                    const start = new Date(s.session_start);
+                    const today = new Date();
+                    return start.toDateString() === today.toDateString();
+                });
+
+                const todayCalls = todaySessions.reduce((sum, s) => sum + (s.total_calls || 0), 0);
+                const todayConnects = todaySessions.reduce((sum, s) => sum + (s.human_connects || 0), 0);
+                const todayTalk = todaySessions.reduce((sum, s) => sum + (s.total_talk_time_seconds || 0), 0);
+
+                // Last completed session (for idle reps)
+                const lastCompleted = sessions.find(s => s.session_end);
+
+                return `
+                    <div class="live-rep-card ${isActive ? 'active' : ''}">
+                        <div class="live-rep-header">
+                            <div>
+                                <div class="live-rep-name">${latest.rep_name || 'Unknown Rep'}</div>
+                                <div class="live-rep-phone">${latest.rep_phone || ''}</div>
+                            </div>
+                            <div class="live-status-badge ${isActive ? 'dialing' : 'idle'}">
+                                <div class="live-dot ${isActive ? 'pulse' : ''}"></div>
+                                ${isActive ? 'Dialing' : 'Idle'}
+                            </div>
+                        </div>
+
+                        <div class="live-rep-stats">
+                            <div class="live-stat">
+                                <div class="live-stat-value">${todayCalls}</div>
+                                <div class="live-stat-label">Calls</div>
+                            </div>
+                            <div class="live-stat">
+                                <div class="live-stat-value">${todayConnects}</div>
+                                <div class="live-stat-label">Connects</div>
+                            </div>
+                            <div class="live-stat">
+                                <div class="live-stat-value">${formatTalkTime(todayTalk)}</div>
+                                <div class="live-stat-label">Talk Time</div>
+                            </div>
+                        </div>
+
+                        <div class="live-rep-meta">
+                            <span>👥 Team ${latest.team || '-'}</span>
+                            <span>📍 ${latest.region || '-'}</span>
+                            ${isActive
+                                ? `<span>⏱ Dialing for ${sessionDuration(latest.session_start, null)}</span>`
+                                : `<span>🕐 Last active ${timeAgo(latest.session_end || latest.session_start)}</span>`
+                            }
+                        </div>
+
+                        ${!isActive && lastCompleted ? `
+                            <div class="last-session-note">
+                                Last session: ${sessionDuration(lastCompleted.session_start, lastCompleted.session_end)} 
+                                · ${lastCompleted.human_connects || 0} connects
+                                · ended ${timeAgo(lastCompleted.session_end)}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function startLiveRefresh() {
+            stopLiveRefresh();
+            liveRefreshInterval = setInterval(() => {
+                loadLiveData();
+            }, 30000); // refresh every 30 seconds
+        }
+
+        function stopLiveRefresh() {
+            if (liveRefreshInterval) {
+                clearInterval(liveRefreshInterval);
+                liveRefreshInterval = null;
+            }
+        }
+
+        // ── STATS DATA ──
+        function setDateRange(range, btn) {
+            document.querySelectorAll('#tab-stats .date-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentStatsRange = range;
+            loadStatsData(range);
+        }
+
+        async function loadStatsData(range) {
+            if (!supabaseClient || !currentCompany) return;
+
+            document.getElementById('statsTableContainer').innerHTML = '<div class="loading">Loading...</div>';
+
+            try {
+                let query = supabaseClient
+                    .from('dialer_sessions')
+                    .select('*')
+                    .eq('company_name', currentCompany.company_name)
+                    .order('session_start', { ascending: false });
+
+                const dateFilter = getDateFilter(range);
+                if (dateFilter) query = query.gte('session_start', dateFilter);
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                // Aggregate by rep
+                const repStats = new Map();
+                (data || []).forEach(session => {
+                    const key = session.rep_phone;
+                    if (!repStats.has(key)) {
+                        repStats.set(key, {
+                            name: session.rep_name || 'Unknown',
+                            phone: session.rep_phone,
+                            team: session.team,
+                            region: session.region,
+                            totalCalls: 0,
+                            connects: 0,
+                            machines: 0,
+                            talkTime: 0,
+                            sessions: 0
+                        });
+                    }
+                    const rep = repStats.get(key);
+                    rep.totalCalls += session.total_calls || 0;
+                    rep.connects += session.human_connects || 0;
+                    rep.machines += session.machine_detects || 0;
+                    rep.talkTime += session.total_talk_time_seconds || 0;
+                    rep.sessions++;
+                });
+
+                // Summary totals
+                let totalCalls = 0, totalConnects = 0, totalTalk = 0;
+                repStats.forEach(rep => {
+                    totalCalls += rep.totalCalls;
+                    totalConnects += rep.connects;
+                    totalTalk += rep.talkTime;
+                });
+
+                document.getElementById('summaryTotalCalls').textContent = totalCalls;
+                document.getElementById('summaryConnects').textContent = totalConnects;
+                document.getElementById('summaryTalkTime').textContent = formatTalkTime(totalTalk);
+                document.getElementById('summaryReps').textContent = repStats.size;
+
+                if (repStats.size === 0) {
+                    document.getElementById('statsTableContainer').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📊</div>
+                            <div class="empty-state-text">No data for this period</div>
+                        </div>`;
+                    return;
+                }
+
+                // Sort by connects desc
+                const sorted = [...repStats.values()].sort((a, b) => b.connects - a.connects);
+
+                document.getElementById('statsTableContainer').innerHTML = `
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Rep</th>
+                                <th>Team / Region</th>
+                                <th>Sessions</th>
+                                <th>Total Calls</th>
+                                <th>Connects</th>
+                                <th>Connect Rate</th>
+                                <th>Talk Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sorted.map(rep => {
+                                const rate = rep.totalCalls > 0
+                                    ? Math.round((rep.connects / rep.totalCalls) * 100)
+                                    : 0;
+                                return `
+                                    <tr>
+                                        <td>
+                                            <div class="rep-name-cell">${rep.name}</div>
+                                            <div class="rep-phone-cell">${rep.phone}</div>
+                                        </td>
+                                        <td style="color: var(--text-secondary)">
+                                            ${rep.team || '-'} / ${rep.region || '-'}
+                                        </td>
+                                        <td>${rep.sessions}</td>
+                                        <td>${rep.totalCalls}</td>
+                                        <td>${rep.connects}</td>
+                                        <td>
+                                            <div class="connect-rate">
+                                                <span>${rate}%</span>
+                                                <div class="connect-bar">
+                                                    <div class="connect-bar-fill" style="width: ${rate}%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>${formatTalkTime(rep.talkTime)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+            } catch (error) {
+                document.getElementById('statsTableContainer').innerHTML =
+                    `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading stats</div></div>`;
+            }
+        }
+
+        // ── LEADERBOARD ──
+        function setLeaderboardRange(range, btn) {
+            document.querySelectorAll('#tab-leaderboard .date-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentLeaderboardRange = range;
+            loadLeaderboardData(range);
+        }
+
+        async function loadLeaderboardData(range) {
+            if (!supabaseClient || !currentCompany) return;
+
+            document.getElementById('leaderboardList').innerHTML = '<div class="loading">Loading...</div>';
+
+            try {
+                let query = supabaseClient
+                    .from('dialer_sessions')
+                    .select('*')
+                    .eq('company_name', currentCompany.company_name)
+                    .order('session_start', { ascending: false });
+
+                const dateFilter = getDateFilter(range);
+                if (dateFilter) query = query.gte('session_start', dateFilter);
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                // Aggregate by rep
+                const repStats = new Map();
+                (data || []).forEach(session => {
+                    const key = session.rep_phone;
+                    if (!repStats.has(key)) {
+                        repStats.set(key, {
+                            name: session.rep_name || 'Unknown',
+                            phone: session.rep_phone,
+                            totalCalls: 0,
+                            connects: 0,
+                            talkTime: 0
+                        });
+                    }
+                    const rep = repStats.get(key);
+                    rep.totalCalls += session.total_calls || 0;
+                    rep.connects += session.human_connects || 0;
+                    rep.talkTime += session.total_talk_time_seconds || 0;
+                });
+
+                const sorted = [...repStats.values()]
+                    .sort((a, b) => b.connects - a.connects)
+                    .filter(r => r.totalCalls > 0);
+
+                if (sorted.length === 0) {
+                    document.getElementById('leaderboardList').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🏆</div>
+                            <div class="empty-state-text">No data for this period</div>
+                        </div>`;
+                    return;
+                }
+
+                const rankEmoji = ['🥇', '🥈', '🥉'];
+
+                document.getElementById('leaderboardList').innerHTML = sorted.map((rep, i) => `
+                    <div class="leaderboard-row ${i < 3 ? `rank-${i+1}` : ''}">
+                        <div class="leaderboard-rank">${rankEmoji[i] || i + 1}</div>
+                        <div>
+                            <div class="leaderboard-name">${rep.name}</div>
+                            <div class="leaderboard-phone">${rep.phone}</div>
+                        </div>
+                        <div class="leaderboard-stats">
+                            <div>
+                                <div class="leaderboard-stat-value">${rep.connects}</div>
+                                <div class="leaderboard-stat-label">Connects</div>
+                            </div>
+                            <div>
+                                <div class="leaderboard-stat-value">${rep.totalCalls}</div>
+                                <div class="leaderboard-stat-label">Calls</div>
+                            </div>
+                            <div>
+                                <div class="leaderboard-stat-value">${formatTalkTime(rep.talkTime)}</div>
+                                <div class="leaderboard-stat-label">Talk Time</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                document.getElementById('leaderboardList').innerHTML =
+                    `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading leaderboard</div></div>`;
+            }
+        }
+
+        // ── UTILS ──
+        function showError(message) {
+            const div = document.createElement('div');
+            div.className = 'message error';
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
+        }
+    </script>
+</body>
+</html>
