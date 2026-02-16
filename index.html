@@ -3338,12 +3338,13 @@ async function selectDisposition(callSid, disposition) {
             const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
             const repName = document.getElementById('userName').textContent || 'Unknown';
             await supabaseClient.from('dialer_sessions').insert({
-                session_id: sessionId,
-                company_name: currentCompany?.company_name || localStorage.getItem('company_name'),
-                rep_name: repName,
-                rep_phone: repPhone,
-                session_start: new Date().toISOString()
-            });
+    session_id: sessionId,
+    company_name: currentCompany?.company_name || localStorage.getItem('company_name'),
+    rep_name: repName,
+    rep_phone: repPhone,
+    session_start: new Date().toISOString(),
+    last_heartbeat: new Date().toISOString()
+});
         }
 
         async function updateDialerSession() {
