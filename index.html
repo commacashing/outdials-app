@@ -3089,6 +3089,13 @@ function startInactivityMonitor() {
     // Check every minute
     inactivityTimer = setInterval(() => {
         const inactiveMinutes = (Date.now() - lastActivityTime) / 60000;
+
+        // Heartbeat - update last_heartbeat every minute while dialing
+        if (isDialing && supabaseClient && sessionId) {
+            supabaseClient.from('dialer_sessions')
+                .update({ last_heartbeat: new Date().toISOString() })
+                .eq('session_id', sessionId);
+        }
         
         // 30 min inactive → show warning
         if (inactiveMinutes >= 30 && !inactivityWarningShown) {
