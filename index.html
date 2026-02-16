@@ -2647,6 +2647,7 @@ updateStatus('idle', 'System Ready');
                 updateStatus('dialing', 'Dialing Active');
                 showEmptyRaceCards();
                 subscribeToSupabase();
+                await createDialerSession();
 
                 await fetch(`${N8N_WEBHOOK_BASE}/start-dialing`, {
                     method: 'POST',
@@ -2718,6 +2719,8 @@ await new Promise(resolve => setTimeout(resolve, 800));
     
     showSuccess('Dialing stopped');
     
+    await updateDialerSession();
+
     // Call backend in background
     const repPhone = localStorage.getItem('current_rep_phone');
     fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
@@ -3316,7 +3319,31 @@ async function selectDisposition(callSid, disposition) {
         showError(`Failed to save disposition: ${error.message}`);
     }
 }
-        
+        async function createDialerSession() {
+            if (!supabaseClient) return;
+            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+            const repName = document.getElementById('userName').textContent || 'Unknown';
+            await supabaseClient.from('dialer_sessions').insert({
+                session_id: sessionId,
+                company_name: currentCompany?.company_name || localStorage.getItem('company_name'),
+                rep_name: repName,
+                rep_phone: repPhone,
+                session_start: new Date().toISOString()
+            });
+        }
+
+        async function updateDialerSession() {
+            if (!supabaseClient || !sessionId) return;
+            await supabaseClient.from('dialer_sessions').update({
+                session_end: new Date().toISOString(),
+                total_calls: currentSessionStats.totalCalls,
+                human_connects: currentSessionStats.connects,
+                machine_detects: currentSessionStats.machines,
+                total_talk_time_seconds: Math.round(
+                    currentSessionStats.callDurations.reduce((sum, d) => sum + d, 0)
+                )
+            }).eq('session_id', sessionId);
+        }
         function showError(message) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'message error';
