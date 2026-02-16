@@ -1021,8 +1021,6 @@
                         </div>
 
                         <div class="live-rep-meta">
-                            <span>👥 Team ${latest.team || '-'}</span>
-                            <span>📍 ${latest.region || '-'}</span>
                             ${isActive
                                 ? `<span>⏱ Dialing for ${sessionDuration(latest.session_start, null)}</span>`
                                 : `<span>🕐 Last active ${timeAgo(latest.session_end || latest.session_start)}</span>`
@@ -1136,7 +1134,6 @@
                         <thead>
                             <tr>
                                 <th>Rep</th>
-                                <th>Team / Region</th>
                                 <th>Sessions</th>
                                 <th>Total Calls</th>
                                 <th>Connects</th>
@@ -1154,9 +1151,6 @@
                                         <td>
                                             <div class="rep-name-cell">${rep.name}</div>
                                             <div class="rep-phone-cell">${rep.phone}</div>
-                                        </td>
-                                        <td style="color: var(--text-secondary)">
-                                            ${rep.team || '-'} / ${rep.region || '-'}
                                         </td>
                                         <td>${rep.sessions}</td>
                                         <td>${rep.totalCalls}</td>
