@@ -3670,11 +3670,18 @@ if (response.ok) {
         formatPhoneNumber(this);
     });
     document.getElementById('repPhone').addEventListener('paste', function() {
-        setTimeout(() => formatPhoneNumber(this), 0);
+        const input = this;
+        setTimeout(() => formatPhoneNumber(input), 0);
     });
     document.getElementById('repPhone').addEventListener('blur', function() {
         formatPhoneNumber(this);
     });
+
+    // Format any autofilled value on load
+    setTimeout(() => {
+        const phoneInput = document.getElementById('repPhone');
+        if (phoneInput.value) formatPhoneNumber(phoneInput);
+    }, 1000);
     
     document.getElementById('teamSelect').addEventListener('change', checkFormValid);
     document.getElementById('regionSelect').addEventListener('change', checkFormValid);
