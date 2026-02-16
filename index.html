@@ -3669,6 +3669,12 @@ if (response.ok) {
     document.getElementById('repPhone').addEventListener('change', function() {
         formatPhoneNumber(this);
     });
+    document.getElementById('repPhone').addEventListener('paste', function() {
+        setTimeout(() => formatPhoneNumber(this), 0);
+    });
+    document.getElementById('repPhone').addEventListener('blur', function() {
+        formatPhoneNumber(this);
+    });
     
     document.getElementById('teamSelect').addEventListener('change', checkFormValid);
     document.getElementById('regionSelect').addEventListener('change', checkFormValid);
