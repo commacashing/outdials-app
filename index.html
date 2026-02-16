@@ -3679,9 +3679,10 @@ if (response.ok) {
 
     // Format any autofilled value on load
     setTimeout(() => {
-        const phoneInput = document.getElementById('repPhone');
-        if (phoneInput.value) formatPhoneNumber(phoneInput);
-    }, 1000);
+    const phoneInput = document.getElementById('repPhone');
+    if (phoneInput.value) formatPhoneNumber(phoneInput);
+    checkFormValid();
+}, 1000);
     
     document.getElementById('teamSelect').addEventListener('change', checkFormValid);
     document.getElementById('regionSelect').addEventListener('change', checkFormValid);
