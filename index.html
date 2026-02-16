@@ -1979,6 +1979,7 @@ async function loadCompanyFromURL() {
         let accessToken = null;
         let instanceUrl = null;
         let sessionId = null;
+        let sessionStartStats = { totalCalls: 0, connects: 0, machines: 0, callDurationsCount: 0 };
         let supabaseSubscription = null;
         let currentBatchContacts = new Map();
         let hasUnsavedNotes = false;
@@ -3328,6 +3329,12 @@ async function selectDisposition(callSid, disposition) {
 }
         async function createDialerSession() {
             if (!supabaseClient) return;
+            sessionStartStats = {
+                totalCalls: currentSessionStats.totalCalls,
+                connects: currentSessionStats.connects,
+                machines: currentSessionStats.machines,
+                callDurationsCount: currentSessionStats.callDurations.length
+            };
             const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
             const repName = document.getElementById('userName').textContent || 'Unknown';
             await supabaseClient.from('dialer_sessions').insert({
@@ -3343,12 +3350,12 @@ async function selectDisposition(callSid, disposition) {
             if (!supabaseClient || !sessionId) return;
             await supabaseClient.from('dialer_sessions').update({
                 session_end: new Date().toISOString(),
-                total_calls: currentSessionStats.totalCalls,
-                human_connects: currentSessionStats.connects,
-                machine_detects: currentSessionStats.machines,
-                total_talk_time_seconds: Math.round(
-                    currentSessionStats.callDurations.reduce((sum, d) => sum + d, 0)
-                )
+                total_calls: currentSessionStats.totalCalls - sessionStartStats.totalCalls,
+        human_connects: currentSessionStats.connects - sessionStartStats.connects,
+        machine_detects: currentSessionStats.machines - sessionStartStats.machines,
+        total_talk_time_seconds: Math.round(
+            currentSessionStats.callDurations.slice(sessionStartStats.callDurationsCount).reduce((sum, d) => sum + d, 0)
+        )
             }).eq('session_id', sessionId);
         }
         function showError(message) {
@@ -3657,6 +3664,9 @@ if (response.ok) {
     
     // Phone formatting
     document.getElementById('repPhone').addEventListener('input', function() {
+        formatPhoneNumber(this);
+    });
+    document.getElementById('repPhone').addEventListener('change', function() {
         formatPhoneNumber(this);
     });
     
