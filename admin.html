@@ -976,7 +976,8 @@
             });
 
             grid.innerHTML = sorted.map(({ latest, sessions }) => {
-                const isActive = !latest.session_end;
+                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+                const isActive = !latest.session_end && latest.last_heartbeat && latest.last_heartbeat > fiveMinutesAgo;
 
                 // Today's totals across all sessions
                 const todaySessions = sessions.filter(s => {
