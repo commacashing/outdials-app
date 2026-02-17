@@ -3678,12 +3678,14 @@ if (response.ok) {
         formatPhoneNumber(this);
     });
 
-    // Format any autofilled value on load
+    // Check at multiple intervals to catch all timing scenarios
+[500, 1000, 1500, 2000, 3000].forEach(delay => {
     setTimeout(() => {
-    const phoneInput = document.getElementById('repPhone');
-    if (phoneInput.value) formatPhoneNumber(phoneInput);
-    checkFormValid();
-}, 1000);
+        const phoneInput = document.getElementById('repPhone');
+        if (phoneInput.value) formatPhoneNumber(phoneInput);
+        checkFormValid();
+    }, delay);
+});
     
     document.getElementById('teamSelect').addEventListener('change', checkFormValid);
     document.getElementById('regionSelect').addEventListener('change', checkFormValid);
