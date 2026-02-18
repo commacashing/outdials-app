@@ -3625,6 +3625,34 @@ if (response.ok) {
         // Process OAuth immediately
         console.log('✅ Processing OAuth callback');
         await handleOAuthCallback(oauthCode);
+        
+        // ADD EVENT LISTENERS (needed on first OAuth login)
+        document.getElementById('repPhone').addEventListener('input', function() {
+            formatPhoneNumber(this);
+        });
+        document.getElementById('repPhone').addEventListener('change', function() {
+            formatPhoneNumber(this);
+        });
+        document.getElementById('repPhone').addEventListener('paste', function() {
+            const input = this;
+            setTimeout(() => formatPhoneNumber(input), 0);
+        });
+        document.getElementById('repPhone').addEventListener('blur', function() {
+            formatPhoneNumber(this);
+        });
+        
+        // Check at multiple intervals to catch all timing scenarios
+        [500, 1000, 1500, 2000, 3000].forEach(delay => {
+            setTimeout(() => {
+                const phoneInput = document.getElementById('repPhone');
+                if (phoneInput.value) formatPhoneNumber(phoneInput);
+                checkFormValid();
+            }, delay);
+        });
+        
+        document.getElementById('teamSelect').addEventListener('change', checkFormValid);
+        document.getElementById('regionSelect').addEventListener('change', checkFormValid);
+        
         return;  // STOP HERE - don't run normal initialization
     }
     
