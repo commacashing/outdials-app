@@ -2728,6 +2728,16 @@ await new Promise(resolve => setTimeout(resolve, 800));
     
     await updateDialerSession();
 
+fetch(`${N8N_WEBHOOK_BASE}/calculate-session-stats`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        session_id: sessionId,
+        total_talk_time_seconds: Math.round(
+            currentSessionStats.callDurations.slice(sessionStartStats.callDurationsCount).reduce((sum, d) => sum + d, 0)
+        )
+    })
+}).catch(error => console.error('Stats calculation failed:', error));
     // Call backend in background
     const repPhone = localStorage.getItem('current_rep_phone');
     fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
