@@ -28,9 +28,9 @@ exports.handler = async (event, context) => {
     
     if (!response.ok) {
       return {
-        statusCode: 400,
+        statusCode: 401,
         body: JSON.stringify({ 
-          error: 'Failed to fetch user info',
+          error: 'Session expired',
           details: data 
         })
       };
