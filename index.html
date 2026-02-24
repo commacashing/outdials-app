@@ -2546,6 +2546,7 @@ function stopTokenRefresh() {
                     contact.status = 'busy';
                     contact.busyType = 'call_busy';
                     updateRaceCard(data.call_sid, 'busy', 'call_busy');
+                    checkBatchComplete();
                 }
             }
             else if (status === 'call_failed') {
@@ -2554,6 +2555,7 @@ function stopTokenRefresh() {
                     contact.status = 'busy';
                     contact.busyType = 'call_failed';
                     updateRaceCard(data.call_sid, 'busy', 'call_failed');
+                    checkBatchComplete();
                 }
             }
             else if (status === 'call_no_answer') {
@@ -2562,6 +2564,7 @@ function stopTokenRefresh() {
                     contact.status = 'busy';
                     contact.busyType = 'call_no_answer';
                     updateRaceCard(data.call_sid, 'busy', 'call_no_answer');
+                    checkBatchComplete();
                 }
             }
             else if (status === 'call_canceled') {
@@ -2570,6 +2573,7 @@ function stopTokenRefresh() {
                     contact.status = 'busy';
                     contact.busyType = 'call_canceled';
                     updateRaceCard(data.call_sid, 'busy', 'call_canceled');
+                    checkBatchComplete();
                 }
             }
             else if (status === 'human_answered' || status === 'inbound_call') {
@@ -3606,6 +3610,48 @@ if (response.ok) {
             }
         }
 
+        function checkBatchComplete() {
+    if (currentBatchContacts.size < 3) return;
+    
+    let allResolved = true;
+    let anyHuman = false;
+    
+    currentBatchContacts.forEach((contact) => {
+        if (contact.status === 'ringing') allResolved = false;
+        if (contact.status === 'human') anyHuman = true;
+    });
+    
+    if (allResolved && !anyHuman) {
+        setTimeout(() => resetCardsToSearching(), 1500);
+    }
+}
+
+function resetCardsToSearching() {
+    for (let i = 0; i < 3; i++) {
+        const wrapper = document.getElementById(`race-card-wrapper-${i}`);
+        if (wrapper) wrapper.classList.remove('flipped');
+    }
+    
+    setTimeout(() => {
+        currentBatchContacts.clear();
+        for (let i = 0; i < 3; i++) {
+            const card = document.getElementById(`race-card-${i}`);
+            if (card) {
+                card.className = 'race-card searching';
+                card.innerHTML = `
+                    <div class="race-card-status"></div>
+                    <div class="race-card-name">Searching For Contact</div>
+                    <div class="race-card-subtitle">Dialing in progress...</div>
+                `;
+            }
+        }
+        for (let i = 0; i < 3; i++) {
+            const wrapper = document.getElementById(`race-card-wrapper-${i}`);
+            if (wrapper) wrapper.classList.add('flipped');
+        }
+    }, 800);
+}
+        
         // Reconnect Supabase when tab becomes active
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
