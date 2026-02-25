@@ -2605,7 +2605,7 @@ function stopTokenRefresh() {
                 updateStatus('on-call', 'On Call');
                 
                 isDialing = false;
-                unsubscribeFromSupabase();
+                
                 
                 document.getElementById('stopButton').style.display = 'none';
 document.getElementById('startButton').style.display = 'inline-block';
@@ -2619,15 +2619,27 @@ updateStatus('idle', 'System Ready');
                 updateStatsDisplay();
             }
             else if (status === 'call_completed') {
-                if (currentSessionStats.humanAnsweredTime) {
-                    const duration = (new Date(data.created_at).getTime() - currentSessionStats.humanAnsweredTime) / 1000;
-                    if (duration > 0 && duration < 3600) {
-                        currentSessionStats.callDurations.push(duration);
-                    }
-                    currentSessionStats.humanAnsweredTime = null;
-                }
-                updateStatsDisplay();
-            }
+    if (currentSessionStats.humanAnsweredTime) {
+        const duration = (new Date(data.created_at).getTime() - currentSessionStats.humanAnsweredTime) / 1000;
+        if (duration > 0 && duration < 3600) {
+            currentSessionStats.callDurations.push(duration);
+        }
+        currentSessionStats.humanAnsweredTime = null;
+
+        updateDialerSession();
+        fetch(`${N8N_WEBHOOK_BASE}/calculate-session-stats`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: sessionId,
+                total_talk_time_seconds: data.call_duration || Math.round(
+                    currentSessionStats.callDurations.reduce((sum, d) => sum + d, 0)
+                )
+            })
+        }).catch(e => console.error('Stats calc failed:', e));
+    }
+    updateStatsDisplay();
+}
         }
 
         async function startDialing() {
