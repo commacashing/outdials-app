@@ -3813,7 +3813,18 @@ function resetCardsToSearching() {
 });
     
     document.getElementById('teamSelect').addEventListener('change', checkFormValid);
-    document.getElementById('regionSelect').addEventListener('change', checkFormValid);
+        document.getElementById('regionSelect').addEventListener('change', checkFormValid);
+});
+
+window.addEventListener('beforeunload', () => {
+    if (isDialing && sessionId) {
+        const repPhone = localStorage.getItem('current_rep_phone');
+        navigator.sendBeacon(`${N8N_WEBHOOK_BASE}/stop-dialing`, JSON.stringify({
+            action: 'stop',
+            session_id: sessionId,
+            rep_phone: repPhone
+        }));
+    }
 });
     </script>
 </body>
