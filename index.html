@@ -3816,14 +3816,15 @@ function resetCardsToSearching() {
         document.getElementById('regionSelect').addEventListener('change', checkFormValid);
 });
 
-window.addEventListener('beforeunload', () => {
+window.addEventListener('pagehide', () => {
     if (isDialing && sessionId) {
         const repPhone = localStorage.getItem('current_rep_phone');
-        navigator.sendBeacon(`${N8N_WEBHOOK_BASE}/stop-dialing`, JSON.stringify({
+        const blob = new Blob([JSON.stringify({
             action: 'stop',
             session_id: sessionId,
             rep_phone: repPhone
-        }));
+        })], { type: 'application/json' });
+        navigator.sendBeacon(`${N8N_WEBHOOK_BASE}/stop-dialing`, blob);
     }
 });
     </script>
