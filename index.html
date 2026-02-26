@@ -3819,12 +3819,16 @@ function resetCardsToSearching() {
 window.addEventListener('pagehide', () => {
     if (isDialing && sessionId) {
         const repPhone = localStorage.getItem('current_rep_phone');
-        const blob = new Blob([JSON.stringify({
-            action: 'stop',
-            session_id: sessionId,
-            rep_phone: repPhone
-        })], { type: 'application/json' });
-        navigator.sendBeacon(`${N8N_WEBHOOK_BASE}/stop-dialing`, blob);
+        fetch('/.netlify/functions/stop-dialing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'stop',
+                session_id: sessionId,
+                rep_phone: repPhone
+            }),
+            keepalive: true
+        });
     }
 });
     </script>
