@@ -1997,6 +1997,7 @@ async function loadCompanyFromURL() {
         let inactivityTimer = null;
         let inactivityWarningShown = false;
         let lastActivityTime = Date.now();
+        let callTimer = null;
 
         function normalizePhone(phone) {
     if (!phone) return '';
@@ -2579,6 +2580,13 @@ function stopTokenRefresh() {
             else if (status === 'human_answered' || status === 'inbound_call') {
                 currentSessionStats.connects++;
                 currentSessionStats.humanAnsweredTime = new Date(data.created_at).getTime();
+callTimer = setInterval(() => {
+    const duration = (Date.now() - currentSessionStats.humanAnsweredTime) / 1000;
+    const totalSeconds = Math.round(duration);
+    const minutes = Math.floor(totalSeconds / 60);
+    document.getElementById('statTalkTime').textContent = minutes + 'm';
+    document.getElementById('statAvgDuration').textContent = totalSeconds + 's';
+}, 1000);
                 
                 if (status === 'inbound_call') {
                     showHeroCard(data);
@@ -2624,7 +2632,10 @@ updateStatus('idle', 'System Ready');
         if (duration > 0 && duration < 3600) {
             currentSessionStats.callDurations.push(duration);
         }
-        currentSessionStats.humanAnsweredTime = null;
+        if (callTimer) { clearInterval(callTimer); callTimer = null; }
+const finalDuration = (Date.now() - currentSessionStats.humanAnsweredTime) / 1000;
+currentSessionStats.callDurations.push(Math.round(finalDuration));
+currentSessionStats.humanAnsweredTime = null;
 
         updateDialerSession();
         fetch(`${N8N_WEBHOOK_BASE}/calculate-session-stats`, {
