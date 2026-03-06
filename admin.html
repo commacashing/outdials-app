@@ -710,11 +710,22 @@
             <!-- Stats Tab -->
             <div id="tab-stats" class="tab-panel">
                 <div class="section-header">
-                    <div>
-                        <div class="section-title">Rep Performance</div>
-                        <div class="section-subtitle">Session stats by rep</div>
-                    </div>
-                    <div class="date-range-pills">
+    <div>
+        <div class="section-title">Rep Performance</div>
+        <div class="section-subtitle">Session stats by rep</div>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <button class="date-pill" onclick="exportAdminData()" style="background: var(--bg-secondary); color: var(--text-primary); border-color: var(--border-color); font-weight: 600;">
+    Download CSV
+</button>
+        <div class="date-range-pills">
+            <button class="date-pill active" onclick="setDateRange('today', this)">Today</button>
+            <button class="date-pill" onclick="setDateRange('week', this)">Week</button>
+            <button class="date-pill" onclick="setDateRange('month', this)">Month</button>
+            <button class="date-pill" onclick="setDateRange('all', this)">All Time</button>
+        </div>
+    </div>
+</div>
                         <button class="date-pill active" onclick="setDateRange('today', this)">Today</button>
                         <button class="date-pill" onclick="setDateRange('week', this)">Week</button>
                         <button class="date-pill" onclick="setDateRange('month', this)">Month</button>
@@ -1275,6 +1286,45 @@
             div.textContent = message;
             document.body.appendChild(div);
             setTimeout(() => div.remove(), 4000);
+        }
+
+        // ── ADMIN EXPORT ──
+        async function exportAdminData() {
+            if (!currentCompany) return;
+            
+            const range = currentStatsRange;
+            const dateFilter = getDateFilter(range);
+            
+            const payload = {
+                company_name: currentCompany.company_name,
+                date_range: range
+            };
+            
+            if (dateFilter) {
+                payload.start_date = dateFilter;
+            }
+            
+            try {
+                const response = await fetch('https://commacashing.app.n8n.cloud/webhook/export-admin-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error('Export failed');
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `outdials_admin_${range}_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                showError('Export failed. Please try again.');
+            }
         }
     </script>
 </body>
