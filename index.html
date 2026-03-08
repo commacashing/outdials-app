@@ -2890,7 +2890,7 @@ function populateRaceCard(callSid, contact, index) {
         </div>
         <div class="race-card-name">${contact.name}</div>
         <div class="race-card-info"><strong>${contact.company || 'No company'}</strong></div>
-        <div class="race-card-info">${contact.phone ? '555-123-4567' : 'No phone'}</div>
+        <div class="race-card-info">${contact.phone || 'No phone'}</div>
         <div class="race-card-info">Region: ${contact.region || '-'} | Team: ${contact.team || '-'}</div>
         <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
         <div class="race-card-info">Years: ${contact.years_at_firm || '-'}</div>
@@ -3442,7 +3442,7 @@ async function selectDisposition(callSid, disposition) {
 
             document.getElementById('heroCardName').textContent = data.contact_name || 'Unknown Caller';
             document.getElementById('heroCardCompany').textContent = data.contact_company || '-';
-            document.getElementById('heroCardPhone').textContent = data.contact_phone ? '555-123-4567' : '-';
+            document.getElementById('heroCardPhone').textContent = data.contact_phone || '-';
             document.getElementById('heroCardRegionTeam').textContent = 
                 `${data.contact_region || '-'} • ${data.contact_team || '-'}`;
             document.getElementById('heroCardLicenses').textContent = data.licenses || '-';
