@@ -2880,7 +2880,10 @@ setTimeout(() => {
         
 function populateRaceCard(callSid, contact, index) {
     const card = document.getElementById(`race-card-${index}`);
-    if (!card) return;
+    if (!card) {
+        setTimeout(() => populateRaceCard(callSid, contact, index), 100);
+        return;
+    }
     
     card.id = `race-card-${callSid}`;
     card.className = 'race-card ringing';
