@@ -2525,7 +2525,7 @@ function stopTokenRefresh() {
                 
                 currentBatchContacts.set(data.call_sid, contact);
                 
-                const index = currentBatchContacts.size - 1;
+                const index = data.call_index ?? currentBatchContacts.size - 1;
                 populateRaceCard(data.call_sid, contact, index);
                 
                 updateStatsDisplay();
