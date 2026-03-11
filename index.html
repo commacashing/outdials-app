@@ -2554,6 +2554,8 @@ function stopTokenRefresh() {
                 checkBatchComplete();
             }
             else if (status === 'call_failed') {
+                console.log(`📥 call_failed for ${data.contact_name} (${data.call_sid})`);
+                console.log(`   In map: ${currentBatchContacts.has(data.call_sid)}, DOM exists: ${!!document.getElementById('race-card-' + data.call_sid)}`);
                 const contact = currentBatchContacts.get(data.call_sid);
                 if (!contact) {
                     pendingEvents.set(data.call_sid, data);
@@ -2889,10 +2891,11 @@ setTimeout(() => {
 function populateRaceCard(callSid, contact, index) {
     const card = document.getElementById(`race-card-${index}`);
     if (!card) {
+        console.log(`⏳ Card ${index} not found for ${contact.name}, retrying...`);
         setTimeout(() => populateRaceCard(callSid, contact, index), 100);
         return;
     }
-    
+    console.log(`✅ Populating card ${index} for ${contact.name} (${callSid})`);
     card.id = `race-card-${callSid}`;
     card.className = 'race-card ringing';
     card.innerHTML = `
@@ -3652,6 +3655,8 @@ if (response.ok) {
         }
 
         function checkBatchComplete() {
+    console.log(`🔍 checkBatchComplete - map size: ${currentBatchContacts.size}`);
+    currentBatchContacts.forEach((c, sid) => console.log(`   ${c.name}: ${c.status} | DOM: ${!!document.getElementById('race-card-' + sid)}`));
     if (currentBatchContacts.size < 3) return;
     
     let allResolved = true;
