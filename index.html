@@ -1992,6 +1992,7 @@ async function loadCompanyFromURL() {
         let currentNoteCallSid = null;
         let currentHeroCallSid = null;
         let pendingContacts = new Map();
+        let pendingEvents = new Map();
         let currentHeroContact = null;
         let autoSaveInterval = null;
         let isAuthenticated = false;
@@ -2535,50 +2536,64 @@ function stopTokenRefresh() {
                 currentSessionStats.machines++;
                 
                 const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'machine';
-                    updateRaceCard(data.call_sid, 'machine');
+                if (!contact) {
+                    pendingEvents.set(data.call_sid, data);
+                    return;
                 }
+                contact.status = 'machine';
+                updateRaceCard(data.call_sid, 'machine');
                 
                 updateStatsDisplay();
-            }
-            else if (status === 'call_busy') {
-                const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'busy';
-                    contact.busyType = 'call_busy';
-                    updateRaceCard(data.call_sid, 'busy', 'call_busy');
-                    checkBatchComplete();
-                }
-            }
+           else if (status === 'call_busy') {
+    const contact = currentBatchContacts.get(data.call_sid);
+    if (!contact) {
+        pendingEvents.set(data.call_sid, data);
+        return;
+    }
+    contact.status = 'busy';
+    contact.busyType = 'call_busy';
+    updateRaceCard(data.call_sid, 'busy', 'call_busy');
+    checkBatchComplete();
+}
             else if (status === 'call_failed') {
-                const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'busy';
-                    contact.busyType = 'call_failed';
-                    updateRaceCard(data.call_sid, 'busy', 'call_failed');
-                    checkBatchComplete();
-                }
-            }
+    const contact = currentBatchContacts.get(data.call_sid);
+    if (!contact) {
+        pendingEvents.set(data.call_sid, data);
+        return;
+    }
+    contact.status = 'busy';
+    contact.busyType = 'call_failed';
+    updateRaceCard(data.call_sid, 'busy', 'call_failed');
+    checkBatchComplete();
+}
             else if (status === 'call_no_answer') {
-                const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'busy';
-                    contact.busyType = 'call_no_answer';
-                    updateRaceCard(data.call_sid, 'busy', 'call_no_answer');
-                    checkBatchComplete();
-                }
-            }
-            else if (status === 'call_canceled') {
-                const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'busy';
-                    contact.busyType = 'call_canceled';
-                    updateRaceCard(data.call_sid, 'busy', 'call_canceled');
-                    checkBatchComplete();
-                }
-            }
+    const contact = currentBatchContacts.get(data.call_sid);
+    if (!contact) {
+        pendingEvents.set(data.call_sid, data);
+        return;
+    }
+    contact.status = 'busy';
+    contact.busyType = 'call_no_answer';
+    updateRaceCard(data.call_sid, 'busy', 'call_no_answer');
+    checkBatchComplete();
+}
+else if (status === 'call_canceled') {
+    const contact = currentBatchContacts.get(data.call_sid);
+    if (!contact) {
+        pendingEvents.set(data.call_sid, data);
+        return;
+    }
+    contact.status = 'busy';
+    contact.busyType = 'call_canceled';
+    updateRaceCard(data.call_sid, 'busy', 'call_canceled');
+    checkBatchComplete();
+}
             else if (status === 'human_answered' || status === 'inbound_call') {
+                const contactCheck = currentBatchContacts.get(data.call_sid);
+                if (!contactCheck) {
+                    pendingEvents.set(data.call_sid, data);
+                    return;
+                }
                 currentSessionStats.connects++;
                 currentSessionStats.humanAnsweredTime = new Date(data.created_at).getTime();
 callTimer = setInterval(() => {
@@ -2904,6 +2919,12 @@ if (!card) {
         <div class="race-card-info">Years: ${contact.years_at_firm || '-'}</div>
         ${contact.notes ? `<div class="race-card-info" style="margin-top: 8px; font-style: italic; opacity: 0.8;">Notes: ${contact.notes.substring(0, 100)}${contact.notes.length > 100 ? '...' : ''}</div>` : ''}
     `;
+
+    if (pendingEvents.has(callSid)) {
+        const pending = pendingEvents.get(callSid);
+        pendingEvents.delete(callSid);
+        handleStatusUpdate(pending);
+    }
 }
         function updateRaceCard(callSid, status, busyType = null) {
             const card = document.getElementById(`race-card-${callSid}`);
