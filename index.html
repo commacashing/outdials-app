@@ -365,7 +365,7 @@
     backface-visibility: hidden;
     border-radius: 16px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s;
+    transition: transform 0.6s;
 }
 
 .race-card-back {
@@ -2525,7 +2525,7 @@ function stopTokenRefresh() {
                 
                 currentBatchContacts.set(data.call_sid, contact);
                 
-                const index = currentBatchContacts.size - 1;
+                const index = data.call_index ?? currentBatchContacts.size - 1;
                 populateRaceCard(data.call_sid, contact, index);
                 
                 updateStatsDisplay();
@@ -2874,7 +2874,7 @@ setTimeout(() => {
                 }
             }
         }
-    }, 800);
+    }, 1400);
 }
         
 function populateRaceCard(callSid, contact, index) {
