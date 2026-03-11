@@ -3706,12 +3706,13 @@ function resetCardsToSearching() {
             const wrapper = document.getElementById(`race-card-wrapper-${i}`);
             if (wrapper) wrapper.classList.add('flipped');
         }
-        pendingContacts.forEach(({ callSid, contact, index }) => {
-            populateRaceCard(callSid, contact, index);
-        });
-        pendingContacts.clear();
+        setTimeout(() => {
+            pendingContacts.forEach(({ callSid, contact, index }) => {
+                populateRaceCard(callSid, contact, index);
+            });
+            pendingContacts.clear();
+        }, 650);
     }, 800);
-}
         
         // Reconnect Supabase when tab becomes active
         document.addEventListener('visibilitychange', () => {
