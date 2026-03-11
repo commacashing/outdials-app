@@ -2879,6 +2879,7 @@ setTimeout(() => {
         
 function populateRaceCard(callSid, contact, index) {
     const card = document.getElementById(`race-card-${index}`);
+    console.log('Looking for card:', `race-card-${index}`, 'Found:', !!card);
     if (!card) return;
     
     card.id = `race-card-${callSid}`;
