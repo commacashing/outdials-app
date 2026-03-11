@@ -1991,6 +1991,7 @@ async function loadCompanyFromURL() {
         let hasUnsavedNotes = false;
         let currentNoteCallSid = null;
         let currentHeroCallSid = null;
+        let pendingContacts = new Map();
         let currentHeroContact = null;
         let autoSaveInterval = null;
         let isAuthenticated = false;
@@ -2874,13 +2875,19 @@ setTimeout(() => {
                 }
             }
         }
-    }, 1400);
+    pendingContacts.forEach(({ callSid, contact, index }) => {
+        populateRaceCard(callSid, contact, index);
+    });
+    pendingContacts.clear();
+}, 1400);
 }
         
 function populateRaceCard(callSid, contact, index) {
     const card = document.getElementById(`race-card-${index}`);
-    console.log('Looking for card:', `race-card-${index}`, 'Found:', !!card);
-    if (!card) return;
+if (!card) {
+    pendingContacts.set(index, { callSid, contact, index });
+    return;
+}
     
     card.id = `race-card-${callSid}`;
     card.className = 'race-card ringing';
@@ -3677,6 +3684,10 @@ function resetCardsToSearching() {
             const wrapper = document.getElementById(`race-card-wrapper-${i}`);
             if (wrapper) wrapper.classList.add('flipped');
         }
+        pendingContacts.forEach(({ callSid, contact, index }) => {
+            populateRaceCard(callSid, contact, index);
+        });
+        pendingContacts.clear();
     }, 800);
 }
         
