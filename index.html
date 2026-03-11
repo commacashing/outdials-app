@@ -2507,6 +2507,10 @@ function stopTokenRefresh() {
                     currentSessionStats.startTime = new Date(data.created_at).getTime();
                 }
                 updateStatsDisplay();
+            }
+            else if (status === 'batches_complete') {
+                showSuccess('All batches complete!');
+                setTimeout(() => stopDialing(), 3000);
             } 
             else if (status === 'call_initiated') {
                 currentSessionStats.totalCalls++;
