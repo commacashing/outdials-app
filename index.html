@@ -1863,6 +1863,14 @@ body.light-mode .race-card.searching::before {
     <script>
         const N8N_WEBHOOK_BASE = 'https://commacashing.app.n8n.cloud/webhook';
 
+        let webhookSecret = '';
+
+async function loadConfig() {
+    const response = await fetch('/.netlify/functions/get-config');
+    const config = await response.json();
+    webhookSecret = config.webhookSecret;
+}
+
 function formatPhoneNumber(input) {
     let digits = input.value.replace(/\D/g, '').slice(0, 10);
     if (digits.length >= 6) {
@@ -2110,7 +2118,7 @@ async function downloadData(range) {
     try {
         const response = await fetch(`${N8N_WEBHOOK_BASE}/export-my-data`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({ 
                 rep_phone: repPhone,
                 date_range: range 
@@ -2289,7 +2297,7 @@ async function handleOAuthCallback(code) {
         
                 const response = await fetch('/.netlify/functions/token-exchange', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({
                 code: code,
                 code_verifier: codeVerifier,
@@ -2358,7 +2366,7 @@ async function handleOAuthCallback(code) {
     try {
         const response = await fetch('/.netlify/functions/token-exchange', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({
                 refresh_token: refreshToken
             })
@@ -2407,7 +2415,7 @@ function stopTokenRefresh() {
     try {
         const response = await fetch('/.netlify/functions/userinfo', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({ access_token: accessToken, instance_url: instanceUrl })
         });
         
@@ -2656,7 +2664,7 @@ currentSessionStats.humanAnsweredTime = null;
         updateDialerSession();
         fetch(`${N8N_WEBHOOK_BASE}/calculate-session-stats`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({
                 session_id: sessionId,
                 total_talk_time_seconds: data.call_duration || Math.round(
@@ -2701,7 +2709,7 @@ currentSessionStats.humanAnsweredTime = null;
 
                 await fetch(`${N8N_WEBHOOK_BASE}/start-dialing`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
                     body: JSON.stringify({
                         action: 'start',
                         session_id: sessionId,
@@ -2773,7 +2781,7 @@ await new Promise(resolve => setTimeout(resolve, 800));
 
 fetch(`${N8N_WEBHOOK_BASE}/calculate-session-stats`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
     body: JSON.stringify({
         session_id: sessionId,
         total_talk_time_seconds: Math.round(
@@ -2785,7 +2793,7 @@ fetch(`${N8N_WEBHOOK_BASE}/calculate-session-stats`, {
     const repPhone = localStorage.getItem('current_rep_phone');
     fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
         body: JSON.stringify({ 
             action: 'stop', 
             session_id: sessionId,
@@ -3311,7 +3319,7 @@ function dismissInactivityWarning() {
             try {
                 const response = await fetch(`${N8N_WEBHOOK_BASE}/save-note`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
                     body: JSON.stringify({
                         call_sid: callSid,
                         contact_name: contact.name,
@@ -3376,7 +3384,7 @@ async function selectDisposition(callSid, disposition) {
     try {
         await fetch(`${N8N_WEBHOOK_BASE}/save-disposition`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({
                 call_sid: callSid,
                 contact_phone: contact.phone,
@@ -3505,7 +3513,7 @@ async function selectDisposition(callSid, disposition) {
     try {
         const response = await fetch(`${N8N_WEBHOOK_BASE}/opt-out-contact`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({
                 contact_phone: contact.phone,
                 contact_name: contact.name,
@@ -3543,7 +3551,7 @@ async function selectHeroDisposition(disposition) {
     try {
         await fetch(`${N8N_WEBHOOK_BASE}/save-disposition`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({
                 call_sid: currentHeroCallSid,
                 contact_phone: currentHeroContact.phone,
@@ -3577,7 +3585,7 @@ async function markHeroOptOut() {
     try {
         const response = await fetch(`${N8N_WEBHOOK_BASE}/opt-out-contact`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({
                 contact_phone: currentHeroContact.phone,
                 contact_name: currentHeroContact.name,
@@ -3621,7 +3629,7 @@ async function markHeroOptOut() {
             try {
                 const response = await fetch(`${N8N_WEBHOOK_BASE}/save-note`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
                     body: JSON.stringify({
                         call_sid: currentHeroCallSid,
                         contact_name: currentHeroContact.name,
@@ -3730,8 +3738,6 @@ function resetCardsToSearching() {
     const oauthCode = params.get('code');
     const stateCompanyCode = params.get('state');
 
-    // 🔑 CRITICAL: If this is an OAuth callback, DON'T initialize anything yet
-    // Just fix the routing and let the callback handler take over
     if (oauthCode && stateCompanyCode) {
         console.log('🔄 OAuth redirect detected - preserving code_verifier');
         console.log('  Stored verifier:', localStorage.getItem('pkce_code_verifier'));
@@ -3739,14 +3745,13 @@ function resetCardsToSearching() {
         localStorage.setItem('company_code', stateCompanyCode);
         sessionStorage.setItem('company_code_backup', stateCompanyCode);
         
-        // If we're at root (not /companycode), redirect to the right URL
         if (window.location.pathname !== `/${stateCompanyCode}`) {
             console.log('  → Redirecting to:', `/${stateCompanyCode}`);
             window.location.href = `/${stateCompanyCode}?code=${oauthCode}&state=${stateCompanyCode}`;
-            return;  // STOP HERE - don't initialize Supabase yet
+            return;
         }
         
-        // We're at the right URL, now initialize Supabase
+        await loadConfig();
         await initSupabase();
         
         // Process OAuth immediately
@@ -3784,6 +3789,7 @@ function resetCardsToSearching() {
     }
     
     // Normal page load (no OAuth code)
+    await loadConfig();
     await initSupabase();
     
     // Check for existing session
@@ -3851,7 +3857,7 @@ window.addEventListener('pagehide', () => {
         const repPhone = localStorage.getItem('current_rep_phone');
         fetch('/.netlify/functions/stop-dialing', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({
                 action: 'stop',
                 session_id: sessionId,
