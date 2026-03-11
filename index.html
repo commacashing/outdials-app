@@ -3679,7 +3679,9 @@ function resetCardsToSearching() {
     }
     
     setTimeout(() => {
-        currentBatchContacts.clear();
+        currentBatchContacts.forEach((contact, sid) => {
+            if (contact.status !== 'ringing') currentBatchContacts.delete(sid);
+        });
         for (let i = 0; i < 3; i++) {
             const wrapper = document.getElementById(`race-card-wrapper-${i}`);
             if (wrapper) {
