@@ -2533,50 +2533,58 @@ function stopTokenRefresh() {
             }
             else if (status === 'machine_detected') {
                 currentSessionStats.machines++;
-                
                 const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'machine';
-                    updateRaceCard(data.call_sid, 'machine');
+                if (!contact) {
+                    pendingEvents.set(data.call_sid, data);
+                    return;
                 }
-                
+                contact.status = 'machine';
+                updateRaceCard(data.call_sid, 'machine');
                 updateStatsDisplay();
             }
             else if (status === 'call_busy') {
                 const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'busy';
-                    contact.busyType = 'call_busy';
-                    updateRaceCard(data.call_sid, 'busy', 'call_busy');
-                    checkBatchComplete();
+                if (!contact) {
+                    pendingEvents.set(data.call_sid, data);
+                    return;
                 }
+                contact.status = 'busy';
+                contact.busyType = 'call_busy';
+                updateRaceCard(data.call_sid, 'busy', 'call_busy');
+                checkBatchComplete();
             }
             else if (status === 'call_failed') {
                 const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'busy';
-                    contact.busyType = 'call_failed';
-                    updateRaceCard(data.call_sid, 'busy', 'call_failed');
-                    checkBatchComplete();
+                if (!contact) {
+                    pendingEvents.set(data.call_sid, data);
+                    return;
                 }
+                contact.status = 'busy';
+                contact.busyType = 'call_failed';
+                updateRaceCard(data.call_sid, 'busy', 'call_failed');
+                checkBatchComplete();
             }
             else if (status === 'call_no_answer') {
                 const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'busy';
-                    contact.busyType = 'call_no_answer';
-                    updateRaceCard(data.call_sid, 'busy', 'call_no_answer');
-                    checkBatchComplete();
+                if (!contact) {
+                    pendingEvents.set(data.call_sid, data);
+                    return;
                 }
+                contact.status = 'busy';
+                contact.busyType = 'call_no_answer';
+                updateRaceCard(data.call_sid, 'busy', 'call_no_answer');
+                checkBatchComplete();
             }
             else if (status === 'call_canceled') {
                 const contact = currentBatchContacts.get(data.call_sid);
-                if (contact) {
-                    contact.status = 'busy';
-                    contact.busyType = 'call_canceled';
-                    updateRaceCard(data.call_sid, 'busy', 'call_canceled');
-                    checkBatchComplete();
+                if (!contact) {
+                    pendingEvents.set(data.call_sid, data);
+                    return;
                 }
+                contact.status = 'busy';
+                contact.busyType = 'call_canceled';
+                updateRaceCard(data.call_sid, 'busy', 'call_canceled');
+                checkBatchComplete();
             }
             else if (status === 'human_answered' || status === 'inbound_call') {
                 currentSessionStats.connects++;
