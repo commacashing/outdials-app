@@ -2913,10 +2913,15 @@ function populateRaceCard(callSid, contact, index) {
     `;
 
     if (pendingEvents.has(callSid)) {
-        const pending = pendingEvents.get(callSid);
-        pendingEvents.delete(callSid);
-        handleStatusUpdate(pending);
+    const pending = pendingEvents.get(callSid);
+    pendingEvents.delete(callSid);
+    handleStatusUpdate(pending);
+} else {
+    const freshContact = currentBatchContacts.get(callSid);
+    if (freshContact && freshContact.status !== 'ringing') {
+        updateRaceCard(callSid, freshContact.status, freshContact.busyType);
     }
+}
 }
         function updateRaceCard(callSid, status, busyType = null) {
             const card = document.getElementById(`race-card-${callSid}`);
