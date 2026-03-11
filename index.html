@@ -2500,6 +2500,7 @@ function stopTokenRefresh() {
 
         function handleStatusUpdate(data) {
             const status = data.event_type;
+            console.log(`📡 Event received: ${status}`);
             
             if (status === 'workflow_started') {
                 currentSessionStats.sessionId = data.session_id;
