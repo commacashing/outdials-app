@@ -2544,7 +2544,8 @@ function stopTokenRefresh() {
                 updateRaceCard(data.call_sid, 'machine');
                 
                 updateStatsDisplay();
-           else if (status === 'call_busy') {
+            }
+            else if (status === 'call_busy') {
     const contact = currentBatchContacts.get(data.call_sid);
     if (!contact) {
         pendingEvents.set(data.call_sid, data);
