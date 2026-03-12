@@ -3707,30 +3707,35 @@ if (response.ok) {
 }
 
 function resetCardsToSearching() {
+    // Immediately reset card IDs and content so incoming events can find them
+    for (let i = 0; i < 3; i++) {
+        const wrapper = document.getElementById(`race-card-wrapper-${i}`);
+        if (wrapper) {
+            const front = wrapper.querySelector('.race-card-front');
+            if (front) {
+                front.innerHTML = `
+                    <div class="race-card searching" id="race-card-${i}">
+                        <div class="race-card-status"></div>
+                        <div class="race-card-name">Searching For Contact</div>
+                        <div class="race-card-subtitle">Dialing in progress...</div>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // Clear old contacts immediately
+    currentBatchContacts.forEach((contact, sid) => {
+        if (contact.status !== 'ringing') currentBatchContacts.delete(sid);
+    });
+
+    // Now do the visual flip animation
     for (let i = 0; i < 3; i++) {
         const wrapper = document.getElementById(`race-card-wrapper-${i}`);
         if (wrapper) wrapper.classList.remove('flipped');
     }
-    
+
     setTimeout(() => {
-        currentBatchContacts.forEach((contact, sid) => {
-            if (contact.status !== 'ringing') currentBatchContacts.delete(sid);
-        });
-        for (let i = 0; i < 3; i++) {
-            const wrapper = document.getElementById(`race-card-wrapper-${i}`);
-            if (wrapper) {
-                const front = wrapper.querySelector('.race-card-front');
-                if (front) {
-                    front.innerHTML = `
-                        <div class="race-card searching" id="race-card-${i}">
-                            <div class="race-card-status"></div>
-                            <div class="race-card-name">Searching For Contact</div>
-                            <div class="race-card-subtitle">Dialing in progress...</div>
-                        </div>
-                    `;
-                }
-            }
-        }
         for (let i = 0; i < 3; i++) {
             const wrapper = document.getElementById(`race-card-wrapper-${i}`);
             if (wrapper) wrapper.classList.add('flipped');
