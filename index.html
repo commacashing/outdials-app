@@ -2527,6 +2527,20 @@ function stopTokenRefresh() {
     document.getElementById('regionSelect').disabled = false;
     updateStatus('idle', 'System Ready');
     checkFormValid();
+    unsubscribeFromSupabase();
+    stopAutoSave();
+    stopInactivityMonitor();
+    await updateDialerSession();
+    fetch(`${N8N_WEBHOOK_BASE}/calculate-session-stats`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
+        body: JSON.stringify({
+            session_id: sessionId,
+            total_talk_time_seconds: Math.round(
+                currentSessionStats.callDurations.reduce((sum, d) => sum + d, 0)
+            )
+        })
+    }).catch(e => console.error('Stats calc failed:', e));
 }
             else if (status === 'call_initiated') {
                 currentSessionStats.totalCalls++;
