@@ -2563,16 +2563,17 @@ function stopTokenRefresh() {
                 updateStatsDisplay();
             }
             else if (status === 'machine_detected') {
-                currentSessionStats.machines++;
-                const contact = currentBatchContacts.get(data.call_sid);
-                if (!contact) {
-                    pendingEvents.set(data.call_sid, data);
-                    return;
-                }
-                contact.status = 'machine';
-                updateRaceCard(data.call_sid, 'machine');
-                updateStatsDisplay();
-            }
+    currentSessionStats.machines++;
+    const contact = currentBatchContacts.get(data.call_sid);
+    if (!contact) {
+        pendingEvents.set(data.call_sid, data);
+        return;
+    }
+    contact.status = 'machine';
+    updateRaceCard(data.call_sid, 'machine');
+    updateStatsDisplay();
+    checkBatchComplete();
+}
             else if (status === 'call_busy') {
                 const contact = currentBatchContacts.get(data.call_sid);
                 if (!contact) {
