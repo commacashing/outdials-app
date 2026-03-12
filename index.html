@@ -2518,8 +2518,16 @@ function stopTokenRefresh() {
                 updateStatsDisplay();
             }
             else if (status === 'batches_complete') {
-                showSuccess('All batches complete!');
-                setTimeout(() => stopDialing(), 3000);
+    showSuccess('All batches complete!');
+    isDialing = false;
+    document.getElementById('stopButton').style.display = 'none';
+    document.getElementById('startButton').style.display = 'inline-block';
+    document.getElementById('repPhone').disabled = false;
+    document.getElementById('teamSelect').disabled = false;
+    document.getElementById('regionSelect').disabled = false;
+    updateStatus('idle', 'System Ready');
+    checkFormValid();
+}
             } 
             else if (status === 'call_initiated') {
                 currentSessionStats.totalCalls++;
