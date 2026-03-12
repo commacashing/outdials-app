@@ -2506,7 +2506,7 @@ function stopTokenRefresh() {
             }
         }
 
-        function handleStatusUpdate(data) {
+        async function handleStatusUpdate(data) {
             const status = data.event_type;
             console.log(`📡 Event received: ${status}`);
             
