@@ -3699,8 +3699,8 @@ if (response.ok) {
     });
     
     if (allResolved && !anyHuman) {
-        setTimeout(() => resetCardsToSearching(), 500);
-    }
+    resetCardsToSearching();
+}
 }
 
 function resetCardsToSearching() {
