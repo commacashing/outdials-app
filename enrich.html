@@ -574,7 +574,10 @@
             
             <div class="form-group">
                 <label class="form-label">Password</label>
-                <input type="password" id="passwordInput" class="form-input" placeholder="Enter password" />
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="password" id="passwordInput" class="form-input" placeholder="Enter password" style="flex: 1;" />
+                    <button type="button" onclick="togglePasswordVisibility()" style="background: transparent; border: 1px solid var(--border-color); border-radius: 8px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s ease;" id="togglePwBtn">👁️</button>
+                </div>
             </div>
             
             <button onclick="loginWithPassword()" class="btn-primary" id="loginBtn">Unlock Enrichment Tool</button>
@@ -776,6 +779,19 @@
             localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
         }
 
+        function togglePasswordVisibility() {
+            const input = document.getElementById('passwordInput');
+            const btn = document.getElementById('togglePwBtn');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
         function showError(message) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'message error';
@@ -812,6 +828,12 @@
                 errorDiv.style.display = 'block';
                 return;
             }
+
+            // Debug logging
+            console.log('Entered password:', password);
+            console.log('Expected password:', currentCompany.admin_password);
+            console.log('Match:', password === currentCompany.admin_password);
+            console.log('Company data:', currentCompany);
 
             // Check password
             if (password === currentCompany.admin_password) {
