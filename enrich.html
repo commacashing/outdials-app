@@ -576,7 +576,7 @@
                 <label class="form-label">Password</label>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <input type="password" id="passwordInput" class="form-input" placeholder="Enter password" style="flex: 1;" />
-                    <button type="button" onclick="togglePasswordVisibility()" style="background: transparent; border: 1px solid var(--border-color); border-radius: 8px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" id="togglePwBtn">
+                    <button type="button" onclick="togglePasswordVisibility()" style="background: transparent; border: 1px solid var(--border-color); border-radius: 8px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; color: var(--text-primary);" id="togglePwBtn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                             <circle cx="12" cy="12" r="3"></circle>
@@ -585,7 +585,7 @@
                 </div>
             </div>
             
-            <button onclick="loginWithPassword()" class="btn-primary" id="loginBtn">Unlock</button>
+            <button onclick="loginWithPassword()" class="btn-primary" id="loginBtn">Log In</button>
             <p id="loginError" style="color: #ff6b6b; font-size: 13px; margin-top: 16px; display: none;"></p>
         </div>
     </div>
