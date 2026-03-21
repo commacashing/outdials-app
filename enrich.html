@@ -52,7 +52,7 @@
         .nav-logo {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 2px;
             font-size: 24px;
             font-weight: 700;
             color: var(--text-primary);
@@ -762,7 +762,6 @@
                 }
 
                 currentCompany = data;
-                document.getElementById('companyCodeInput').value = data.company_code;
                 document.getElementById('companyNameDisplay').textContent = data.company_name;
             } catch (error) {
                 console.error('Error loading company:', error);
