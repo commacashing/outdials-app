@@ -576,11 +576,16 @@
                 <label class="form-label">Password</label>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <input type="password" id="passwordInput" class="form-input" placeholder="Enter password" style="flex: 1;" />
-                    <button type="button" onclick="togglePasswordVisibility()" style="background: transparent; border: 1px solid var(--border-color); border-radius: 8px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.2s ease;" id="togglePwBtn">👁️</button>
+                    <button type="button" onclick="togglePasswordVisibility()" style="background: transparent; border: 1px solid var(--border-color); border-radius: 8px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" id="togglePwBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
                 </div>
             </div>
             
-            <button onclick="loginWithPassword()" class="btn-primary" id="loginBtn">Unlock Enrichment Tool</button>
+            <button onclick="loginWithPassword()" class="btn-primary" id="loginBtn">Unlock</button>
             <p id="loginError" style="color: #ff6b6b; font-size: 13px; margin-top: 16px; display: none;"></p>
         </div>
     </div>
@@ -618,7 +623,13 @@
                     <p class="upload-subtitle">Upload your Excel file to automatically enrich contacts with personal cell phone numbers and email addresses</p>
                     
                     <div class="drag-drop-zone" id="dragDropZone">
-                        <div class="drag-drop-icon">📊</div>
+                        <div class="drag-drop-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="8 17 12 21 16 17"></polyline>
+                            <line x1="12" y1="12" x2="12" y2="21"></line>
+                            <path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path>
+                        </svg>
+                    </div>
                         <div class="drag-drop-text">Drag and drop your Excel file here</div>
                         <div class="drag-drop-hint">or click below to select</div>
                         <button class="btn-select-file" onclick="document.getElementById('fileInput').click()">Choose File</button>
@@ -785,10 +796,22 @@
             
             if (input.type === 'password') {
                 input.type = 'text';
-                btn.textContent = '🙈';
+                // Change to eye-off icon
+                btn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                `;
             } else {
                 input.type = 'password';
-                btn.textContent = '👁️';
+                // Change back to eye icon
+                btn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                `;
             }
         }
 
