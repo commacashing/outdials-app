@@ -967,14 +967,15 @@
                         
                         // Auto-download the enriched file
                         if (result.download_url) {
-                            const a = document.createElement('a');
-                            a.href = result.download_url;
-                            a.download = `enriched_${selectedFile.name}`;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            showSuccess('File downloaded!');
-                        }
+    const a = document.createElement('a');
+    a.href = result.download_url;
+    a.target = '_blank';
+    a.download = `enriched_${selectedFile.name}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showSuccess('File downloaded!');
+}
                     } else {
                         showError(result.error || 'Enrichment failed');
                         showSection('uploadSection');
