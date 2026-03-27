@@ -960,26 +960,22 @@
                         })
                     });
 
-                    const result = await response.json();
-
-                    if (response.ok && result.success) {
-                        displayResults(result);
-                        
-                        // Auto-download the enriched file
-                        if (result.download_url) {
+                    if (response.ok) {
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = result.download_url;
-    a.target = '_blank';
+    a.href = url;
     a.download = `enriched_${selectedFile.name}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     showSuccess('File downloaded!');
+    showSection('uploadSection');
+} else {
+    showError('Enrichment failed');
+    showSection('uploadSection');
 }
-                    } else {
-                        showError(result.error || 'Enrichment failed');
-                        showSection('uploadSection');
-                    }
                 };
 
                 reader.readAsDataURL(selectedFile);
