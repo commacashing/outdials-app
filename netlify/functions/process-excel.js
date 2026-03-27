@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 exports.handler = async (event) => {
   try {
     const secret = event.headers['x-webhook-secret'];
-    if (secret !== process.env.WEBHOOK_SECRET) {
+if (secret !== process.env.N8N_WEBHOOK_SECRET) {
       return {
         statusCode: 401,
         body: JSON.stringify({ error: 'Unauthorized' })
