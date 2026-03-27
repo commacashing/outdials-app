@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 exports.handler = async (event) => {
   try {
     const secret = event.headers['x-webhook-secret'];
-if (secret !== process.env.N8N_WEBHOOK_SECRET) {
+    if (secret !== process.env.N8N_WEBHOOK_SECRET) {
       return {
         statusCode: 401,
         body: JSON.stringify({ error: 'Unauthorized' })
@@ -17,8 +17,10 @@ if (secret !== process.env.N8N_WEBHOOK_SECRET) {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(Buffer.from(file_base64, 'base64'));
     
-    const worksheet = workbook.getWorksheet('Dynasty Custom');
-    if (!worksheet) throw new Error("Sheet 'Dynasty Custom' not found in workbook");
+    console.log('Available sheets:', workbook.worksheets.map(s => s.name));
+    
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) throw new Error("No worksheets found in workbook");
 
     const dataMap = {};
     enriched_results.forEach(item => {
