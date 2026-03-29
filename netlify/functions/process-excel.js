@@ -38,7 +38,7 @@ exports.handler = async (event) => {
       if (enriched) {
         if (enriched.final_phone) row.getCell(15).value = enriched.final_phone;
         if (enriched.final_email) row.getCell(16).value = enriched.final_email;
-        if (enriched.overall_confidence) row.getCell(17).value = enriched.overall_confidence;
+        row.getCell(17).value = enriched['C-Score'] !== undefined ? enriched['C-Score'] : 0;
         row.commit();
       }
     });
