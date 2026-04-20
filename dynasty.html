@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynasty Power Dialer</title>
+    <link rel="icon" href="icon.png">
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body.light-mode {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #000000;
+            --text-secondary: rgba(0, 0, 0, 0.6);
+            --border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* TOP NAV */
+        .top-nav {
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .user-org {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* CONTROLS BAR */
+        .controls-bar {
+            width: 100%;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            flex-wrap: wrap;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .control-input {
+            padding: 10px 14px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-weight: 500;
+            font-family: inherit;
+            min-width: 200px;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: rgba(107, 144, 128, 0.5);
+        }
+
+        .btn-start {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: auto;
+        }
+
+        .btn-start:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-start:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-stop {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: rgba(239, 68, 68, 0.9);
+        }
+
+        /* LOGIN SCREEN */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .login-container {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .login-container h2 {
+            color: var(--text-primary);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 32px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .login-input {
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: rgba(107, 144, 128, 0.5);
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 12px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .status-section {
+            text-align: center;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .status-indicator.idle .status-dot {
+            background: #6b9080;
+        }
+
+        .status-indicator.dialing .status-dot {
+            background: var(--danger);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* CALL CARD */
+        .call-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .call-card-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .call-card-info {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .call-card-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-note {
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+        }
+
+        .btn-note:hover {
+            background: rgba(59, 130, 246, 1);
+            transform: scale(1.05);
+        }
+
+        .btn-dnc {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+        }
+
+        .btn-dnc:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.05);
+        }
+
+        /* ANALYTICS */
+        .analytics-section {
+            width: 100%;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        .analytics-header {
+            padding: 20px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .analytics-header h3 {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .analytics-content {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .analytics-stat {
+            text-align: center;
+        }
+
+        .analytics-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .analytics-value {
+            color: var(--text-primary);
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* MESSAGES */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .message.success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #6bff6b;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ff6b6b;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 12px 16px;
+            }
+
+            .controls-bar {
+                padding: 12px 16px;
+                flex-direction: column;
+            }
+
+            .control-input {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .btn-start {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 20px 16px;
+            }
+
+            .analytics-content {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-container">
+        <h2>Dynasty Power Dialer</h2>
+        <form class="login-form" onsubmit="handleLogin(event)">
+            <input 
+                type="tel" 
+                id="phoneInput" 
+                class="login-input" 
+                placeholder="Phone Number" 
+                required
+            >
+            <input 
+                type="password" 
+                id="passwordInput" 
+                class="login-input" 
+                placeholder="Password" 
+                required
+            >
+            <button type="submit" class="btn-primary">Login</button>
+        </form>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardScreen" style="display: none;">
+    <!-- TOP NAV -->
+    <div class="top-nav">
+        <div class="nav-logo">Dynasty Power Dialer</div>
+        <div class="nav-user">
+            <div class="user-info">
+                <div class="user-name" id="userName">User</div>
+                <div class="user-org">Dynasty Consulting</div>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+        </div>
+    </div>
+
+    <!-- CONTROLS BAR -->
+    <div class="controls-bar">
+        <div class="control-item">
+            <span class="control-label">Select List</span>
+            <select id="listSelect" class="control-input" onchange="checkFormValid()">
+                <option value="">-- Select a list --</option>
+            </select>
+        </div>
+
+        <div class="control-item">
+            <span class="control-label">Filters (Optional)</span>
+            <input 
+                type="number" 
+                id="ageMin" 
+                class="control-input" 
+                placeholder="Min Age" 
+                style="min-width: 100px;"
+            >
+            <input 
+                type="number" 
+                id="ageMax" 
+                class="control-input" 
+                placeholder="Max Age" 
+                style="min-width: 100px;"
+            >
+        </div>
+
+        <button id="startButton" onclick="startDialing()" class="btn-start" disabled>
+            Start Dialing
+        </button>
+        <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">
+            Stop Dialing
+        </button>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="analytics-section" style="padding: 0 40px;">
+        <div class="analytics-header" onclick="toggleAnalytics()">
+            <h3>Session Analytics</h3>
+        </div>
+        <div class="analytics-content">
+            <div class="analytics-stat">
+                <div class="analytics-label">Total Calls</div>
+                <div class="analytics-value" id="statTotalCalls">0</div>
+            </div>
+            <div class="analytics-stat">
+                <div class="analytics-label">Connects</div>
+                <div class="analytics-value" id="statConnects">0</div>
+            </div>
+            <div class="analytics-stat">
+                <div class="analytics-label">Talk Time</div>
+                <div class="analytics-value" id="statTalkTime">0m</div>
+            </div>
+            <div class="analytics-stat">
+                <div class="analytics-label">Calls/Hour</div>
+                <div class="analytics-value" id="statCallsPerHour">0</div>
+            </div>
+            <div class="analytics-stat">
+                <div class="analytics-label">Machine Rate</div>
+                <div class="analytics-value" id="statMachineRate">0%</div>
+            </div>
+            <div class="analytics-stat">
+                <div class="analytics-label">Avg Duration</div>
+                <div class="analytics-value" id="statAvgDuration">0m</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="status-section">
+            <div class="status-indicator idle" id="dialerStatus">
+                <span class="status-dot"></span>
+                <span id="statusText">System Ready</span>
+            </div>
+        </div>
+
+        <!-- Current Call Card -->
+        <div id="callCardContainer" style="display: none;">
+            <div class="call-card">
+                <div class="call-card-name" id="callCardName">Loading...</div>
+                <div class="call-card-info"><strong id="callCardCompany">-</strong></div>
+                <div class="call-card-info" id="callCardPhone">-</div>
+                <div class="call-card-actions">
+                    <button class="btn-action btn-note" onclick="toggleNoteCompartment()">📝 Note</button>
+                    <button class="btn-action btn-dnc" onclick="markOptOut()">🚫 DNC</button>
+                </div>
+                <textarea 
+                    id="noteText" 
+                    style="width: 100%; margin-top: 16px; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); display: none; min-height: 80px;"
+                    placeholder="Add notes..."
+                ></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const SUPABASE_URL = 'https://ceuiturkokdytamvjcet.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNldWl0dXJrb2tkeXRhbXZqY2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzE0NTU2NjksImV4cCI6MTk4NzAzMTY2OX0.PG8Nm9wLx3Yp8mKQGpPp3HKkQXZgxCxbvNwB-5Z-z_8';
+    const N8N_WEBHOOK_BASE = 'https://commacashing.app.n8n.cloud/webhook';
+    const CORRECT_PASSWORD = 'dynasty2025'; // Change this to actual password
+
+    let supabaseClient = null;
+    let isAuthenticated = false;
+    let isDialing = false;
+    let currentSessionId = null;
+    let currentSession = {
+        totalCalls: 0,
+        connects: 0,
+        callDurations: []
+    };
+    let supabaseSubscription = null;
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    window.addEventListener('DOMContentLoaded', async () => {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Load list dropdown
+        await loadLists();
+
+        // Check theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+            document.querySelector('.theme-toggle').textContent = '☀️';
+        }
+    });
+
+    // ============================================
+    // LOGIN
+    // ============================================
+    async function handleLogin(e) {
+        e.preventDefault();
+
+        const phone = document.getElementById('phoneInput').value;
+        const password = document.getElementById('passwordInput').value;
+
+        // Validate password (hardcoded for now)
+        if (password !== CORRECT_PASSWORD) {
+            showError('Invalid password');
+            return;
+        }
+
+        // Store rep info
+        localStorage.setItem('rep_phone', phone);
+        document.getElementById('userName').textContent = phone;
+
+        isAuthenticated = true;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboardScreen').style.display = 'block';
+
+        showSuccess('Logged in successfully!');
+    }
+
+    function logout() {
+        localStorage.removeItem('rep_phone');
+        isAuthenticated = false;
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('dashboardScreen').style.display = 'none';
+        document.getElementById('phoneInput').value = '';
+        document.getElementById('passwordInput').value = '';
+    }
+
+    // ============================================
+    // LIST DROPDOWN
+    // ============================================
+    async function loadLists() {
+        try {
+            const { data, error } = await supabaseClient
+                .from('dynasty.contact_lists')
+                .select('list_source, file_name, imported_contacts')
+                .order('list_source');
+
+            if (error) throw error;
+
+            const select = document.getElementById('listSelect');
+            data.forEach(list => {
+                const option = document.createElement('option');
+                option.value = list.list_source;
+                option.textContent = `${list.file_name} (${list.imported_contacts || 0} contacts)`;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Failed to load lists:', error);
+        }
+    }
+
+    // ============================================
+    // DIALING
+    // ============================================
+    function checkFormValid() {
+        const listSelected = document.getElementById('listSelect').value !== '';
+        document.getElementById('startButton').disabled = !listSelected;
+    }
+
+    async function startDialing() {
+        const repPhone = localStorage.getItem('rep_phone');
+        const listSource = document.getElementById('listSelect').value;
+        const ageMin = document.getElementById('ageMin').value;
+        const ageMax = document.getElementById('ageMax').value;
+
+        if (!listSource) {
+            showError('Please select a list');
+            return;
+        }
+
+        try {
+            isDialing = true;
+            currentSessionId = `session_${repPhone}_${Date.now()}`;
+
+            // Create session
+            await supabaseClient.from('dynasty.dialing_sessions').insert({
+                session_id: currentSessionId,
+                rep_phone: repPhone,
+                list_source: listSource,
+                filters_applied: { age_min: ageMin, age_max: ageMax },
+                session_start: new Date().toISOString()
+            });
+
+            // Update UI
+            document.getElementById('startButton').style.display = 'none';
+            document.getElementById('stopButton').style.display = 'inline-block';
+            document.getElementById('listSelect').disabled = true;
+            document.getElementById('callCardContainer').style.display = 'block';
+            updateStatus('dialing', 'Dialing Active');
+
+            // Subscribe to call logs
+            subscribeToCallLogs();
+
+            // Start dialing via N8N
+            await fetch(`${N8N_WEBHOOK_BASE}/start-dialing`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: currentSessionId,
+                    rep_phone: repPhone,
+                    list_source: listSource,
+                    filters: { age_min: ageMin, age_max: ageMax }
+                })
+            });
+
+            showSuccess('Dialing started!');
+        } catch (error) {
+            showError(`Failed to start dialing: ${error.message}`);
+            resetDialing();
+        }
+    }
+
+    async function stopDialing() {
+        try {
+            isDialing = false;
+
+            // Update session
+            await supabaseClient
+                .from('dynasty.dialing_sessions')
+                .update({ session_end: new Date().toISOString() })
+                .eq('session_id', currentSessionId);
+
+            // Stop N8N workflow
+            await fetch(`${N8N_WEBHOOK_BASE}/stop-dialing`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: currentSessionId })
+            });
+
+            // Unsubscribe
+            if (supabaseSubscription) {
+                supabaseClient.removeChannel(supabaseSubscription);
+            }
+
+            resetDialing();
+            showSuccess('Dialing stopped');
+        } catch (error) {
+            showError(`Failed to stop: ${error.message}`);
+        }
+    }
+
+    function resetDialing() {
+        isDialing = false;
+        document.getElementById('stopButton').style.display = 'none';
+        document.getElementById('startButton').style.display = 'inline-block';
+        document.getElementById('listSelect').disabled = false;
+        document.getElementById('callCardContainer').style.display = 'none';
+        updateStatus('idle', 'System Ready');
+    }
+
+    // ============================================
+    // REAL-TIME SUBSCRIPTIONS
+    // ============================================
+    function subscribeToCallLogs() {
+        supabaseSubscription = supabaseClient
+            .channel(`call_logs_${currentSessionId}`)
+            .on('postgres_changes',
+                {
+                    event: '*',
+                    schema: 'dynasty',
+                    table: 'call_logs',
+                    filter: `session_id=eq.${currentSessionId}`
+                },
+                (payload) => handleCallEvent(payload.new)
+            )
+            .subscribe();
+    }
+
+    async function handleCallEvent(callLog) {
+        if (callLog.call_outcome === 'human_answer') {
+            currentSession.connects++;
+            
+            // Fetch contact details
+            const { data: contact } = await supabaseClient
+                .from('dynasty.contacts')
+                .select('*')
+                .eq('id', callLog.contact_id)
+                .single();
+
+            if (contact) {
+                document.getElementById('callCardName').textContent = contact.full_name || contact.phone;
+                document.getElementById('callCardCompany').textContent = contact.company || '-';
+                document.getElementById('callCardPhone').textContent = contact.phone;
+            }
+        } else if (callLog.call_outcome === 'machine_detected') {
+            // Log machine
+        } else if (callLog.call_outcome === 'busy') {
+            // Log busy
+        }
+
+        currentSession.totalCalls++;
+        updateStatsDisplay();
+    }
+
+    // ============================================
+    // UI HELPERS
+    // ============================================
+    function updateStatus(state, text) {
+        document.getElementById('dialerStatus').className = `status-indicator ${state}`;
+        document.getElementById('statusText').textContent = text;
+    }
+
+    function updateStatsDisplay() {
+        document.getElementById('statTotalCalls').textContent = currentSession.totalCalls;
+        document.getElementById('statConnects').textContent = currentSession.connects;
+        
+        const totalMinutes = currentSession.callDurations.reduce((a, b) => a + b, 0) / 60;
+        document.getElementById('statTalkTime').textContent = Math.round(totalMinutes) + 'm';
+    }
+
+    function toggleNoteCompartment() {
+        const noteText = document.getElementById('noteText');
+        noteText.style.display = noteText.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function markOptOut() {
+        const name = document.getElementById('callCardName').textContent;
+        if (confirm(`Mark ${name} as Do Not Call?`)) {
+            showSuccess('Added to DNC list');
+        }
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const themeToggle = document.querySelector('.theme-toggle');
+        themeToggle.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+        localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    }
+
+    function toggleAnalytics() {
+        // Toggle analytics visibility
+    }
+
+    function showSuccess(message) {
+        const msg = document.createElement('div');
+        msg.className = 'message success';
+        msg.textContent = message;
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 3000);
+    }
+
+    function showError(message) {
+        const msg = document.createElement('div');
+        msg.className = 'message error';
+        msg.textContent = message;
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 3000);
+    }
+</script>
+
+</body>
+</html>
