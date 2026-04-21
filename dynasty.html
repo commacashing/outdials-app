@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynasty Power Dialer</title>
     <link rel="icon" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
     <style>
+        @property --angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
         :root {
             --bg-primary: #000000;
             --bg-secondary: #0a0a0a;
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.6);
             --border-color: rgba(255, 255, 255, 0.1);
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+            --divider-color: rgba(255, 255, 255, 0.1);
         }
 
         body.light-mode {
@@ -23,65 +28,78 @@
             --text-primary: #000000;
             --text-secondary: rgba(0, 0, 0, 0.6);
             --border-color: rgba(0, 0, 0, 0.1);
+            --divider-color: rgba(0, 0, 0, 0.1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
             transition: background 0.3s ease, color 0.3s ease;
+            font-size: 16px;
         }
 
-        /* TOP NAV */
+        /* Top Nav */
         .top-nav {
             width: 100%;
             padding: 20px 40px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--divider-color);
         }
 
         .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 2px;
             font-size: 24px;
             font-weight: 700;
             color: var(--text-primary);
         }
 
+        .nav-logo-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--divider-color);
+            margin: 0 14px;
+        }
+
+        .nav-logo-sub {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .broken-o {
+            display: inline-block;
+            width: 28px;
+            height: 32px;
+            position: relative;
+        }
+
+        .broken-o svg { width: 100%; height: 100%; }
+        .broken-o svg circle { stroke: var(--text-primary); }
+
         .nav-user {
             display: flex;
             align-items: center;
-            gap: 16px;
-        }
-
-        .user-name {
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .user-org {
-            font-size: 14px;
-            color: var(--text-secondary);
+            gap: 24px;
         }
 
         .theme-toggle {
             background: transparent;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 18px;
             transition: all 0.2s ease;
         }
-
         .theme-toggle:hover { background: var(--bg-secondary); }
 
         .btn-logout {
@@ -89,36 +107,27 @@
             border: 1px solid var(--border-color);
             color: var(--text-primary);
             padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: 8px;
-            cursor: pointer;
+            font-size: 14px; font-weight: 500;
+            border-radius: 8px; cursor: pointer;
             transition: all 0.2s ease;
         }
-
         .btn-logout:hover { background: var(--bg-secondary); }
 
-        /* CONTROLS BAR */
+        /* Controls Bar */
         .controls-bar {
             width: 100%;
             padding: 16px 40px;
             display: flex;
             align-items: center;
-            gap: 24px;
-            border-bottom: 1px solid var(--border-color);
+            gap: 16px;
+            border-bottom: 1px solid var(--divider-color);
             background: var(--bg-secondary);
-            flex-wrap: wrap;
         }
 
-        .control-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .control-item { display: flex; align-items: center; gap: 8px; }
 
         .control-label {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 13px; font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -126,251 +135,84 @@
         }
 
         .control-input {
-            padding: 10px 14px;
-            font-size: 16px;
+            padding: 10px 14px; font-size: 16px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             background: var(--bg-primary);
             color: var(--text-primary);
-            font-weight: 500;
-            font-family: inherit;
-            min-width: 200px;
+            font-weight: 500; font-family: inherit;
+            transition: all 0.2s ease;
         }
+        .control-input:focus { outline: none; border-color: rgba(107,144,128,0.5); }
+        .control-input:disabled { opacity: 0.5; cursor: not-allowed; }
+        select.control-input { cursor: pointer; min-width: 160px; }
+        input[type="tel"].control-input { min-width: 160px; }
 
-        .control-input:focus {
-            outline: none;
-            border-color: rgba(107, 144, 128, 0.5);
-        }
-
-        .phone-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .phone-wrapper { display: flex; align-items: center; gap: 4px; }
 
         .phone-prefix {
             padding: 10px 12px;
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 16px;
+            font-weight: 600; color: var(--text-primary); font-size: 16px;
+        }
+
+        .controls-divider {
+            width: 1px; height: 32px;
+            background: var(--divider-color);
+            margin: 0 8px;
         }
 
         .btn-start {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.1);
             color: var(--text-primary);
             border: 1px solid var(--border-color);
             padding: 10px 32px;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
+            font-size: 15px; font-weight: 600;
+            border-radius: 8px; cursor: pointer;
             transition: all 0.2s ease;
             margin-left: auto;
         }
-
-        .btn-start:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-1px);
-        }
-
+        .btn-start:hover:not(:disabled) { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
         .btn-start:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-stop { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: rgba(239,68,68,0.9); }
 
-        .btn-stop {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: rgba(239, 68, 68, 0.3);
-            color: rgba(239, 68, 68, 0.9);
-        }
-
-        /* LOGIN SCREEN */
-        .login-screen {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .login-container {
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .login-container h2 {
-            color: var(--text-primary);
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .login-container p {
-            color: var(--text-secondary);
-            font-size: 15px;
-            margin-bottom: 32px;
-        }
-
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .login-input {
-            padding: 12px 16px;
-            font-size: 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-family: inherit;
-            text-align: center;
-        }
-
-        .login-input:focus {
-            outline: none;
-            border-color: rgba(107, 144, 128, 0.5);
-        }
-
-        .btn-primary {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 12px 32px;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-1px);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* MAIN CONTENT */
-        .main-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .status-section { text-align: center; }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-        }
-
-        .status-indicator.idle .status-dot { background: #6b9080; }
-
-        .status-indicator.dialing .status-dot {
-            background: var(--danger);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        /* CALL CARD */
-        .call-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .call-card-name {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        .call-card-info {
-            color: var(--text-secondary);
-            font-size: 15px;
-            margin-bottom: 8px;
-        }
-
-        .call-card-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-            justify-content: center;
-        }
-
-        .btn-action {
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-note { background: rgba(59, 130, 246, 0.9); color: white; }
-        .btn-note:hover { background: rgba(59, 130, 246, 1); transform: scale(1.05); }
-        .btn-dnc { background: rgba(239, 68, 68, 0.9); color: white; }
-        .btn-dnc:hover { background: rgba(239, 68, 68, 1); transform: scale(1.05); }
-
-        /* ANALYTICS */
+        /* Analytics */
         .analytics-section {
             width: 100%;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--divider-color);
             padding-bottom: 20px;
         }
 
         .analytics-header {
-            padding: 20px 0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            padding: 20px 0; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            transition: all 0.2s ease; position: relative;
         }
 
         .analytics-header h3 {
             color: var(--text-primary);
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
+            font-size: 14px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em;
         }
 
+        .analytics-chevron {
+            width: 16px; height: 16px;
+            stroke: var(--text-secondary);
+            transition: transform 0.3s ease;
+        }
+
+        .analytics-section.expanded .analytics-chevron { transform: rotate(180deg); }
+
         .analytics-content {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .analytics-section.expanded .analytics-content { max-height: 2000px; }
+
+        .analytics-stats-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
             gap: 20px;
@@ -378,78 +220,327 @@
             margin: 20px auto;
         }
 
-        .analytics-stat { text-align: center; }
+        .analytics-stat-card { text-align: center; padding: 20px; }
 
-        .analytics-label {
+        .analytics-stat-label {
             color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 12px; font-weight: 600;
             margin-bottom: 8px;
-            text-transform: uppercase;
+            text-transform: uppercase; letter-spacing: 0.05em;
         }
 
-        .analytics-value {
-            color: var(--text-primary);
-            font-size: 32px;
-            font-weight: 700;
+        .analytics-stat-value { color: var(--text-primary); font-size: 32px; font-weight: 700; }
+
+        /* Centered Action Section */
+        .centered-action-section {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-end;
+            gap: 16px; min-height: 200px;
+            margin-top: auto; margin-bottom: 40px;
+            padding-bottom: 40px; padding-top: 120px;
         }
 
-        /* MESSAGES */
-        .message {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 2000;
-            animation: slideIn 0.3s ease;
+        .centered-action-section .status-indicator { margin-bottom: 0; padding: 8px 20px; font-size: 13px; }
+        .centered-action-section .status-indicator .status-dot { width: 6px; height: 6px; }
+        .centered-action-section .btn-start { font-size: 20px; padding: 18px 56px; min-width: 220px; margin-left: 0; }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px; margin: 0 auto;
+            padding: 20px 40px 0px 40px;
+            display: flex; flex-direction: column;
+            min-height: auto;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        /* Status */
+        .status-indicator {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 12px 24px; border-radius: 24px;
+            font-size: 14px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
         }
 
-        .message.success {
-            background: rgba(34, 197, 94, 0.15);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #6bff6b;
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+        .status-indicator.idle .status-dot { background: #6b9080; }
+        .status-indicator.dialing .status-dot,
+        .status-indicator.on-call .status-dot { background: #ef4444; animation: pulse 2s ease-in-out infinite; }
+
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Race Cards */
+        .call-race-container {
+            display: block; margin-bottom: 20px;
+            flex: 0 0 auto; height: 400px; position: relative;
+        }
+        .call-race-container:not(.active) { visibility: hidden; }
+        .call-race-container.active { display: block; }
+
+        .call-race-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 20px; max-width: 1000px; margin: 0 auto; width: 100%;
         }
 
-        .message.error {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ff6b6b;
+        .race-card-wrapper { height: 100%; min-height: 380px; position: relative; }
+
+        .race-card-back, .race-card-front {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transition: transform 0.6s;
         }
 
-        /* RESPONSIVE */
+        .race-card-back {
+            background: var(--bg-secondary);
+            border: 2px solid rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center;
+        }
+        body.light-mode .race-card-back { border-color: rgba(0,0,0,0.3); background: rgba(0,0,0,0.04); }
+
+        .race-card-front { transform: rotateY(180deg); }
+        .race-card-front .race-card { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+        .race-card-wrapper.flipped .race-card-back { transform: rotateY(180deg); }
+        .race-card-wrapper.flipped .race-card-front { transform: rotateY(0deg); }
+
+        .race-card-wrapper.dealing {
+            animation: dealFromButton 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+        }
+        .race-card-wrapper.dealing.card-1 { animation-delay: 0s; }
+        .race-card-wrapper.dealing.card-2 { animation-delay: 0.25s; }
+        .race-card-wrapper.dealing.card-3 { animation-delay: 0.5s; }
+
+        @keyframes dealFromButton {
+            0% { transform: translateY(var(--deal-offset-y,400px)) translateX(var(--deal-offset-x,0px)) scale(0.8); opacity: 0; }
+            100% { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+        }
+
+        .race-card-wrapper.dealing-back { animation: dealBackToButton 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .race-card-wrapper.dealing-back.card-1 { animation-delay: 0s; }
+        .race-card-wrapper.dealing-back.card-2 { animation-delay: 0.25s; }
+        .race-card-wrapper.dealing-back.card-3 { animation-delay: 0.5s; }
+
+        @keyframes dealBackToButton {
+            0% { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateY(var(--deal-offset-y,400px)) translateX(var(--deal-offset-x,0px)) scale(0.8); opacity: 0; }
+        }
+
+        .race-card-subtitle { font-size: 13px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 8px; opacity: 0.7; }
+
+        .race-card {
+            background: var(--bg-secondary);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 16px; padding: 24px;
+            transition: all 0.4s ease; position: relative;
+        }
+
+        .race-card.searching { border: 2px solid rgba(255,255,255,0.3); background: var(--bg-secondary); position: relative; overflow: visible; }
+
+        .race-card.searching::after {
+            content: ''; position: absolute; inset: -4px; border-radius: 16px; padding: 4px;
+            background: conic-gradient(from var(--angle), transparent 0deg, transparent 300deg, rgba(255,255,255,1) 330deg, rgba(255,255,255,1) 360deg);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            animation: borderGlowTrace 2.5s linear infinite; pointer-events: none;
+        }
+        body.light-mode .race-card.searching::after { background: conic-gradient(from var(--angle), transparent 0deg, transparent 300deg, rgba(0,0,0,1) 330deg, rgba(0,0,0,1) 360deg); }
+
+        .race-card.searching::before {
+            content: ''; position: absolute; inset: -4px; border-radius: 16px; padding: 4px;
+            background: conic-gradient(from var(--angle), transparent 0deg, transparent 120deg, rgba(255,255,255,1) 150deg, rgba(255,255,255,1) 180deg, transparent 210deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            animation: borderGlowTrace 2.5s linear infinite; pointer-events: none;
+        }
+        body.light-mode .race-card.searching::before { background: conic-gradient(from var(--angle), transparent 0deg, transparent 120deg, rgba(0,0,0,1) 150deg, rgba(0,0,0,1) 180deg, transparent 210deg, transparent 360deg); }
+
+        @keyframes borderGlowTrace { from { --angle: 0deg; } to { --angle: 360deg; } }
+
+        .race-card.ringing { animation: cardPulse 0.8s ease-in-out infinite; }
+        @keyframes cardPulse {
+            0%,100% { border-color: rgba(255,255,255,0.3); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+            50% { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 25px rgba(255,255,255,0.4); }
+        }
+
+        .race-card.human { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.5); box-shadow: 0 0 30px rgba(34,197,94,0.3); animation: none; transform: scale(1.05); }
+        .race-card.machine { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); opacity: 0.4; animation: none; }
+        .race-card.busy { background: rgba(255,107,53,0.1); border-color: rgba(255,107,53,0.3); opacity: 0.4; animation: none; }
+        .race-card.ended { opacity: 0.3; animation: none; }
+
+        .race-card-status { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+        body.light-mode .race-card-status { color: rgba(0,0,0,0.7); }
+        .race-card.human .race-card-status { color: rgba(34,197,94,1); }
+        .race-card.machine .race-card-status { color: rgba(251,191,36,0.9); }
+        .race-card.busy .race-card-status { color: rgba(255,107,53,0.9); }
+        .race-card.ended .race-card-status { color: rgba(255,255,255,0.4); }
+        .race-status-icon { font-size: 18px; }
+
+        .race-card-name { color: var(--text-primary); font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .race-card.machine .race-card-name, .race-card.busy .race-card-name, .race-card.ended .race-card-name { opacity: 0.6; }
+        .race-card-info { color: var(--text-secondary); font-size: 15px; margin-bottom: 4px; }
+        .race-card.machine .race-card-info, .race-card.busy .race-card-info, .race-card.ended .race-card-info { opacity: 0.5; }
+
+        .race-winner-badge {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: rgba(34,197,94,1); color: white;
+            padding: 6px 12px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(34,197,94,0.4);
+        }
+
+        .race-note-btn {
+            position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
+            background: rgba(59,130,246,0.9); border: none; border-radius: 50%;
+            width: 36px; height: 36px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: white; z-index: 10;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4); transition: all 0.2s ease;
+        }
+        .race-note-btn:hover { background: rgba(59,130,246,1); transform: translateX(-50%) scale(1.1); }
+
+        .race-optout-btn {
+            position: absolute; bottom: -12px; right: 12px;
+            background: rgba(239,68,68,0.9); border: none; border-radius: 50%;
+            width: 36px; height: 36px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: white; z-index: 10;
+            box-shadow: 0 4px 12px rgba(239,68,68,0.4); transition: all 0.2s ease;
+        }
+        .race-optout-btn:hover { background: rgba(239,68,68,1); transform: scale(1.1); }
+
+        .race-disposition-btn {
+            position: absolute; bottom: -12px; left: 12px;
+            background: rgba(147,51,234,0.9); border: none; border-radius: 50%;
+            width: 36px; height: 36px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: white; z-index: 10;
+            box-shadow: 0 4px 12px rgba(147,51,234,0.4); transition: all 0.2s ease;
+        }
+        .race-disposition-btn:hover { background: rgba(147,51,234,1); transform: scale(1.1); }
+
+        .disposition-compartment {
+            position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            margin-top: 20px; width: 100%;
+            background: rgba(26,26,26,0.98);
+            border: 1px solid rgba(147,51,234,0.3); border-radius: 12px; padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 15;
+            max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease;
+        }
+        .disposition-compartment.open { max-height: 400px; opacity: 1; }
+        .disposition-compartment-header { color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+
+        .disposition-option {
+            padding: 12px 16px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+            margin-bottom: 8px; cursor: pointer; transition: all 0.2s ease;
+            font-size: 14px; color: #fff;
+        }
+        .disposition-option:hover { background: rgba(147,51,234,0.2); border-color: rgba(147,51,234,0.4); }
+        .disposition-option.selected { background: rgba(147,51,234,0.3); border-color: rgba(147,51,234,0.6); }
+
+        .note-compartment {
+            position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            margin-top: 20px; width: 100%;
+            background: rgba(26,26,26,0.98);
+            border: 1px solid rgba(59,130,246,0.3); border-radius: 12px; padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 15;
+            max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease;
+        }
+        .note-compartment.open { max-height: 400px; opacity: 1; }
+        .note-compartment-header { color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .note-compartment-subheader { color: rgba(255,255,255,0.6); font-size: 12px; margin-bottom: 16px; }
+
+        .note-textarea {
+            width: 100%; min-height: 120px; padding: 12px;
+            background: #0a0a0a; border: 1px solid #333; border-radius: 8px;
+            color: #fff; font-size: 14px; font-family: inherit;
+            resize: vertical; margin-bottom: 12px;
+        }
+        .note-textarea:focus { outline: none; border-color: rgba(59,130,246,0.5); }
+        .note-actions { display: flex; gap: 8px; justify-content: flex-end; }
+        .note-btn { padding: 8px 16px; font-size: 13px; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; font-family: inherit; }
+        .note-btn-cancel { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15); }
+        .note-btn-save { background: rgba(59,130,246,0.9); color: white; }
+        .note-btn-save.saved { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); cursor: default; }
+
+        /* Login */
+        .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px; }
+        .login-container { text-align: center; max-width: 400px; }
+        .login-container h2 { color: var(--text-primary); font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+        .login-container p { color: var(--text-secondary); font-size: 15px; margin-bottom: 32px; }
+        .login-form { display: flex; flex-direction: column; gap: 16px; }
+        .login-input { padding: 12px 16px; font-size: 16px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); font-family: inherit; text-align: center; }
+        .login-input:focus { outline: none; border-color: rgba(107,144,128,0.5); }
+        .btn-primary { background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border-color); padding: 14px 32px; font-size: 15px; font-weight: 600; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Messages */
+        .message { position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 2000; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ff6b6b; }
+        .success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #6bff6b; }
+
+        /* Responsive */
+        @media (max-width: 1200px) { .analytics-stats-grid { grid-template-columns: repeat(3, 1fr); } }
+
         @media (max-width: 768px) {
             .top-nav { padding: 12px 16px; }
-            .controls-bar { padding: 12px 16px; flex-direction: column; }
-            .control-input { min-width: auto; width: 100%; }
-            .btn-start { margin-left: 0; width: 100%; }
-            .main-content { padding: 20px 16px; }
-            .analytics-content { grid-template-columns: repeat(3, 1fr); }
+            .nav-logo { font-size: 18px; }
+            .nav-logo-sub { display: none; }
+            .broken-o { width: 20px; height: 24px; }
+            .controls-bar { padding: 12px 16px; flex-direction: row; flex-wrap: wrap; gap: 12px; align-items: stretch; justify-content: space-between; }
+            .control-item { width: 100%; justify-content: center; }
+            .control-item:has(#repPhone) { order: 1; justify-content: center; width: 100% !important; }
+            .control-item:has(#listSelect), .control-item:has(#regionSelect) { order: 2; width: calc(50% - 6px) !important; flex: 0 0 calc(50% - 6px); }
+            .control-label { font-size: 10px; }
+            select.control-input { font-size: 12px; min-width: auto; padding: 8px 10px; }
+            .controls-divider { display: none; }
+            .analytics-section { padding: 12px 16px 12px 16px !important; }
+            .analytics-header { padding: 12px 0; }
+            .analytics-header h3 { font-size: 11px; }
+            .analytics-stats-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px auto; }
+            .analytics-stat-card { padding: 10px; }
+            .analytics-stat-label { font-size: 9px; margin-bottom: 4px; }
+            .analytics-stat-value { font-size: 18px; }
+            .main-content { padding: 12px 16px 0px 16px; }
+            .call-race-container { min-height: 180px; margin-bottom: 12px; }
+            .call-race-grid { grid-template-columns: 1fr; gap: 12px; }
+            .race-card { padding: 16px; }
+            .race-card-name { font-size: 16px; }
+            .race-card-info { font-size: 13px; }
+            .centered-action-section { min-height: 60px; padding-top: 20px; padding-bottom: 20px; margin-bottom: 20px; gap: 12px; }
+            .centered-action-section .status-indicator { padding: 6px 16px; font-size: 11px; }
+            .centered-action-section .btn-start { font-size: 16px; padding: 14px 40px; min-width: 180px; }
+            .note-compartment { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); margin-top: 0; width: calc(100% - 40px); max-width: 500px; z-index: 100; }
         }
     </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="loginScreen" class="login-screen">
     <div class="login-container">
+        <div class="nav-logo" style="justify-content: center; margin-bottom: 32px;">
+            <span class="broken-o">
+                <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <mask id="slitMaskLogin">
+                            <rect width="42" height="48" fill="white"/>
+                            <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                        </mask>
+                    </defs>
+                    <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMaskLogin)"/>
+                </svg>
+            </span>
+            <span>utDials</span>
+        </div>
         <h2>Dynasty Power Dialer</h2>
         <p>Dynasty Consulting</p>
         <form class="login-form" onsubmit="handleLogin(event)">
-            <input
-                type="password"
-                id="passwordInput"
-                class="login-input"
-                placeholder="Enter passcode"
-                required
-            >
+            <input type="password" id="passwordInput" class="login-input" placeholder="Enter passcode" required>
             <button type="submit" id="loginBtn" class="btn-primary">Login</button>
         </form>
     </div>
@@ -457,11 +548,27 @@
 
 <!-- DASHBOARD -->
 <div id="dashboardScreen" style="display: none;">
+
     <!-- TOP NAV -->
     <div class="top-nav">
-        <div class="nav-logo">Dynasty Power Dialer</div>
+        <div class="nav-logo">
+            <span class="broken-o">
+                <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <mask id="slitMaskNav">
+                            <rect width="42" height="48" fill="white"/>
+                            <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                        </mask>
+                    </defs>
+                    <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMaskNav)"/>
+                </svg>
+            </span>
+            <span>utDials</span>
+            <div class="nav-logo-divider"></div>
+            <span class="nav-logo-sub">Dynasty Power Dialer</span>
+        </div>
         <div class="nav-user">
-            <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
             <button onclick="logout()" class="btn-logout">Logout</button>
         </div>
     </div>
@@ -469,121 +576,93 @@
     <!-- CONTROLS BAR -->
     <div class="controls-bar">
         <div class="control-item">
-            <span class="control-label">Your Phone</span>
+            <span class="control-label">Phone</span>
             <div class="phone-wrapper">
                 <span class="phone-prefix">+1</span>
-                <input
-                    type="tel"
-                    id="repPhone"
-                    class="control-input"
-                    placeholder="(212) 555-1234"
-                    maxlength="14"
-                    oninput="formatPhone(this)"
-                    style="min-width: 160px;"
-                />
+                <input type="tel" id="repPhone" class="control-input" placeholder="(212) 555-1234" maxlength="14" />
             </div>
         </div>
+
+        <div class="controls-divider"></div>
 
         <div class="control-item">
             <span class="control-label">List</span>
-            <select id="listSelect" class="control-input" onchange="checkFormValid()">
-                <option value="">-- Select a list --</option>
+            <select id="listSelect" class="control-input">
+                <option value="">Select list...</option>
             </select>
         </div>
+
+        <div class="controls-divider"></div>
 
         <div class="control-item">
             <span class="control-label">Region</span>
-            <select id="regionSelect" class="control-input" onchange="checkFormValid()">
-                <option value="">-- Select region --</option>
+            <select id="regionSelect" class="control-input">
+                <option value="">Select region...</option>
             </select>
         </div>
 
-        <div class="control-item">
-            <span class="control-label">Min Age</span>
-            <input type="number" id="ageMin" class="control-input" placeholder="Min" style="min-width: 80px;" />
-        </div>
+        <div class="controls-divider"></div>
 
-        <div class="control-item">
-            <span class="control-label">Max Age</span>
-            <input type="number" id="ageMax" class="control-input" placeholder="Max" style="min-width: 80px;" />
-        </div>
-
-        <button id="startButton" onclick="startDialing()" class="btn-start" disabled>
-            Start Dialing
-        </button>
-        <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">
-            Stop Dialing
-        </button>
+        <button id="startButton" onclick="startDialing()" class="btn-start" disabled>Start Dialing</button>
+        <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">Stop Dialing</button>
     </div>
 
     <!-- ANALYTICS -->
-    <div class="analytics-section" style="padding: 0 40px;">
+    <div class="analytics-section" id="analyticsSection" style="padding: 20px 40px 0px 40px; border-top: none;">
         <div class="analytics-header" onclick="toggleAnalytics()">
             <h3>Session Analytics</h3>
+            <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
         </div>
         <div class="analytics-content">
-            <div class="analytics-stat">
-                <div class="analytics-label">Total Calls</div>
-                <div class="analytics-value" id="statTotalCalls">0</div>
-            </div>
-            <div class="analytics-stat">
-                <div class="analytics-label">Connects</div>
-                <div class="analytics-value" id="statConnects">0</div>
-            </div>
-            <div class="analytics-stat">
-                <div class="analytics-label">Talk Time</div>
-                <div class="analytics-value" id="statTalkTime">0m</div>
-            </div>
-            <div class="analytics-stat">
-                <div class="analytics-label">Calls/Hour</div>
-                <div class="analytics-value" id="statCallsPerHour">0</div>
-            </div>
-            <div class="analytics-stat">
-                <div class="analytics-label">Machine Rate</div>
-                <div class="analytics-value" id="statMachineRate">0%</div>
-            </div>
-            <div class="analytics-stat">
-                <div class="analytics-label">Avg Duration</div>
-                <div class="analytics-value" id="statAvgDuration">0m</div>
+            <div class="analytics-stats-grid">
+                <div class="analytics-stat-card">
+                    <div class="analytics-stat-label">Total Calls</div>
+                    <div class="analytics-stat-value" id="statTotalCalls">0</div>
+                </div>
+                <div class="analytics-stat-card">
+                    <div class="analytics-stat-label">Connects</div>
+                    <div class="analytics-stat-value" id="statConnects">0</div>
+                </div>
+                <div class="analytics-stat-card">
+                    <div class="analytics-stat-label">Talk Time</div>
+                    <div class="analytics-stat-value" id="statTalkTime">0m</div>
+                </div>
+                <div class="analytics-stat-card">
+                    <div class="analytics-stat-label">Calls/Hour</div>
+                    <div class="analytics-stat-value" id="statCallsPerHour">0</div>
+                </div>
+                <div class="analytics-stat-card">
+                    <div class="analytics-stat-label">Machine Rate</div>
+                    <div class="analytics-stat-value" id="statMachineRate">0%</div>
+                </div>
+                <div class="analytics-stat-card">
+                    <div class="analytics-stat-label">Avg Duration</div>
+                    <div class="analytics-stat-value" id="statAvgDuration">0s</div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
-        <div class="status-section">
+        <div class="call-race-container" id="callRaceContainer">
+            <div class="call-race-grid" id="callRaceGrid"></div>
+        </div>
+
+        <div class="centered-action-section">
             <div class="status-indicator idle" id="dialerStatus">
                 <span class="status-dot"></span>
                 <span id="statusText">System Ready</span>
             </div>
         </div>
-
-        <div id="callCardContainer" style="display: none;">
-            <div class="call-card">
-                <div class="call-card-name" id="callCardName">Loading...</div>
-                <div class="call-card-info"><strong id="callCardCompany">-</strong></div>
-                <div class="call-card-info" id="callCardPhone">-</div>
-                <div class="call-card-info" id="callCardLicenses">-</div>
-                <div class="call-card-info" id="callCardYears">-</div>
-                <div class="call-card-actions">
-                    <button class="btn-action btn-note" onclick="toggleNote()">📝 Note</button>
-                    <button class="btn-action btn-dnc" onclick="markOptOut()">🚫 DNC</button>
-                </div>
-                <textarea
-                    id="noteText"
-                    style="width:100%;margin-top:16px;padding:8px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);display:none;min-height:80px;font-family:inherit;"
-                    placeholder="Add notes..."
-                ></textarea>
-            </div>
-        </div>
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // ============================================
-    // CONFIGURATION
-    // ============================================
     const N8N_BASE = 'https://commacashing.app.n8n.cloud/webhook';
     const START_URL = `${N8N_BASE}/start-dynasty`;
     const STOP_URL  = `${N8N_BASE}/stop-dynasty`;
@@ -591,16 +670,35 @@
 
     let supabaseClient = null;
     let isDialing = false;
-    let currentSessionId = null;
+    let sessionId = null;
     let supabaseSubscription = null;
-    let currentSession = {
+    let currentBatchContacts = new Map();
+    let pendingEvents = new Map();
+    let callTimer = null;
+
+    let currentSessionStats = {
+        startTime: null,
         totalCalls: 0,
         connects: 0,
         machines: 0,
-        callDurations: [],
-        startTime: null
+        humanAnsweredTime: null,
+        callDurations: []
     };
-    let currentContact = null;
+
+    // Audio
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSuccessChime() {
+        const now = audioContext.currentTime;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain); gain.connect(audioContext.destination);
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.type = 'sine'; osc.start(now); osc.stop(now + 0.4);
+    }
 
     // ============================================
     // INIT
@@ -608,28 +706,31 @@
     window.addEventListener('DOMContentLoaded', async () => {
         await initSupabase();
 
-        const savedTheme = localStorage.getItem('theme');
+        const savedTheme = localStorage.getItem('dynasty_theme');
         if (savedTheme === 'light') {
             document.body.classList.add('light-mode');
-            document.querySelector('.theme-toggle').textContent = '☀️';
+            document.getElementById('themeToggle').textContent = '☀️';
         }
 
-        // Restore session if still logged in
         if (localStorage.getItem('dynasty_authed') === 'true') {
             showDashboard();
         }
+
+        const phoneEl = document.getElementById('repPhone');
+        ['input','change','blur'].forEach(ev => phoneEl.addEventListener(ev, () => formatPhone(phoneEl)));
+        phoneEl.addEventListener('paste', () => setTimeout(() => formatPhone(phoneEl), 0));
+        document.getElementById('listSelect').addEventListener('change', checkFormValid);
+        document.getElementById('regionSelect').addEventListener('change', checkFormValid);
     });
 
     async function initSupabase() {
         try {
-            const response = await fetch('/.netlify/functions/supabase-init', { method: 'POST' });
-            const { url, key } = await response.json();
+            const res = await fetch('/.netlify/functions/supabase-init', { method: 'POST' });
+            const { url, key } = await res.json();
             supabaseClient = window.supabase.createClient(url, key);
             await loadLists();
             await loadRegions();
-        } catch (error) {
-            console.error('Failed to initialize Supabase:', error);
-        }
+        } catch (e) { console.error('Supabase init failed:', e); }
     }
 
     // ============================================
@@ -639,9 +740,7 @@
         e.preventDefault();
         const password = document.getElementById('passwordInput').value;
         const btn = document.getElementById('loginBtn');
-
-        btn.disabled = true;
-        btn.textContent = 'Checking...';
+        btn.disabled = true; btn.textContent = 'Checking...';
 
         try {
             const { data, error } = await supabaseClient
@@ -651,18 +750,14 @@
                 .single();
 
             if (error || !data) {
-                showError('Could not verify credentials. Try again.');
-                btn.disabled = false;
-                btn.textContent = 'Login';
-                return;
+                showError('Could not verify. Try again.');
+                btn.disabled = false; btn.textContent = 'Login'; return;
             }
 
             if (password !== data.admin_passcode) {
                 showError('Incorrect passcode.');
-                btn.disabled = false;
-                btn.textContent = 'Login';
-                document.getElementById('passwordInput').value = '';
-                return;
+                btn.disabled = false; btn.textContent = 'Login';
+                document.getElementById('passwordInput').value = ''; return;
             }
 
             localStorage.setItem('dynasty_authed', 'true');
@@ -670,8 +765,7 @@
             showSuccess('Welcome to Dynasty Power Dialer!');
         } catch (err) {
             showError(`Login error: ${err.message}`);
-            btn.disabled = false;
-            btn.textContent = 'Login';
+            btn.disabled = false; btn.textContent = 'Login';
         }
     }
 
@@ -699,68 +793,51 @@
                 .select('list_source, file_name, imported_contacts')
                 .eq('company_code', COMPANY_CODE)
                 .order('file_name');
-
             if (error) throw error;
-
             const select = document.getElementById('listSelect');
-            if (data && data.length > 0) {
-                data.forEach(list => {
-                    const option = document.createElement('option');
-                    option.value = list.list_source;
-                    option.textContent = `${list.file_name} (${list.imported_contacts || 0} contacts)`;
-                    select.appendChild(option);
-                });
-            }
-        } catch (error) {
-            console.error('Failed to load lists:', error);
-        }
+            (data || []).forEach(list => {
+                const opt = document.createElement('option');
+                opt.value = list.list_source;
+                opt.textContent = `${list.file_name} (${list.imported_contacts || 0} contacts)`;
+                select.appendChild(opt);
+            });
+        } catch (e) { console.error('Failed to load lists:', e); }
     }
 
     async function loadRegions() {
         if (!supabaseClient) return;
+        const select = document.getElementById('regionSelect');
+        const fallback = ['Northeast','Southeast','Midwest','Southwest','West'];
         try {
             const { data, error } = await supabaseClient
                 .from('rep_numbers')
                 .select('region')
                 .eq('company_code', COMPANY_CODE);
-
             if (error) throw error;
-
             const regions = [...new Set((data || []).map(r => r.region).filter(Boolean))].sort();
-            const select = document.getElementById('regionSelect');
-
-            if (regions.length > 0) {
-                regions.forEach(region => {
-                    const option = document.createElement('option');
-                    option.value = region;
-                    option.textContent = region;
-                    select.appendChild(option);
-                });
-            }
-        } catch (error) {
-            console.error('Failed to load regions:', error);
-            // Fallback static regions if table query fails
-            ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'].forEach(r => {
-                const option = document.createElement('option');
-                option.value = r;
-                option.textContent = r;
-                document.getElementById('regionSelect').appendChild(option);
+            const list = regions.length > 0 ? regions : fallback;
+            list.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r; opt.textContent = r;
+                select.appendChild(opt);
+            });
+        } catch (e) {
+            fallback.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r; opt.textContent = r;
+                select.appendChild(opt);
             });
         }
     }
 
     // ============================================
-    // FORM VALIDATION
+    // FORM
     // ============================================
     function formatPhone(input) {
-        let digits = input.value.replace(/\D/g, '').slice(0, 10);
-        if (digits.length >= 6) {
-            input.value = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
-        } else if (digits.length >= 3) {
-            input.value = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
-        } else {
-            input.value = digits;
-        }
+        let d = input.value.replace(/\D/g, '').slice(0, 10);
+        if (d.length >= 6) input.value = `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+        else if (d.length >= 3) input.value = `(${d.slice(0,3)}) ${d.slice(3)}`;
+        else input.value = d;
         checkFormValid();
     }
 
@@ -768,8 +845,7 @@
         const digits = document.getElementById('repPhone').value.replace(/\D/g, '');
         const list = document.getElementById('listSelect').value;
         const region = document.getElementById('regionSelect').value;
-        const valid = digits.length === 10 && list !== '' && region !== '';
-        document.getElementById('startButton').disabled = !valid || isDialing;
+        document.getElementById('startButton').disabled = digits.length !== 10 || !list || !region || isDialing;
     }
 
     // ============================================
@@ -779,212 +855,494 @@
         const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
         const listSource = document.getElementById('listSelect').value;
         const region = document.getElementById('regionSelect').value;
-        const ageMin = document.getElementById('ageMin').value;
-        const ageMax = document.getElementById('ageMax').value;
 
         try {
             isDialing = true;
-            currentSessionId = `session_${Date.now()}`;
-            currentSession.startTime = Date.now();
+            sessionId = `session_${Date.now()}`;
+            currentSessionStats.startTime = Date.now();
+            currentBatchContacts.clear();
+            document.getElementById('callRaceGrid').innerHTML = '';
 
             document.getElementById('startButton').style.display = 'none';
             document.getElementById('stopButton').style.display = 'inline-block';
             document.getElementById('repPhone').disabled = true;
             document.getElementById('listSelect').disabled = true;
             document.getElementById('regionSelect').disabled = true;
-            document.getElementById('callCardContainer').style.display = 'block';
-            updateStatus('dialing', 'Dialing Active');
 
+            updateStatus('dialing', 'Dialing Active');
+            showEmptyRaceCards();
             subscribeToCallLogs();
 
             await fetch(START_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    session_id: currentSessionId,
-                    rep_phone: repPhone,
-                    list_source: listSource,
-                    region: region,
-                    filters: { age_min: ageMin || null, age_max: ageMax || null }
-                })
+                body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone, list_source: listSource, region })
             });
 
-            showSuccess('Dialing started!');
-        } catch (error) {
-            showError(`Failed to start dialing: ${error.message}`);
-            resetDialing();
+            showSuccess(`Dialing started — ${region}`);
+        } catch (err) {
+            showError(`Failed to start: ${err.message}`);
+            resetDialingState();
         }
     }
 
     async function stopDialing() {
-        try {
-            isDialing = false;
-
-            if (supabaseSubscription && supabaseClient) {
-                supabaseClient.removeChannel(supabaseSubscription);
-                supabaseSubscription = null;
-            }
-
-            const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-
-            await fetch(STOP_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    session_id: currentSessionId,
-                    rep_phone: repPhone
-                })
-            });
-
-            resetDialing();
-            showSuccess('Dialing stopped');
-        } catch (error) {
-            showError(`Failed to stop: ${error.message}`);
+        for (let i = 0; i < 3; i++) {
+            const w = document.getElementById(`race-card-wrapper-${i}`);
+            if (w) w.classList.remove('flipped');
         }
+        await new Promise(r => setTimeout(r, 600));
+        for (let i = 0; i < 3; i++) {
+            const w = document.getElementById(`race-card-wrapper-${i}`);
+            if (w) w.classList.add('dealing-back');
+            await new Promise(r => setTimeout(r, 150));
+        }
+        await new Promise(r => setTimeout(r, 800));
+
+        document.getElementById('callRaceContainer').classList.remove('active');
+        document.getElementById('callRaceGrid').innerHTML = '';
+        currentBatchContacts.clear();
+        unsubscribeFromSupabase();
+        resetDialingState();
+        showSuccess('Dialing stopped');
+
+        const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+        fetch(STOP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone })
+        }).catch(e => console.error('Stop failed:', e));
     }
 
-    function resetDialing() {
+    function resetDialingState() {
         isDialing = false;
-        document.getElementById('stopButton').style.display = 'none';
         document.getElementById('startButton').style.display = 'inline-block';
+        document.getElementById('stopButton').style.display = 'none';
         document.getElementById('repPhone').disabled = false;
         document.getElementById('listSelect').disabled = false;
         document.getElementById('regionSelect').disabled = false;
-        document.getElementById('callCardContainer').style.display = 'none';
         updateStatus('idle', 'System Ready');
         checkFormValid();
     }
 
     // ============================================
-    // REAL-TIME SUBSCRIPTIONS
+    // REALTIME
     // ============================================
     function subscribeToCallLogs() {
         if (!supabaseClient) return;
-
         supabaseSubscription = supabaseClient
-            .channel(`dynasty_calls_${currentSessionId}`)
-            .on('postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'dynasty_call_logs',
-                    filter: `session_id=eq.${currentSessionId}`
-                },
-                (payload) => handleCallEvent(payload.new)
-            )
+            .channel(`dynasty_${sessionId}`)
+            .on('postgres_changes', {
+                event: '*', schema: 'public',
+                table: 'dialer_status',
+                filter: `session_id=eq.${sessionId}`
+            }, (payload) => handleStatusUpdate(payload.new))
             .subscribe();
     }
 
-    async function handleCallEvent(log) {
-        if (!log) return;
-
-        const eventType = log.event_type;
-
-        if (eventType === 'human_answered') {
-            currentSession.connects++;
-            currentSession.humanAnsweredTime = Date.now();
-
-            document.getElementById('callCardName').textContent = log.contact_name || 'Unknown';
-            document.getElementById('callCardCompany').textContent = log.contact_company || '-';
-            document.getElementById('callCardPhone').textContent = log.phone || '-';
-            document.getElementById('callCardLicenses').textContent = log.licenses ? `Licenses: ${log.licenses}` : '';
-            document.getElementById('callCardYears').textContent = log.years_at_firm ? `Years at firm: ${log.years_at_firm}` : '';
-
-            currentContact = log;
-            updateStatus('on-call', 'On Call');
+    function unsubscribeFromSupabase() {
+        if (supabaseSubscription && supabaseClient) {
+            supabaseClient.removeChannel(supabaseSubscription);
+            supabaseSubscription = null;
         }
-        else if (eventType === 'machine_detected') {
-            currentSession.machines++;
+    }
+
+    function normalizePhone(phone) {
+        if (!phone) return '';
+        return '+1' + phone.replace(/\D/g, '').slice(-10);
+    }
+
+    async function handleStatusUpdate(data) {
+        if (!data) return;
+        const status = data.event_type;
+        console.log(`📡 ${status} | ${data.contact_name} | ${data.call_sid}`);
+
+        if (status === 'call_initiated') {
+            currentSessionStats.totalCalls++;
+            const contact = {
+                name: data.contact_name, company: data.contact_company,
+                phone: data.contact_phone, licenses: data.licenses,
+                years_at_firm: data.years_at_firm, notes: data.notes,
+                call_sid: data.call_sid, status: 'ringing'
+            };
+            currentBatchContacts.set(data.call_sid, contact);
+            const index = data.call_index ?? (currentBatchContacts.size - 1);
+            populateRaceCard(data.call_sid, contact, index);
+            updateStatsDisplay();
         }
-        else if (eventType === 'call_completed') {
-            if (currentSession.humanAnsweredTime) {
-                const duration = (Date.now() - currentSession.humanAnsweredTime) / 1000;
-                if (duration > 0 && duration < 3600) {
-                    currentSession.callDurations.push(duration);
+        else if (status === 'machine_detected') {
+            currentSessionStats.machines++;
+            const contact = currentBatchContacts.get(data.call_sid);
+            if (!contact) { pendingEvents.set(data.call_sid, data); return; }
+            contact.status = 'machine';
+            updateRaceCard(data.call_sid, 'machine');
+            updateStatsDisplay(); checkBatchComplete();
+        }
+        else if (['call_busy','call_failed','call_no_answer','call_canceled'].includes(status)) {
+            const contact = currentBatchContacts.get(data.call_sid);
+            if (!contact) { pendingEvents.set(data.call_sid, data); return; }
+            contact.status = 'busy'; contact.busyType = status;
+            updateRaceCard(data.call_sid, 'busy', status);
+            checkBatchComplete();
+        }
+        else if (status === 'human_answered') {
+            currentSessionStats.connects++;
+            currentSessionStats.humanAnsweredTime = Date.now();
+            callTimer = setInterval(() => {
+                const secs = Math.round((Date.now() - currentSessionStats.humanAnsweredTime) / 1000);
+                document.getElementById('statTalkTime').textContent = Math.floor(secs / 60) + 'm';
+                document.getElementById('statAvgDuration').textContent = secs + 's';
+            }, 1000);
+
+            let foundSid = null;
+            currentBatchContacts.forEach((c, sid) => {
+                if (normalizePhone(c.phone) === normalizePhone(data.contact_phone)) {
+                    foundSid = sid; c.status = 'human';
                 }
-                currentSession.humanAnsweredTime = null;
-            }
-            updateStatus('dialing', 'Dialing Active');
-        }
+            });
+            if (foundSid) updateRaceCard(foundSid, 'human');
 
-        currentSession.totalCalls++;
-        updateStatsDisplay();
+            updateStatus('on-call', 'On Call');
+            updateStatsDisplay();
+            isDialing = false;
+            document.getElementById('stopButton').style.display = 'none';
+            document.getElementById('startButton').style.display = 'inline-block';
+            document.getElementById('repPhone').disabled = false;
+            document.getElementById('listSelect').disabled = false;
+            document.getElementById('regionSelect').disabled = false;
+            checkFormValid();
+        }
+        else if (status === 'call_completed') {
+            if (currentSessionStats.humanAnsweredTime) {
+                const dur = (Date.now() - currentSessionStats.humanAnsweredTime) / 1000;
+                if (dur > 0 && dur < 3600) currentSessionStats.callDurations.push(Math.round(dur));
+                currentSessionStats.humanAnsweredTime = null;
+                if (callTimer) { clearInterval(callTimer); callTimer = null; }
+            }
+            updateStatsDisplay();
+            updateStatus('idle', 'System Ready');
+        }
+        else if (status === 'batches_complete') {
+            showSuccess('All contacts dialed!');
+            resetDialingState();
+            unsubscribeFromSupabase();
+        }
     }
 
     // ============================================
-    // UI HELPERS
+    // RACE CARDS
     // ============================================
+    function showEmptyRaceCards() {
+        const container = document.getElementById('callRaceContainer');
+        const grid = document.getElementById('callRaceGrid');
+        grid.innerHTML = '';
+
+        const rect = container.getBoundingClientRect();
+        const offsetY = window.innerHeight - rect.bottom + 200;
+
+        for (let i = 0; i < 3; i++) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `race-card-wrapper dealing card-${i + 1}`;
+            wrapper.id = `race-card-wrapper-${i}`;
+            wrapper.style.setProperty('--deal-offset-y', `${offsetY}px`);
+
+            setTimeout(() => {
+                const r = wrapper.getBoundingClientRect();
+                const offsetX = window.innerWidth / 2 - (r.left + r.width / 2);
+                wrapper.style.setProperty('--deal-offset-x', `${offsetX}px`);
+            }, 10);
+
+            wrapper.innerHTML = `
+                <div class="race-card-back">
+                    <span class="broken-o">
+                        <svg viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <mask id="slitMaskCard${i}">
+                                    <rect width="42" height="48" fill="white"/>
+                                    <line x1="25" y1="20" x2="33" y2="8" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                                </mask>
+                            </defs>
+                            <circle cx="21" cy="24" r="18" stroke="currentColor" stroke-width="6" fill="none" mask="url(#slitMaskCard${i})"/>
+                        </svg>
+                    </span>
+                </div>
+                <div class="race-card-front">
+                    <div class="race-card" id="race-card-${i}">
+                        <div class="race-card-status"></div>
+                        <div class="race-card-name">Searching For Contact</div>
+                        <div class="race-card-subtitle">Dialing in progress...</div>
+                    </div>
+                </div>`;
+            grid.appendChild(wrapper);
+        }
+
+        container.classList.add('active');
+
+        setTimeout(() => {
+            for (let i = 0; i < 3; i++) {
+                const w = document.getElementById(`race-card-wrapper-${i}`);
+                if (w) {
+                    w.classList.remove('dealing');
+                    w.classList.add('flipped');
+                    const card = document.getElementById(`race-card-${i}`);
+                    if (card) card.classList.add('searching');
+                }
+            }
+        }, 1400);
+    }
+
+    function populateRaceCard(callSid, contact, index) {
+        const card = document.getElementById(`race-card-${index}`);
+        if (!card) { setTimeout(() => populateRaceCard(callSid, contact, index), 100); return; }
+        card.id = `race-card-${callSid}`;
+        card.className = 'race-card ringing';
+        card.innerHTML = `
+            <div class="race-card-status"><span class="race-status-icon">📞</span><span>Ringing...</span></div>
+            <div class="race-card-name">${contact.name}</div>
+            <div class="race-card-info"><strong>${contact.company || 'No company'}</strong></div>
+            <div class="race-card-info">${contact.phone || ''}</div>
+            <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
+            <div class="race-card-info">Years at Firm: ${contact.years_at_firm || '-'}</div>
+            ${contact.notes ? `<div class="race-card-info" style="margin-top:8px;font-style:italic;opacity:0.8;">Notes: ${contact.notes.substring(0,100)}${contact.notes.length>100?'...':''}</div>` : ''}`;
+
+        if (pendingEvents.has(callSid)) {
+            const pending = pendingEvents.get(callSid);
+            pendingEvents.delete(callSid);
+            handleStatusUpdate(pending);
+        }
+    }
+
+    function updateRaceCard(callSid, status, busyType = null) {
+        const card = document.getElementById(`race-card-${callSid}`);
+        if (!card) return;
+        card.classList.remove('ringing','human','machine','busy','ended','searching');
+
+        if (status === 'human') {
+            card.classList.add('human');
+            playSuccessChime();
+
+            const badge = document.createElement('div');
+            badge.className = 'race-winner-badge'; badge.textContent = 'CONNECTED';
+            card.appendChild(badge);
+
+            const dispBtn = document.createElement('button');
+            dispBtn.className = 'race-disposition-btn'; dispBtn.textContent = '🏷️';
+            dispBtn.onclick = (e) => { e.stopPropagation(); toggleCompartment(`disposition-compartment-${callSid}`); };
+            card.appendChild(dispBtn);
+
+            const noteBtn = document.createElement('button');
+            noteBtn.className = 'race-note-btn'; noteBtn.textContent = '📝';
+            noteBtn.onclick = (e) => { e.stopPropagation(); toggleCompartment(`note-compartment-${callSid}`); };
+            card.appendChild(noteBtn);
+
+            const dncBtn = document.createElement('button');
+            dncBtn.className = 'race-optout-btn'; dncBtn.textContent = '🚫';
+            dncBtn.onclick = (e) => { e.stopPropagation(); markOptOut(callSid); };
+            card.appendChild(dncBtn);
+
+            const dispComp = document.createElement('div');
+            dispComp.className = 'disposition-compartment'; dispComp.id = `disposition-compartment-${callSid}`;
+            dispComp.innerHTML = `
+                <div class="disposition-compartment-header">Select Call Outcome</div>
+                <div class="disposition-option" onclick="selectDisposition('${callSid}','Interested')">✅ Interested</div>
+                <div class="disposition-option" onclick="selectDisposition('${callSid}','Not Interested')">❌ Not Interested</div>
+                <div class="disposition-option" onclick="selectDisposition('${callSid}','Callback')">📞 Callback Requested</div>
+                <div class="disposition-option" onclick="selectDisposition('${callSid}','Wrong Number')">❓ Wrong Number</div>`;
+            card.appendChild(dispComp);
+
+            const contact = currentBatchContacts.get(callSid);
+            const noteComp = document.createElement('div');
+            noteComp.className = 'note-compartment'; noteComp.id = `note-compartment-${callSid}`;
+            noteComp.innerHTML = `
+                <div class="note-compartment-header">Call Notes</div>
+                <div class="note-compartment-subheader">${contact?.name || 'Contact'}</div>
+                <textarea class="note-textarea" placeholder="Type your notes here..." id="note-text-${callSid}"></textarea>
+                <div class="note-actions">
+                    <button class="note-btn note-btn-cancel" onclick="toggleCompartment('note-compartment-${callSid}')">Cancel</button>
+                    <button class="note-btn note-btn-save" id="note-save-btn-${callSid}" onclick="saveNote('${callSid}')">Save</button>
+                </div>`;
+            card.appendChild(noteComp);
+
+            card.querySelector('.race-card-status').innerHTML = `<span class="race-status-icon">✓</span><span>Human Answered</span>`;
+
+            for (let i = 0; i < 3; i++) {
+                const sc = document.getElementById(`race-card-${i}`);
+                if (sc) {
+                    sc.classList.remove('searching','ringing'); sc.classList.add('ended');
+                    const sel = sc.querySelector('.race-card-status');
+                    if (sel) sel.innerHTML = `<span class="race-status-icon">✕</span><span>Call Ended</span>`;
+                }
+            }
+            currentBatchContacts.forEach((c, sid) => {
+                if (sid !== callSid && c.status === 'ringing') {
+                    c.status = 'ended';
+                    const oc = document.getElementById(`race-card-${sid}`);
+                    if (oc) {
+                        oc.classList.remove('ringing','searching'); oc.classList.add('ended');
+                        const sel = oc.querySelector('.race-card-status');
+                        if (sel) sel.innerHTML = `<span class="race-status-icon">✕</span><span>Call Ended</span>`;
+                    }
+                }
+            });
+        }
+        else if (status === 'machine') {
+            card.classList.add('machine');
+            card.querySelector('.race-card-status').innerHTML = `<span class="race-status-icon">🤖</span><span>Voicemail</span>`;
+        }
+        else if (status === 'busy') {
+            card.classList.add('busy');
+            const map = { call_busy:['🌙','Busy'], call_failed:['⚠️','Failed'], call_no_answer:['⏱️','No Answer'], call_canceled:['🚫','Canceled'] };
+            const [icon, text] = map[busyType] || ['🚫','Ended'];
+            card.querySelector('.race-card-status').innerHTML = `<span class="race-status-icon">${icon}</span><span>${text}</span>`;
+        }
+    }
+
+    function checkBatchComplete() {
+        if (currentBatchContacts.size < 3) return;
+        let allResolved = true, anyHuman = false;
+        currentBatchContacts.forEach(c => {
+            if (c.status === 'ringing') allResolved = false;
+            if (c.status === 'human') anyHuman = true;
+        });
+        if (allResolved && !anyHuman) setTimeout(resetCardsToSearching, 500);
+    }
+
+    function resetCardsToSearching() {
+        for (let i = 0; i < 3; i++) {
+            const w = document.getElementById(`race-card-wrapper-${i}`);
+            if (w) {
+                const front = w.querySelector('.race-card-front');
+                if (front) front.innerHTML = `
+                    <div class="race-card searching" id="race-card-${i}">
+                        <div class="race-card-status"></div>
+                        <div class="race-card-name">Searching For Contact</div>
+                        <div class="race-card-subtitle">Dialing in progress...</div>
+                    </div>`;
+            }
+        }
+        currentBatchContacts.forEach((c, sid) => {
+            if (c.status !== 'ringing' && c.status !== 'human') currentBatchContacts.delete(sid);
+        });
+        for (let i = 0; i < 3; i++) {
+            const w = document.getElementById(`race-card-wrapper-${i}`);
+            if (w) w.classList.remove('flipped');
+        }
+        setTimeout(() => {
+            for (let i = 0; i < 3; i++) {
+                const w = document.getElementById(`race-card-wrapper-${i}`);
+                if (w) w.classList.add('flipped');
+            }
+        }, 500);
+    }
+
+    // ============================================
+    // NOTES & DISPOSITION
+    // ============================================
+    function toggleCompartment(id) {
+        document.getElementById(id)?.classList.toggle('open');
+    }
+
+    async function saveNote(callSid) {
+        const text = document.getElementById(`note-text-${callSid}`)?.value.trim();
+        if (!text) { showError('Enter a note first.'); return; }
+        const contact = currentBatchContacts.get(callSid);
+        const btn = document.getElementById(`note-save-btn-${callSid}`);
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+            const res = await fetch(`${N8N_BASE}/save-dynasty-note`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ call_sid: callSid, contact_name: contact?.name, contact_phone: contact?.phone, note: text })
+            });
+            if (res.ok) { showSuccess('Note saved!'); btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
+            else { showError('Failed to save note.'); btn.disabled = false; btn.textContent = 'Save'; }
+        } catch (e) { showError(`Error: ${e.message}`); btn.disabled = false; btn.textContent = 'Save'; }
+    }
+
+    async function selectDisposition(callSid, disposition) {
+        const contact = currentBatchContacts.get(callSid);
+        const comp = document.getElementById(`disposition-compartment-${callSid}`);
+        comp?.querySelectorAll('.disposition-option').forEach(o => o.classList.remove('selected'));
+        event.target.classList.add('selected');
+        try {
+            await fetch(`${N8N_BASE}/save-dynasty-disposition`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ call_sid: callSid, contact_phone: contact?.phone, contact_name: contact?.name, disposition })
+            });
+            showSuccess(`Disposition: ${disposition}`);
+            setTimeout(() => comp?.classList.remove('open'), 1000);
+        } catch (e) { showError(`Failed: ${e.message}`); }
+    }
+
+    async function markOptOut(callSid) {
+        const contact = currentBatchContacts.get(callSid);
+        if (!contact) return;
+        if (!confirm(`Mark ${contact.name} as Do Not Call?`)) return;
+        try {
+            await fetch(`${N8N_BASE}/dynasty-dnc`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contact_phone: contact.phone, contact_name: contact.name })
+            });
+            showSuccess(`${contact.name} marked as DNC`);
+        } catch (e) { showError(`Error: ${e.message}`); }
+    }
+
+    // ============================================
+    // STATS & UI
+    // ============================================
+    function updateStatsDisplay() {
+        document.getElementById('statTotalCalls').textContent = currentSessionStats.totalCalls;
+        document.getElementById('statConnects').textContent = currentSessionStats.connects;
+        const totalSecs = currentSessionStats.callDurations.reduce((a, b) => a + b, 0);
+        document.getElementById('statTalkTime').textContent = Math.round(totalSecs / 60) + 'm';
+        if (currentSessionStats.startTime) {
+            const hrs = (Date.now() - currentSessionStats.startTime) / 3600000;
+            document.getElementById('statCallsPerHour').textContent = hrs > 0 ? Math.round(currentSessionStats.totalCalls / hrs) : 0;
+        }
+        const mr = currentSessionStats.totalCalls > 0 ? Math.round((currentSessionStats.machines / currentSessionStats.totalCalls) * 100) : 0;
+        document.getElementById('statMachineRate').textContent = mr + '%';
+        if (currentSessionStats.callDurations.length > 0) {
+            const avg = totalSecs / currentSessionStats.callDurations.length;
+            document.getElementById('statAvgDuration').textContent = avg < 60 ? Math.round(avg) + 's' : Math.round(avg / 60) + 'm';
+        }
+    }
+
     function updateStatus(state, text) {
         document.getElementById('dialerStatus').className = `status-indicator ${state}`;
         document.getElementById('statusText').textContent = text;
     }
 
-    function updateStatsDisplay() {
-        document.getElementById('statTotalCalls').textContent = currentSession.totalCalls;
-        document.getElementById('statConnects').textContent = currentSession.connects;
-
-        const totalMinutes = Math.round(
-            currentSession.callDurations.reduce((a, b) => a + b, 0) / 60
-        );
-        document.getElementById('statTalkTime').textContent = totalMinutes + 'm';
-
-        if (currentSession.startTime) {
-            const hoursElapsed = (Date.now() - currentSession.startTime) / 3600000;
-            const cph = hoursElapsed > 0 ? Math.round(currentSession.totalCalls / hoursElapsed) : 0;
-            document.getElementById('statCallsPerHour').textContent = cph;
-        }
-
-        const machineRate = currentSession.totalCalls > 0
-            ? Math.round((currentSession.machines / currentSession.totalCalls) * 100)
-            : 0;
-        document.getElementById('statMachineRate').textContent = machineRate + '%';
-
-        if (currentSession.callDurations.length > 0) {
-            const avg = currentSession.callDurations.reduce((a, b) => a + b, 0) / currentSession.callDurations.length;
-            document.getElementById('statAvgDuration').textContent =
-                avg < 60 ? Math.round(avg) + 's' : Math.round(avg / 60) + 'm';
-        }
-    }
-
-    function toggleNote() {
-        const ta = document.getElementById('noteText');
-        ta.style.display = ta.style.display === 'none' ? 'block' : 'none';
-    }
-
-    async function markOptOut() {
-        const name = document.getElementById('callCardName').textContent;
-        if (!confirm(`Mark ${name} as Do Not Call?`)) return;
-        // Wire up to your DNC webhook when ready
-        showSuccess(`${name} added to DNC list`);
+    function toggleAnalytics() {
+        document.getElementById('analyticsSection').classList.toggle('expanded');
     }
 
     function toggleTheme() {
         document.body.classList.toggle('light-mode');
-        const btn = document.querySelector('.theme-toggle');
+        const btn = document.getElementById('themeToggle');
         btn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
-        localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        localStorage.setItem('dynasty_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
     }
 
-    function toggleAnalytics() {
-        const content = document.querySelector('.analytics-content');
-        content.style.display = content.style.display === 'none' ? 'grid' : 'none';
+    function showSuccess(msg) {
+        const d = document.createElement('div');
+        d.className = 'message success'; d.textContent = msg;
+        document.body.appendChild(d); setTimeout(() => d.remove(), 3000);
     }
 
-    function showSuccess(message) {
-        const msg = document.createElement('div');
-        msg.className = 'message success';
-        msg.textContent = message;
-        document.body.appendChild(msg);
-        setTimeout(() => msg.remove(), 3000);
+    function showError(msg) {
+        const d = document.createElement('div');
+        d.className = 'message error'; d.textContent = msg;
+        document.body.appendChild(d); setTimeout(() => d.remove(), 4000);
     }
 
-    function showError(message) {
-        const msg = document.createElement('div');
-        msg.className = 'message error';
-        msg.textContent = message;
-        document.body.appendChild(msg);
-        setTimeout(() => msg.remove(), 4000);
-    }
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && isDialing && !supabaseSubscription) {
+            subscribeToCallLogs();
+            showSuccess('Reconnected to real-time updates');
+        }
+    });
 </script>
 </body>
 </html>
