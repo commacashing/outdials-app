@@ -1,21 +1,21 @@
 [build]
   publish = "."
-
 [[redirects]]
   from = "/oauth/callback"
   to = "/index.html"
   status = 200
-
 [[redirects]]
   from = "/*/admin"
   to = "/admin.html"
   status = 200
-
 [[redirects]]
   from = "/*/enrich"
   to = "/enrich.html"
   status = 200
-
+[[redirects]]
+  from = "/dynasty"
+  to = "/dynasty.html"
+  status = 200
 [[redirects]]
   from = "/*"
   to = "/index.html"
