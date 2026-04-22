@@ -790,46 +790,30 @@
         try {
             const { data, error } = await supabaseClient
                 .from('dynasty_contact_lists')
-                .select('list_source, file_name, imported_contacts')
-                .eq('company_code', COMPANY_CODE)
-                .order('file_name');
+                .select('file_id, file_name_original, folder_id')
+                .order('file_name_original');
             if (error) throw error;
             const select = document.getElementById('listSelect');
             (data || []).forEach(list => {
                 const opt = document.createElement('option');
-                opt.value = list.file_id;
-opt.dataset.listSource = list.list_source;
-opt.textContent = list.file_name;
+                opt.value = list.file_id || '';
+opt.dataset.fileName = list.file_name_original;
+opt.dataset.folderId = list.folder_id;
+opt.textContent = list.file_name_original;
                 select.appendChild(opt);
             });
         } catch (e) { console.error('Failed to load lists:', e); }
     }
 
-    async function loadRegions() {
-        if (!supabaseClient) return;
-        const select = document.getElementById('regionSelect');
-        const fallback = ['Northeast','Southeast','Midwest','Southwest','West'];
-        try {
-            const { data, error } = await supabaseClient
-                .from('rep_numbers')
-                .select('region')
-                .eq('company_code', COMPANY_CODE);
-            if (error) throw error;
-            const regions = [...new Set((data || []).map(r => r.region).filter(Boolean))].sort();
-            const list = regions.length > 0 ? regions : fallback;
-            list.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r; opt.textContent = r;
-                select.appendChild(opt);
-            });
-        } catch (e) {
-            fallback.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r; opt.textContent = r;
-                select.appendChild(opt);
-            });
-        }
-    }
+async function loadRegions() {
+    const select = document.getElementById('regionSelect');
+    const regions = ['Northeast','Southeast','Midwest','Southwest','West'];
+    regions.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r; opt.textContent = r;
+        select.appendChild(opt);
+    });
+}
 
     // ============================================
     // FORM
@@ -1245,38 +1229,42 @@ const listSource = listSelect.options[listSelect.selectedIndex]?.dataset.listSou
         document.getElementById(id)?.classList.toggle('open');
     }
 
-    async function saveNote(callSid) {
-        const text = document.getElementById(`note-text-${callSid}`)?.value.trim();
-        if (!text) { showError('Enter a note first.'); return; }
-        const contact = currentBatchContacts.get(callSid);
-        const btn = document.getElementById(`note-save-btn-${callSid}`);
-        btn.disabled = true; btn.textContent = 'Saving...';
-        try {
-            const res = await fetch(`${N8N_BASE}/save-dynasty-note`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ call_sid: callSid, contact_name: contact?.name, contact_phone: contact?.phone, note: text, file_id: document.getElementById('listSelect').value })
-            });
-            if (res.ok) { showSuccess('Note saved!'); btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
-            else { showError('Failed to save note.'); btn.disabled = false; btn.textContent = 'Save'; }
-        } catch (e) { showError(`Error: ${e.message}`); btn.disabled = false; btn.textContent = 'Save'; }
-    }
+async function saveNote(callSid) {
+    const text = document.getElementById(`note-text-${callSid}`)?.value.trim();
+    if (!text) { showError('Enter a note first.'); return; }
+    const contact = currentBatchContacts.get(callSid);
+    const btn = document.getElementById(`note-save-btn-${callSid}`);
+    const listEl = document.getElementById('listSelect');
+    const selectedOption = listEl.options[listEl.selectedIndex];
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+        const res = await fetch(`${N8N_BASE}/save-dynasty-note`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ call_sid: callSid, contact_name: contact?.name, contact_phone: contact?.phone, note_text: text, file_id: selectedOption.value, file_name: selectedOption.dataset.fileName, folder_id: selectedOption.dataset.folderId })
+        });
+        if (res.ok) { showSuccess('Note saved!'); btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
+        else { showError('Failed to save note.'); btn.disabled = false; btn.textContent = 'Save'; }
+    } catch (e) { showError(`Error: ${e.message}`); btn.disabled = false; btn.textContent = 'Save'; }
+}
 
-    async function selectDisposition(callSid, disposition) {
-        const contact = currentBatchContacts.get(callSid);
-        const comp = document.getElementById(`disposition-compartment-${callSid}`);
-        comp?.querySelectorAll('.disposition-option').forEach(o => o.classList.remove('selected'));
-        event.target.classList.add('selected');
-        try {
-            await fetch(`${N8N_BASE}/save-dynasty-disposition`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ call_sid: callSid, contact_phone: contact?.phone, contact_name: contact?.name, disposition, file_id: document.getElementById('listSelect').value })
-            });
-            showSuccess(`Disposition: ${disposition}`);
-            setTimeout(() => comp?.classList.remove('open'), 1000);
-        } catch (e) { showError(`Failed: ${e.message}`); }
-    }
+async function selectDisposition(callSid, disposition) {
+    const contact = currentBatchContacts.get(callSid);
+    const comp = document.getElementById(`disposition-compartment-${callSid}`);
+    const listEl = document.getElementById('listSelect');
+    const selectedOption = listEl.options[listEl.selectedIndex];
+    comp?.querySelectorAll('.disposition-option').forEach(o => o.classList.remove('selected'));
+    event.target.classList.add('selected');
+    try {
+        await fetch(`${N8N_BASE}/save-dynasty-disposition`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ call_sid: callSid, contact_phone: contact?.phone, contact_name: contact?.name, disposition, file_id: selectedOption.value, file_name: selectedOption.dataset.fileName, folder_id: selectedOption.dataset.folderId })
+        });
+        showSuccess(`Disposition: ${disposition}`);
+        setTimeout(() => comp?.classList.remove('open'), 1000);
+    } catch (e) { showError(`Failed: ${e.message}`); }
+}
 
     async function markOptOut(callSid) {
         const contact = currentBatchContacts.get(callSid);
