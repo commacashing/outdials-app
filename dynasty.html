@@ -480,6 +480,7 @@
         /* Messages */
         .message { position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 2000; animation: slideIn 0.3s ease; }
         @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ff6b6b; }
         .success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #6bff6b; }
 
@@ -590,6 +591,24 @@
             <select id="listSelect" class="control-input">
                 <option value="">Select list...</option>
             </select>
+            <button id="syncBtn" onclick="syncLists()" title="Sync lists" style="
+                background: transparent;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                width: 38px; height: 38px;
+                cursor: pointer;
+                display: flex; align-items: center; justify-content: center;
+                color: var(--text-secondary);
+                transition: all 0.2s ease;
+                flex-shrink: 0;
+            ">
+                <svg id="syncIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6"/>
+                    <path d="M1 20v-6h6"/>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+                    <path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+            </button>
         </div>
 
         <div class="controls-divider"></div>
@@ -789,31 +808,46 @@
         if (!supabaseClient) return;
         try {
             const { data, error } = await supabaseClient
-                .from('dynasty_contact_lists')
-                .select('file_id, file_name_original, folder_id')
-                .order('file_name_original');
+                .from('contact_lists')
+                .select('list_source, file_name, imported_contacts')
+                .eq('company_code', COMPANY_CODE)
+                .order('file_name');
             if (error) throw error;
             const select = document.getElementById('listSelect');
             (data || []).forEach(list => {
                 const opt = document.createElement('option');
-                opt.value = list.file_id || '';
-opt.dataset.fileName = list.file_name_original;
-opt.dataset.folderId = list.folder_id;
-opt.textContent = list.file_name_original;
+                opt.value = list.list_source;
+                opt.textContent = `${list.file_name} (${list.imported_contacts || 0} contacts)`;
                 select.appendChild(opt);
             });
         } catch (e) { console.error('Failed to load lists:', e); }
     }
 
-async function loadRegions() {
-    const select = document.getElementById('regionSelect');
-    const regions = ['Northeast','Southeast','Midwest','Southwest','West'];
-    regions.forEach(r => {
-        const opt = document.createElement('option');
-        opt.value = r; opt.textContent = r;
-        select.appendChild(opt);
-    });
-}
+    async function loadRegions() {
+        if (!supabaseClient) return;
+        const select = document.getElementById('regionSelect');
+        const fallback = ['Northeast','Southeast','Midwest','Southwest','West'];
+        try {
+            const { data, error } = await supabaseClient
+                .from('rep_numbers')
+                .select('region')
+                .eq('company_code', COMPANY_CODE);
+            if (error) throw error;
+            const regions = [...new Set((data || []).map(r => r.region).filter(Boolean))].sort();
+            const list = regions.length > 0 ? regions : fallback;
+            list.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r; opt.textContent = r;
+                select.appendChild(opt);
+            });
+        } catch (e) {
+            fallback.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r; opt.textContent = r;
+                select.appendChild(opt);
+            });
+        }
+    }
 
     // ============================================
     // FORM
@@ -838,9 +872,7 @@ async function loadRegions() {
     // ============================================
     async function startDialing() {
         const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-        const listSelect = document.getElementById('listSelect');
-const fileId = listSelect.value;
-const listSource = listSelect.options[listSelect.selectedIndex]?.dataset.listSource || '';
+        const listSource = document.getElementById('listSelect').value;
         const region = document.getElementById('regionSelect').value;
 
         try {
@@ -863,7 +895,7 @@ const listSource = listSelect.options[listSelect.selectedIndex]?.dataset.listSou
             await fetch(START_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone, list_source: listSource, file_id: fileId, region })
+                body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone, list_source: listSource, region })
             });
 
             showSuccess(`Dialing started — ${region}`);
@@ -921,7 +953,7 @@ const listSource = listSelect.options[listSelect.selectedIndex]?.dataset.listSou
             .channel(`dynasty_${sessionId}`)
             .on('postgres_changes', {
                 event: '*', schema: 'public',
-                table: 'dynasty_call_logs',
+                table: 'dialer_status',
                 filter: `session_id=eq.${sessionId}`
             }, (payload) => handleStatusUpdate(payload.new))
             .subscribe();
@@ -1229,42 +1261,38 @@ const listSource = listSelect.options[listSelect.selectedIndex]?.dataset.listSou
         document.getElementById(id)?.classList.toggle('open');
     }
 
-async function saveNote(callSid) {
-    const text = document.getElementById(`note-text-${callSid}`)?.value.trim();
-    if (!text) { showError('Enter a note first.'); return; }
-    const contact = currentBatchContacts.get(callSid);
-    const btn = document.getElementById(`note-save-btn-${callSid}`);
-    const listEl = document.getElementById('listSelect');
-    const selectedOption = listEl.options[listEl.selectedIndex];
-    btn.disabled = true; btn.textContent = 'Saving...';
-    try {
-        const res = await fetch(`${N8N_BASE}/save-dynasty-note`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ call_sid: callSid, contact_name: contact?.name, contact_phone: contact?.phone, note_text: text, file_id: selectedOption.value, file_name: selectedOption.dataset.fileName, folder_id: selectedOption.dataset.folderId })
-        });
-        if (res.ok) { showSuccess('Note saved!'); btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
-        else { showError('Failed to save note.'); btn.disabled = false; btn.textContent = 'Save'; }
-    } catch (e) { showError(`Error: ${e.message}`); btn.disabled = false; btn.textContent = 'Save'; }
-}
+    async function saveNote(callSid) {
+        const text = document.getElementById(`note-text-${callSid}`)?.value.trim();
+        if (!text) { showError('Enter a note first.'); return; }
+        const contact = currentBatchContacts.get(callSid);
+        const btn = document.getElementById(`note-save-btn-${callSid}`);
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+            const res = await fetch(`${N8N_BASE}/save-dynasty-note`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ call_sid: callSid, contact_name: contact?.name, contact_phone: contact?.phone, note: text })
+            });
+            if (res.ok) { showSuccess('Note saved!'); btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
+            else { showError('Failed to save note.'); btn.disabled = false; btn.textContent = 'Save'; }
+        } catch (e) { showError(`Error: ${e.message}`); btn.disabled = false; btn.textContent = 'Save'; }
+    }
 
-async function selectDisposition(callSid, disposition) {
-    const contact = currentBatchContacts.get(callSid);
-    const comp = document.getElementById(`disposition-compartment-${callSid}`);
-    const listEl = document.getElementById('listSelect');
-    const selectedOption = listEl.options[listEl.selectedIndex];
-    comp?.querySelectorAll('.disposition-option').forEach(o => o.classList.remove('selected'));
-    event.target.classList.add('selected');
-    try {
-        await fetch(`${N8N_BASE}/save-dynasty-disposition`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ call_sid: callSid, contact_phone: contact?.phone, contact_name: contact?.name, disposition, file_id: selectedOption.value, file_name: selectedOption.dataset.fileName, folder_id: selectedOption.dataset.folderId })
-        });
-        showSuccess(`Disposition: ${disposition}`);
-        setTimeout(() => comp?.classList.remove('open'), 1000);
-    } catch (e) { showError(`Failed: ${e.message}`); }
-}
+    async function selectDisposition(callSid, disposition) {
+        const contact = currentBatchContacts.get(callSid);
+        const comp = document.getElementById(`disposition-compartment-${callSid}`);
+        comp?.querySelectorAll('.disposition-option').forEach(o => o.classList.remove('selected'));
+        event.target.classList.add('selected');
+        try {
+            await fetch(`${N8N_BASE}/save-dynasty-disposition`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ call_sid: callSid, contact_phone: contact?.phone, contact_name: contact?.name, disposition })
+            });
+            showSuccess(`Disposition: ${disposition}`);
+            setTimeout(() => comp?.classList.remove('open'), 1000);
+        } catch (e) { showError(`Failed: ${e.message}`); }
+    }
 
     async function markOptOut(callSid) {
         const contact = currentBatchContacts.get(callSid);
@@ -1278,6 +1306,47 @@ async function selectDisposition(callSid, disposition) {
             });
             showSuccess(`${contact.name} marked as DNC`);
         } catch (e) { showError(`Error: ${e.message}`); }
+    }
+
+    // ============================================
+    // SYNC LISTS
+    // ============================================
+    async function syncLists() {
+        const btn = document.getElementById('syncBtn');
+        const icon = document.getElementById('syncIcon');
+
+        btn.disabled = true;
+        icon.style.animation = 'spin 1s linear infinite';
+        icon.style.transformOrigin = 'center';
+
+        try {
+            const res = await fetch(`${N8N_BASE}/sync-dynasty-lists`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ company_code: COMPANY_CODE })
+            });
+
+            if (!res.ok) throw new Error('Sync failed');
+
+            // Reload the dropdown
+            const select = document.getElementById('listSelect');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Select list...</option>';
+            await loadLists();
+
+            // Restore selection if still present
+            if (currentVal) {
+                const match = [...select.options].find(o => o.value === currentVal);
+                if (match) select.value = currentVal;
+            }
+
+            showSuccess('Lists synced!');
+        } catch (e) {
+            showError(`Sync failed: ${e.message}`);
+        } finally {
+            btn.disabled = false;
+            icon.style.animation = '';
+        }
     }
 
     // ============================================
