@@ -1255,7 +1255,7 @@ const listSource = listSelect.options[listSelect.selectedIndex]?.dataset.listSou
             const res = await fetch(`${N8N_BASE}/save-dynasty-note`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ call_sid: callSid, contact_name: contact?.name, contact_phone: contact?.phone, note: text })
+                body: JSON.stringify({ call_sid: callSid, contact_name: contact?.name, contact_phone: contact?.phone, note: text, file_id: document.getElementById('listSelect').value })
             });
             if (res.ok) { showSuccess('Note saved!'); btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
             else { showError('Failed to save note.'); btn.disabled = false; btn.textContent = 'Save'; }
@@ -1271,7 +1271,7 @@ const listSource = listSelect.options[listSelect.selectedIndex]?.dataset.listSou
             await fetch(`${N8N_BASE}/save-dynasty-disposition`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ call_sid: callSid, contact_phone: contact?.phone, contact_name: contact?.name, disposition })
+                body: JSON.stringify({ call_sid: callSid, contact_phone: contact?.phone, contact_name: contact?.name, disposition, file_id: document.getElementById('listSelect').value })
             });
             showSuccess(`Disposition: ${disposition}`);
             setTimeout(() => comp?.classList.remove('open'), 1000);
