@@ -748,7 +748,7 @@
             const { url, key } = await res.json();
             supabaseClient = window.supabase.createClient(url, key);
             await loadLists();
-            await loadRegions();
+            loadRegions();
         } catch (e) { console.error('Supabase init failed:', e); }
     }
 
@@ -809,45 +809,29 @@
         try {
             const { data, error } = await supabaseClient
                 .from('dynasty_contact_lists')
-                .select('file_id, file_name_original, list_source, folder_id')
+                .select('file_id, file_name, file_name_original, folder_id')
                 .order('file_name_original');
             if (error) throw error;
             const select = document.getElementById('listSelect');
             (data || []).forEach(list => {
                 const opt = document.createElement('option');
                 opt.value = list.file_id || '';
-                opt.dataset.listSource = list.list_source || '';
+                // list_source = file_name without .xlsx extension
+                opt.dataset.listSource = (list.file_name || '').replace(/\.xlsx$/i, '');
                 opt.dataset.folderId = list.folder_id || '';
-                opt.textContent = list.file_name_original || list.file_id;
+                opt.textContent = list.file_name_original || list.file_name || list.file_id;
                 select.appendChild(opt);
             });
         } catch (e) { console.error('Failed to load lists:', e); }
     }
 
-    async function loadRegions() {
-        if (!supabaseClient) return;
+    function loadRegions() {
         const select = document.getElementById('regionSelect');
-        const fallback = ['Northeast','Southeast','Midwest','Southwest','West'];
-        try {
-            const { data, error } = await supabaseClient
-                .from('rep_numbers')
-                .select('region')
-                .eq('company_code', COMPANY_CODE);
-            if (error) throw error;
-            const regions = [...new Set((data || []).map(r => r.region).filter(Boolean))].sort();
-            const list = regions.length > 0 ? regions : fallback;
-            list.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r; opt.textContent = r;
-                select.appendChild(opt);
-            });
-        } catch (e) {
-            fallback.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r; opt.textContent = r;
-                select.appendChild(opt);
-            });
-        }
+        ['Northeast','Southeast','Midwest','Southwest','West'].forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r; opt.textContent = r;
+            select.appendChild(opt);
+        });
     }
 
     // ============================================
