@@ -1316,6 +1316,9 @@
 
             if (!res.ok) throw new Error('Sync failed');
 
+            // Wait for N8N to finish writing to Supabase before reloading
+            await new Promise(r => setTimeout(r, 3000));
+
             // Reload the dropdown
             const select = document.getElementById('listSelect');
             const currentVal = select.value;
