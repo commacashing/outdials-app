@@ -789,7 +789,7 @@
         if (!supabaseClient) return;
         try {
             const { data, error } = await supabaseClient
-                .from('contact_lists')
+                .from('dynasty_contact_lists')
                 .select('list_source, file_name, imported_contacts')
                 .eq('company_code', COMPANY_CODE)
                 .order('file_name');
@@ -797,8 +797,9 @@
             const select = document.getElementById('listSelect');
             (data || []).forEach(list => {
                 const opt = document.createElement('option');
-                opt.value = list.list_source;
-                opt.textContent = `${list.file_name} (${list.imported_contacts || 0} contacts)`;
+                opt.value = list.file_id;
+opt.dataset.listSource = list.list_source;
+opt.textContent = list.file_name;
                 select.appendChild(opt);
             });
         } catch (e) { console.error('Failed to load lists:', e); }
@@ -853,7 +854,9 @@
     // ============================================
     async function startDialing() {
         const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-        const listSource = document.getElementById('listSelect').value;
+        const listSelect = document.getElementById('listSelect');
+const fileId = listSelect.value;
+const listSource = listSelect.options[listSelect.selectedIndex]?.dataset.listSource || '';
         const region = document.getElementById('regionSelect').value;
 
         try {
@@ -876,7 +879,7 @@
             await fetch(START_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone, list_source: listSource, region })
+                body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone, list_source: listSource, file_id: fileId, region })
             });
 
             showSuccess(`Dialing started — ${region}`);
@@ -934,7 +937,7 @@
             .channel(`dynasty_${sessionId}`)
             .on('postgres_changes', {
                 event: '*', schema: 'public',
-                table: 'dialer_status',
+                table: 'dynasty_call_logs',
                 filter: `session_id=eq.${sessionId}`
             }, (payload) => handleStatusUpdate(payload.new))
             .subscribe();
