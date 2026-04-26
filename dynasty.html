@@ -234,10 +234,9 @@
         /* Centered Action Section */
         .centered-action-section {
             display: flex; flex-direction: column;
-            align-items: center; justify-content: flex-end;
-            gap: 16px; min-height: 200px;
-            margin-top: auto; margin-bottom: 40px;
-            padding-bottom: 40px; padding-top: 120px;
+            align-items: center; justify-content: center;
+            gap: 16px; min-height: 80px;
+            padding: 20px 0;
         }
 
         .centered-action-section .status-indicator { margin-bottom: 0; padding: 8px 20px; font-size: 13px; }
@@ -249,7 +248,7 @@
             max-width: 1200px; margin: 0 auto;
             padding: 20px 40px 0px 40px;
             display: flex; flex-direction: column;
-            min-height: auto;
+            flex: 1;
         }
 
         /* Status */
@@ -272,17 +271,21 @@
         /* Race Cards */
         .call-race-container {
             display: block; margin-bottom: 20px;
-            flex: 0 0 auto; height: 400px; position: relative;
+            flex: 1 1 auto;
+            height: calc(100vh - 280px);
+            min-height: 420px;
+            position: relative;
         }
         .call-race-container:not(.active) { visibility: hidden; }
         .call-race-container.active { display: block; }
 
         .call-race-grid {
             display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 20px; max-width: 1000px; margin: 0 auto; width: 100%;
+            gap: 24px; max-width: 1100px; margin: 0 auto; width: 100%;
+            height: 100%;
         }
 
-        .race-card-wrapper { height: 100%; min-height: 380px; position: relative; }
+        .race-card-wrapper { height: 100%; min-height: 420px; position: relative; }
 
         .race-card-back, .race-card-front {
             position: absolute; width: 100%; height: 100%;
@@ -332,8 +335,9 @@
         .race-card {
             background: var(--bg-secondary);
             border: 2px solid rgba(255,255,255,0.15);
-            border-radius: 16px; padding: 24px;
+            border-radius: 16px; padding: 32px;
             transition: all 0.4s ease; position: relative;
+            height: 100%; display: flex; flex-direction: column; justify-content: center;
         }
 
         .race-card.searching { border: 2px solid rgba(255,255,255,0.3); background: var(--bg-secondary); position: relative; overflow: visible; }
@@ -369,17 +373,17 @@
         .race-card.busy { background: rgba(255,107,53,0.1); border-color: rgba(255,107,53,0.3); opacity: 0.4; animation: none; }
         .race-card.ended { opacity: 0.3; animation: none; }
 
-        .race-card-status { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+        .race-card-status { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
         body.light-mode .race-card-status { color: rgba(0,0,0,0.7); }
         .race-card.human .race-card-status { color: rgba(34,197,94,1); }
         .race-card.machine .race-card-status { color: rgba(251,191,36,0.9); }
         .race-card.busy .race-card-status { color: rgba(255,107,53,0.9); }
         .race-card.ended .race-card-status { color: rgba(255,255,255,0.4); }
-        .race-status-icon { font-size: 18px; }
+        .race-status-icon { font-size: 22px; }
 
-        .race-card-name { color: var(--text-primary); font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .race-card-name { color: var(--text-primary); font-size: 26px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
         .race-card.machine .race-card-name, .race-card.busy .race-card-name, .race-card.ended .race-card-name { opacity: 0.6; }
-        .race-card-info { color: var(--text-secondary); font-size: 15px; margin-bottom: 4px; }
+        .race-card-info { color: var(--text-secondary); font-size: 16px; margin-bottom: 8px; }
         .race-card.machine .race-card-info, .race-card.busy .race-card-info, .race-card.ended .race-card-info { opacity: 0.5; }
 
         .race-winner-badge {
@@ -694,7 +698,6 @@
     let currentBatchContacts = new Map();
     let pendingEvents = new Map();
     let callTimer = null;
-    let webhookSecret = '';
 
     let currentSessionStats = {
         startTime: null,
@@ -748,9 +751,6 @@
             const res = await fetch('/.netlify/functions/supabase-init', { method: 'POST' });
             const { url, key } = await res.json();
             supabaseClient = window.supabase.createClient(url, key);
-            const cfg = await fetch('/.netlify/functions/get-config');
-            const cfgData = await cfg.json();
-            webhookSecret = cfgData.webhookSecret;
             await loadLists();
             loadRegions();
         } catch (e) { console.error('Supabase init failed:', e); }
@@ -886,7 +886,7 @@
 
             await fetch(START_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
+                headers: { 'Content-Type': 'application/json', 'x-webhook-secret': 'outdials_wh_secret_afs2902!' },
                 body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone, file_id: fileId, list_source: listSource, region })
             });
 
@@ -945,7 +945,7 @@
             .channel(`dynasty_${sessionId}`)
             .on('postgres_changes', {
                 event: '*', schema: 'public',
-                table: 'dialer_status',
+                table: 'dynasty_call_logs',
                 filter: `session_id=eq.${sessionId}`
             }, (payload) => handleStatusUpdate(payload.new))
             .subscribe();
@@ -960,7 +960,9 @@
 
     function normalizePhone(phone) {
         if (!phone) return '';
-        return '+1' + phone.replace(/\D/g, '').slice(-10);
+        const digits = phone.replace(/\D/g, '');
+        // Handle both 10-digit (9144710773) and 11-digit (+19144710773) formats
+        return '+1' + digits.slice(-10);
     }
 
     async function handleStatusUpdate(data) {
@@ -971,8 +973,8 @@
         if (status === 'call_initiated') {
             currentSessionStats.totalCalls++;
             const contact = {
-                name: data.contact_name, company: data.contact_company,
-                phone: data.contact_phone, licenses: data.licenses,
+                name: data.contact_name, company: data.contact_company || data.company || '',
+                phone: data.phone, licenses: data.licenses,
                 years_at_firm: data.years_at_firm, notes: data.notes,
                 call_sid: data.call_sid, status: 'ringing'
             };
@@ -1007,7 +1009,7 @@
 
             let foundSid = null;
             currentBatchContacts.forEach((c, sid) => {
-                if (normalizePhone(c.phone) === normalizePhone(data.contact_phone)) {
+                if (normalizePhone(c.phone) === normalizePhone(data.phone)) {
                     foundSid = sid; c.status = 'human';
                 }
             });
@@ -1110,7 +1112,7 @@
         card.innerHTML = `
             <div class="race-card-status"><span class="race-status-icon">📞</span><span>Ringing...</span></div>
             <div class="race-card-name">${contact.name}</div>
-            <div class="race-card-info"><strong>${contact.company || 'No company'}</strong></div>
+            <div class="race-card-info"><strong>${contact.company && contact.company.trim() ? contact.company : 'No company'}</strong></div>
             <div class="race-card-info">${contact.phone || ''}</div>
             <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
             <div class="race-card-info">Years at Firm: ${contact.years_at_firm || '-'}</div>
