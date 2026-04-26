@@ -886,7 +886,7 @@
 
             await fetch(START_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-webhook-secret': 'outdials_wh_secret_afs2902!' },
+                headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
                 body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone, file_id: fileId, list_source: listSource, region })
             });
 
