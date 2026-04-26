@@ -42,7 +42,6 @@
             font-size: 16px;
         }
 
-        /* Top Nav */
         .top-nav {
             width: 100%;
             padding: 20px 40px;
@@ -84,11 +83,7 @@
         .broken-o svg { width: 100%; height: 100%; }
         .broken-o svg circle { stroke: var(--text-primary); }
 
-        .nav-user {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
+        .nav-user { display: flex; align-items: center; gap: 24px; }
 
         .theme-toggle {
             background: transparent;
@@ -113,7 +108,6 @@
         }
         .btn-logout:hover { background: var(--bg-secondary); }
 
-        /* Controls Bar */
         .controls-bar {
             width: 100%;
             padding: 16px 40px;
@@ -158,11 +152,7 @@
             font-weight: 600; color: var(--text-primary); font-size: 16px;
         }
 
-        .controls-divider {
-            width: 1px; height: 32px;
-            background: var(--divider-color);
-            margin: 0 8px;
-        }
+        .controls-divider { width: 1px; height: 32px; background: var(--divider-color); margin: 0 8px; }
 
         .btn-start {
             background: rgba(255,255,255,0.1);
@@ -178,12 +168,7 @@
         .btn-start:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-stop { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: rgba(239,68,68,0.9); }
 
-        /* Analytics */
-        .analytics-section {
-            width: 100%;
-            border-bottom: 1px solid var(--divider-color);
-            padding-bottom: 20px;
-        }
+        .analytics-section { width: 100%; border-bottom: 1px solid var(--divider-color); padding-bottom: 20px; }
 
         .analytics-header {
             padding: 20px 0; cursor: pointer;
@@ -191,67 +176,29 @@
             transition: all 0.2s ease; position: relative;
         }
 
-        .analytics-header h3 {
-            color: var(--text-primary);
-            font-size: 14px; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.05em;
-        }
+        .analytics-header h3 { color: var(--text-primary); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .analytics-chevron {
-            width: 16px; height: 16px;
-            stroke: var(--text-secondary);
-            transition: transform 0.3s ease;
-        }
-
+        .analytics-chevron { width: 16px; height: 16px; stroke: var(--text-secondary); transition: transform 0.3s ease; }
         .analytics-section.expanded .analytics-chevron { transform: rotate(180deg); }
-
-        .analytics-content {
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
+        .analytics-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         .analytics-section.expanded .analytics-content { max-height: 2000px; }
 
-        .analytics-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 20px;
-            max-width: 1200px;
-            margin: 20px auto;
-        }
-
+        .analytics-stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; max-width: 1200px; margin: 20px auto; }
         .analytics-stat-card { text-align: center; padding: 20px; }
-
-        .analytics-stat-label {
-            color: var(--text-secondary);
-            font-size: 12px; font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase; letter-spacing: 0.05em;
-        }
-
+        .analytics-stat-label { color: var(--text-secondary); font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
         .analytics-stat-value { color: var(--text-primary); font-size: 32px; font-weight: 700; }
 
-        /* Centered Action Section */
         .centered-action-section {
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            gap: 16px; min-height: 80px;
-            padding: 20px 0;
+            gap: 16px; min-height: 80px; padding: 20px 0;
         }
-
         .centered-action-section .status-indicator { margin-bottom: 0; padding: 8px 20px; font-size: 13px; }
         .centered-action-section .status-indicator .status-dot { width: 6px; height: 6px; }
         .centered-action-section .btn-start { font-size: 20px; padding: 18px 56px; min-width: 220px; margin-left: 0; }
 
-        /* Main Content */
-        .main-content {
-            max-width: 1200px; margin: 0 auto;
-            padding: 20px 40px 0px 40px;
-            display: flex; flex-direction: column;
-            flex: 1;
-        }
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 20px 40px 0px 40px; display: flex; flex-direction: column; flex: 1; }
 
-        /* Status */
         .status-indicator {
             display: inline-flex; align-items: center; gap: 10px;
             padding: 12px 24px; border-radius: 24px;
@@ -263,12 +210,10 @@
 
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); }
         .status-indicator.idle .status-dot { background: #6b9080; }
-        .status-indicator.dialing .status-dot,
-        .status-indicator.on-call .status-dot { background: #ef4444; animation: pulse 2s ease-in-out infinite; }
+        .status-indicator.dialing .status-dot, .status-indicator.on-call .status-dot { background: #ef4444; animation: pulse 2s ease-in-out infinite; }
 
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        /* Race Cards */
         .call-race-container {
             display: block; margin-bottom: 20px;
             flex: 1 1 auto;
@@ -279,11 +224,7 @@
         .call-race-container:not(.active) { visibility: hidden; }
         .call-race-container.active { display: block; }
 
-        .call-race-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 24px; max-width: 1100px; margin: 0 auto; width: 100%;
-            height: 100%;
-        }
+        .call-race-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1100px; margin: 0 auto; width: 100%; height: 100%; }
 
         .race-card-wrapper { height: 100%; min-height: 420px; position: relative; }
 
@@ -307,10 +248,7 @@
         .race-card-wrapper.flipped .race-card-back { transform: rotateY(180deg); }
         .race-card-wrapper.flipped .race-card-front { transform: rotateY(0deg); }
 
-        .race-card-wrapper.dealing {
-            animation: dealFromButton 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            opacity: 0;
-        }
+        .race-card-wrapper.dealing { animation: dealFromButton 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0; }
         .race-card-wrapper.dealing.card-1 { animation-delay: 0s; }
         .race-card-wrapper.dealing.card-2 { animation-delay: 0.25s; }
         .race-card-wrapper.dealing.card-3 { animation-delay: 0.5s; }
@@ -469,7 +407,6 @@
         .note-btn-save { background: rgba(59,130,246,0.9); color: white; }
         .note-btn-save.saved { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); cursor: default; }
 
-        /* Login */
         .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px; }
         .login-container { text-align: center; max-width: 400px; }
         .login-container h2 { color: var(--text-primary); font-size: 32px; font-weight: 700; margin-bottom: 8px; }
@@ -481,14 +418,12 @@
         .btn-primary:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        /* Messages */
         .message { position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 2000; animation: slideIn 0.3s ease; }
         @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ff6b6b; }
         .success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #6bff6b; }
 
-        /* Responsive */
         @media (max-width: 1200px) { .analytics-stats-grid { grid-template-columns: repeat(3, 1fr); } }
 
         @media (max-width: 768px) {
@@ -554,7 +489,6 @@
 <!-- DASHBOARD -->
 <div id="dashboardScreen" style="display: none;">
 
-    <!-- TOP NAV -->
     <div class="top-nav">
         <div class="nav-logo">
             <span class="broken-o">
@@ -578,7 +512,6 @@
         </div>
     </div>
 
-    <!-- CONTROLS BAR -->
     <div class="controls-bar">
         <div class="control-item">
             <span class="control-label">Phone</span>
@@ -587,50 +520,32 @@
                 <input type="tel" id="repPhone" class="control-input" placeholder="(212) 555-1234" maxlength="14" />
             </div>
         </div>
-
         <div class="controls-divider"></div>
-
         <div class="control-item">
             <span class="control-label">List</span>
             <select id="listSelect" class="control-input">
                 <option value="">Select list...</option>
             </select>
-            <button id="syncBtn" onclick="syncLists()" title="Sync lists" style="
-                background: transparent;
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                width: 38px; height: 38px;
-                cursor: pointer;
-                display: flex; align-items: center; justify-content: center;
-                color: var(--text-secondary);
-                transition: all 0.2s ease;
-                flex-shrink: 0;
-            ">
+            <button id="syncBtn" onclick="syncLists()" title="Sync lists" style="background:transparent;border:1px solid var(--border-color);border-radius:8px;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all 0.2s ease;flex-shrink:0;">
                 <svg id="syncIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 4v6h-6"/>
-                    <path d="M1 20v-6h6"/>
+                    <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
                     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
                     <path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                 </svg>
             </button>
         </div>
-
         <div class="controls-divider"></div>
-
         <div class="control-item">
             <span class="control-label">Region</span>
             <select id="regionSelect" class="control-input">
                 <option value="">Select region...</option>
             </select>
         </div>
-
         <div class="controls-divider"></div>
-
         <button id="startButton" onclick="startDialing()" class="btn-start" disabled>Start Dialing</button>
         <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">Stop Dialing</button>
     </div>
 
-    <!-- ANALYTICS -->
     <div class="analytics-section" id="analyticsSection" style="padding: 20px 40px 0px 40px; border-top: none;">
         <div class="analytics-header" onclick="toggleAnalytics()">
             <h3>Session Analytics</h3>
@@ -640,40 +555,20 @@
         </div>
         <div class="analytics-content">
             <div class="analytics-stats-grid">
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Total Calls</div>
-                    <div class="analytics-stat-value" id="statTotalCalls">0</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Connects</div>
-                    <div class="analytics-stat-value" id="statConnects">0</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Talk Time</div>
-                    <div class="analytics-stat-value" id="statTalkTime">0m</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Calls/Hour</div>
-                    <div class="analytics-stat-value" id="statCallsPerHour">0</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Machine Rate</div>
-                    <div class="analytics-stat-value" id="statMachineRate">0%</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Avg Duration</div>
-                    <div class="analytics-stat-value" id="statAvgDuration">0s</div>
-                </div>
+                <div class="analytics-stat-card"><div class="analytics-stat-label">Total Calls</div><div class="analytics-stat-value" id="statTotalCalls">0</div></div>
+                <div class="analytics-stat-card"><div class="analytics-stat-label">Connects</div><div class="analytics-stat-value" id="statConnects">0</div></div>
+                <div class="analytics-stat-card"><div class="analytics-stat-label">Talk Time</div><div class="analytics-stat-value" id="statTalkTime">0m</div></div>
+                <div class="analytics-stat-card"><div class="analytics-stat-label">Calls/Hour</div><div class="analytics-stat-value" id="statCallsPerHour">0</div></div>
+                <div class="analytics-stat-card"><div class="analytics-stat-label">Machine Rate</div><div class="analytics-stat-value" id="statMachineRate">0%</div></div>
+                <div class="analytics-stat-card"><div class="analytics-stat-label">Avg Duration</div><div class="analytics-stat-value" id="statAvgDuration">0s</div></div>
             </div>
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
         <div class="call-race-container" id="callRaceContainer">
             <div class="call-race-grid" id="callRaceGrid"></div>
         </div>
-
         <div class="centered-action-section">
             <div class="status-indicator idle" id="dialerStatus">
                 <span class="status-dot"></span>
@@ -681,7 +576,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -690,6 +584,17 @@
     const START_URL = `${N8N_BASE}/start-dynasty`;
     const STOP_URL  = `${N8N_BASE}/stop-dynasty`;
     const COMPANY_CODE = 'dynasty';
+
+    // ✅ FIX: webhookSecret declared and fetched
+    let webhookSecret = '';
+
+    async function loadConfig() {
+        try {
+            const res = await fetch('/.netlify/functions/get-config');
+            const config = await res.json();
+            webhookSecret = config.webhookSecret || '';
+        } catch (e) { console.error('Config load failed:', e); }
+    }
 
     let supabaseClient = null;
     let isDialing = false;
@@ -708,7 +613,6 @@
         callDurations: []
     };
 
-    // Audio
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSuccessChime() {
@@ -719,7 +623,7 @@
         osc.frequency.setValueAtTime(523.25, now);
         osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
         gain.gain.setValueAtTime(0.3, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        gain.gain.exponentialRampToValueAtValue(0.01, now + 0.4);
         osc.type = 'sine'; osc.start(now); osc.stop(now + 0.4);
     }
 
@@ -735,9 +639,7 @@
             document.getElementById('themeToggle').textContent = '☀️';
         }
 
-        if (localStorage.getItem('dynasty_authed') === 'true') {
-            showDashboard();
-        }
+        if (localStorage.getItem('dynasty_authed') === 'true') showDashboard();
 
         const phoneEl = document.getElementById('repPhone');
         ['input','change','blur'].forEach(ev => phoneEl.addEventListener(ev, () => formatPhone(phoneEl)));
@@ -751,6 +653,8 @@
             const res = await fetch('/.netlify/functions/supabase-init', { method: 'POST' });
             const { url, key } = await res.json();
             supabaseClient = window.supabase.createClient(url, key);
+            // ✅ FIX: load config (webhookSecret) before anything else
+            await loadConfig();
             await loadLists();
             loadRegions();
         } catch (e) { console.error('Supabase init failed:', e); }
@@ -772,24 +676,13 @@
                 .eq('company_code', COMPANY_CODE)
                 .single();
 
-            if (error || !data) {
-                showError('Could not verify. Try again.');
-                btn.disabled = false; btn.textContent = 'Login'; return;
-            }
-
-            if (password !== data.admin_passcode) {
-                showError('Incorrect passcode.');
-                btn.disabled = false; btn.textContent = 'Login';
-                document.getElementById('passwordInput').value = ''; return;
-            }
+            if (error || !data) { showError('Could not verify. Try again.'); btn.disabled = false; btn.textContent = 'Login'; return; }
+            if (password !== data.admin_passcode) { showError('Incorrect passcode.'); btn.disabled = false; btn.textContent = 'Login'; document.getElementById('passwordInput').value = ''; return; }
 
             localStorage.setItem('dynasty_authed', 'true');
             showDashboard();
             showSuccess('Welcome to Dynasty Power Dialer!');
-        } catch (err) {
-            showError(`Login error: ${err.message}`);
-            btn.disabled = false; btn.textContent = 'Login';
-        }
+        } catch (err) { showError(`Login error: ${err.message}`); btn.disabled = false; btn.textContent = 'Login'; }
     }
 
     function showDashboard() {
@@ -811,17 +704,19 @@
     async function loadLists() {
         if (!supabaseClient) return;
         try {
+            // ✅ FIX: include list_source in select
             const { data, error } = await supabaseClient
                 .from('dynasty_contact_lists')
-                .select('file_id, file_name, file_name_original, folder_id')
+                .select('file_id, file_name, file_name_original, folder_id, list_source')
                 .order('file_name_original');
             if (error) throw error;
             const select = document.getElementById('listSelect');
             (data || []).forEach(list => {
                 const opt = document.createElement('option');
                 opt.value = list.file_id || '';
-                // list_source = file_name without .xlsx extension
-                opt.dataset.listSource = (list.file_name || '').replace(/\.xlsx$/i, '');
+                // ✅ FIX: list_source stored in dataset
+                opt.dataset.listSource = list.list_source || (list.file_name || '').replace(/\.xlsx$/i, '');
+                opt.dataset.fileName = list.file_name_original || list.file_name || '';
                 opt.dataset.folderId = list.folder_id || '';
                 opt.textContent = list.file_name_original || list.file_name || list.file_id;
                 select.appendChild(opt);
@@ -886,15 +781,13 @@
 
             await fetch(START_URL, {
                 method: 'POST',
+                // ✅ FIX: webhookSecret included
                 headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
                 body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone, file_id: fileId, list_source: listSource, region })
             });
 
             showSuccess(`Dialing started — ${region}`);
-        } catch (err) {
-            showError(`Failed to start: ${err.message}`);
-            resetDialingState();
-        }
+        } catch (err) { showError(`Failed to start: ${err.message}`); resetDialingState(); }
     }
 
     async function stopDialing() {
@@ -920,7 +813,8 @@
         const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
         fetch(STOP_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            // ✅ FIX: webhookSecret included
+            headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
             body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone })
         }).catch(e => console.error('Stop failed:', e));
     }
@@ -961,7 +855,6 @@
     function normalizePhone(phone) {
         if (!phone) return '';
         const digits = phone.replace(/\D/g, '');
-        // Handle both 10-digit (9144710773) and 11-digit (+19144710773) formats
         return '+1' + digits.slice(-10);
     }
 
@@ -973,10 +866,14 @@
         if (status === 'call_initiated') {
             currentSessionStats.totalCalls++;
             const contact = {
-                name: data.contact_name, company: data.contact_company || data.company || '',
-                phone: data.phone, licenses: data.licenses,
-                years_at_firm: data.years_at_firm, notes: data.notes,
-                call_sid: data.call_sid, status: 'ringing'
+                name: data.contact_name,
+                company: data.contact_company || data.company || '',
+                phone: data.phone,
+                licenses: data.licenses,
+                years_at_firm: data.years_at_firm,
+                notes: data.notes,
+                call_sid: data.call_sid,
+                status: 'ringing'
             };
             currentBatchContacts.set(data.call_sid, contact);
             const index = data.call_index ?? (currentBatchContacts.size - 1);
@@ -1111,7 +1008,7 @@
         card.className = 'race-card ringing';
         card.innerHTML = `
             <div class="race-card-status"><span class="race-status-icon">📞</span><span>Ringing...</span></div>
-            <div class="race-card-name">${contact.name}</div>
+            <div class="race-card-name">${contact.name || 'Unknown'}</div>
             <div class="race-card-info"><strong>${contact.company && contact.company.trim() ? contact.company : 'No company'}</strong></div>
             <div class="race-card-info">${contact.phone || ''}</div>
             <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
@@ -1260,12 +1157,23 @@
         if (!text) { showError('Enter a note first.'); return; }
         const contact = currentBatchContacts.get(callSid);
         const btn = document.getElementById(`note-save-btn-${callSid}`);
+        const listEl = document.getElementById('listSelect');
+        const selectedOption = listEl.options[listEl.selectedIndex];
         btn.disabled = true; btn.textContent = 'Saving...';
         try {
             const res = await fetch(`${N8N_BASE}/save-dynasty-note`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ call_sid: callSid, contact_name: contact?.name, contact_phone: contact?.phone, note: text })
+                // ✅ FIX: webhookSecret included
+                headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
+                body: JSON.stringify({
+                    call_sid: callSid,
+                    contact_name: contact?.name,
+                    contact_phone: contact?.phone,
+                    note_text: text,
+                    file_id: selectedOption.value,
+                    file_name: selectedOption.dataset.fileName,
+                    folder_id: selectedOption.dataset.folderId
+                })
             });
             if (res.ok) { showSuccess('Note saved!'); btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
             else { showError('Failed to save note.'); btn.disabled = false; btn.textContent = 'Save'; }
@@ -1275,13 +1183,24 @@
     async function selectDisposition(callSid, disposition) {
         const contact = currentBatchContacts.get(callSid);
         const comp = document.getElementById(`disposition-compartment-${callSid}`);
+        const listEl = document.getElementById('listSelect');
+        const selectedOption = listEl.options[listEl.selectedIndex];
         comp?.querySelectorAll('.disposition-option').forEach(o => o.classList.remove('selected'));
         event.target.classList.add('selected');
         try {
             await fetch(`${N8N_BASE}/save-dynasty-disposition`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ call_sid: callSid, contact_phone: contact?.phone, contact_name: contact?.name, disposition })
+                // ✅ FIX: webhookSecret included
+                headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
+                body: JSON.stringify({
+                    call_sid: callSid,
+                    contact_phone: contact?.phone,
+                    contact_name: contact?.name,
+                    disposition,
+                    file_id: selectedOption.value,
+                    file_name: selectedOption.dataset.fileName,
+                    folder_id: selectedOption.dataset.folderId
+                })
             });
             showSuccess(`Disposition: ${disposition}`);
             setTimeout(() => comp?.classList.remove('open'), 1000);
@@ -1295,7 +1214,8 @@
         try {
             await fetch(`${N8N_BASE}/dynasty-dnc`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                // ✅ FIX: webhookSecret included
+                headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
                 body: JSON.stringify({ contact_phone: contact.phone, contact_name: contact.name })
             });
             showSuccess(`${contact.name} marked as DNC`);
@@ -1308,42 +1228,28 @@
     async function syncLists() {
         const btn = document.getElementById('syncBtn');
         const icon = document.getElementById('syncIcon');
-
         btn.disabled = true;
         icon.style.animation = 'spin 1s linear infinite';
         icon.style.transformOrigin = 'center';
-
         try {
             const res = await fetch(`${N8N_BASE}/sync-dynasty-lists`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
                 body: JSON.stringify({ company_code: COMPANY_CODE })
             });
-
             if (!res.ok) throw new Error('Sync failed');
-
-            // Wait for N8N to finish writing to Supabase before reloading
             await new Promise(r => setTimeout(r, 3000));
-
-            // Reload the dropdown
             const select = document.getElementById('listSelect');
             const currentVal = select.value;
             select.innerHTML = '<option value="">Select list...</option>';
             await loadLists();
-
-            // Restore selection if still present
             if (currentVal) {
                 const match = [...select.options].find(o => o.value === currentVal);
                 if (match) select.value = currentVal;
             }
-
             showSuccess('Lists synced!');
-        } catch (e) {
-            showError(`Sync failed: ${e.message}`);
-        } finally {
-            btn.disabled = false;
-            icon.style.animation = '';
-        }
+        } catch (e) { showError(`Sync failed: ${e.message}`); }
+        finally { btn.disabled = false; icon.style.animation = ''; }
     }
 
     // ============================================
@@ -1371,9 +1277,7 @@
         document.getElementById('statusText').textContent = text;
     }
 
-    function toggleAnalytics() {
-        document.getElementById('analyticsSection').classList.toggle('expanded');
-    }
+    function toggleAnalytics() { document.getElementById('analyticsSection').classList.toggle('expanded'); }
 
     function toggleTheme() {
         document.body.classList.toggle('light-mode');
