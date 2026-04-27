@@ -698,6 +698,7 @@
     let supabaseSubscription = null;
     let currentBatchContacts = new Map();
     let pendingEvents = new Map();
+let cardsReady = false;
     let callTimer = null;
 
     let currentSessionStats = {
@@ -876,7 +877,9 @@
             sessionId = `session_${Date.now()}`;
             currentSessionStats.startTime = Date.now();
             currentBatchContacts.clear();
-            document.getElementById('callRaceGrid').innerHTML = '';
+pendingEvents.clear();
+cardsReady = false;
+document.getElementById('callRaceGrid').innerHTML = '';
 
             document.getElementById('startButton').style.display = 'none';
             document.getElementById('stopButton').style.display = 'inline-block';
@@ -974,30 +977,44 @@
         const status = data.event_type;
         console.log(`📡 ${status} | ${data.contact_name} | ${data.call_sid}`);
 
-        if (status === 'call_initiated') {
-            currentSessionStats.totalCalls++;
-            const contact = {
+        if (status === 'workflow_started') return;
+
+if (status === 'call_initiated') {
+    const index = data.call_index;
+    if (index === null || index === undefined) {
+        console.warn('call_initiated skipped — no call_index');
+        return;
+    }
+    currentSessionStats.totalCalls++;
+    const contact = {
                 name: data.contact_name, company: data.contact_company || data.company || '',
                 phone: data.phone, licenses: data.licenses,
                 years_at_firm: data.years_at_firm, notes: data.notes,
                 call_sid: data.call_sid, status: 'ringing'
             };
             currentBatchContacts.set(data.call_sid, contact);
-            const index = data.call_index ?? (currentBatchContacts.size - 1);
-            populateRaceCard(data.call_sid, contact, index);
             updateStatsDisplay();
+            if (!cardsReady) {
+                pendingEvents.set(data.call_sid, { _type: 'populate', contact, index });
+            } else {
+                populateRaceCard(data.call_sid, contact, index);
+            }
         }
         else if (status === 'machine_detected') {
-            currentSessionStats.machines++;
-            const contact = currentBatchContacts.get(data.call_sid);
-            if (!contact) { pendingEvents.set(data.call_sid, data); return; }
+    currentSessionStats.machines++;
+    const contact = currentBatchContacts.get(data.call_sid);
+    if (!contact || !cardsReady || !document.getElementById(`race-card-${data.call_sid}`)) {
+        pendingEvents.set(data.call_sid, data); return;
+    }
             contact.status = 'machine';
             updateRaceCard(data.call_sid, 'machine');
             updateStatsDisplay(); checkBatchComplete();
         }
         else if (['call_busy','call_failed','call_no_answer','call_canceled'].includes(status)) {
-            const contact = currentBatchContacts.get(data.call_sid);
-            if (!contact) { pendingEvents.set(data.call_sid, data); return; }
+    const contact = currentBatchContacts.get(data.call_sid);
+    if (!contact || !cardsReady || !document.getElementById(`race-card-${data.call_sid}`)) {
+        pendingEvents.set(data.call_sid, data); return;
+    }
             contact.status = 'busy'; contact.busyType = status;
             updateRaceCard(data.call_sid, 'busy', status);
             checkBatchComplete();
@@ -1096,16 +1113,28 @@
         container.classList.add('active');
 
         setTimeout(() => {
-            for (let i = 0; i < 3; i++) {
-                const w = document.getElementById(`race-card-wrapper-${i}`);
-                if (w) {
-                    w.classList.remove('dealing');
-                    w.classList.add('flipped');
-                    const card = document.getElementById(`race-card-${i}`);
-                    if (card) card.classList.add('searching');
-                }
+    for (let i = 0; i < 3; i++) {
+        const w = document.getElementById(`race-card-wrapper-${i}`);
+        if (w) {
+            w.classList.remove('dealing');
+            w.classList.add('flipped');
+            const card = document.getElementById(`race-card-${i}`);
+            if (card) card.classList.add('searching');
+        }
+    }
+    // Wait for flip to finish, then mark ready and flush queued events
+    setTimeout(() => {
+        cardsReady = true;
+        pendingEvents.forEach((evt, sid) => {
+            if (evt._type === 'populate') {
+                populateRaceCard(sid, evt.contact, evt.index);
+            } else {
+                handleStatusUpdate(evt);
             }
-        }, 1400);
+        });
+        pendingEvents.clear();
+    }, 650);
+}, 1400);
     }
 
     function populateRaceCard(callSid, contact, index) {
