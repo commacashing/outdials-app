@@ -386,6 +386,49 @@
         .race-card-info { color: var(--text-secondary); font-size: 16px; margin-bottom: 8px; }
         .race-card.machine .race-card-info, .race-card.busy .race-card-info, .race-card.ended .race-card-info { opacity: 0.5; }
 
+        .race-card-divider { width: 100%; height: 1px; background: var(--divider-color); margin: 12px 0 16px 0; }
+
+        .race-card-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 24px;
+        }
+
+        .race-card-field {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .race-card-field--full {
+            grid-column: 1 / -1;
+        }
+
+        .race-card-field--notes .race-field-value {
+            background: rgba(255,255,255,0.04);
+            border-left: 3px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            padding: 8px 10px;
+            max-height: 80px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .race-field-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .race-field-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
         .race-winner-badge {
             position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
             background: rgba(34,197,94,1); color: white;
@@ -990,6 +1033,7 @@ if (status === 'call_initiated') {
                 name: data.contact_name, company: data.contact_company || data.company || '',
                 phone: data.phone, licenses: data.licenses,
                 years_at_firm: data.years_at_firm, notes: data.notes,
+                date_of_birth: data.date_of_birth,
                 call_sid: data.call_sid, status: 'ringing'
             };
             currentBatchContacts.set(data.call_sid, contact);
@@ -1137,19 +1181,60 @@ if (status === 'call_initiated') {
 }, 1400);
     }
 
+    function calcAge(dob) {
+        if (!dob) return '—';
+        const today = new Date();
+        const birth = new Date(dob);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        return age;
+    }
+
     function populateRaceCard(callSid, contact, index) {
         const card = document.getElementById(`race-card-${index}`);
         if (!card) { setTimeout(() => populateRaceCard(callSid, contact, index), 100); return; }
         card.id = `race-card-${callSid}`;
         card.className = 'race-card ringing';
+
+        const age = calcAge(contact.date_of_birth);
+        const priorFirm = contact.company && contact.company.trim() ? contact.company : '—';
+        const phone = contact.phone || '—';
+        const licenses = contact.licenses || '—';
+        const years = contact.years_at_firm || '—';
+        const notes = contact.notes || '';
+
         card.innerHTML = `
             <div class="race-card-status"><span class="race-status-icon">📞</span><span>Ringing...</span></div>
             <div class="race-card-name">${contact.name}</div>
-            <div class="race-card-info"><strong>${contact.company && contact.company.trim() ? contact.company : 'No company'}</strong></div>
-            <div class="race-card-info">${contact.phone || ''}</div>
-            <div class="race-card-info">Licenses: ${contact.licenses || '-'}</div>
-            <div class="race-card-info">Years at Firm: ${contact.years_at_firm || '-'}</div>
-            ${contact.notes ? `<div class="race-card-info" style="margin-top:8px;font-style:italic;opacity:0.8;">Notes: ${contact.notes.substring(0,100)}${contact.notes.length>100?'...':''}</div>` : ''}`;
+            <div class="race-card-divider"></div>
+            <div class="race-card-fields">
+                <div class="race-card-field">
+                    <span class="race-field-label">Age</span>
+                    <span class="race-field-value">${age}</span>
+                </div>
+                <div class="race-card-field">
+                    <span class="race-field-label">Phone</span>
+                    <span class="race-field-value">${phone}</span>
+                </div>
+                <div class="race-card-field">
+                    <span class="race-field-label">Years at Firm</span>
+                    <span class="race-field-value">${years}</span>
+                </div>
+                <div class="race-card-field">
+                    <span class="race-field-label">Prior Firm</span>
+                    <span class="race-field-value">${priorFirm}</span>
+                </div>
+                <div class="race-card-field race-card-field--full">
+                    <span class="race-field-label">Licenses</span>
+                    <span class="race-field-value">${licenses}</span>
+                </div>
+                ${notes ? `
+                <div class="race-card-field race-card-field--full race-card-field--notes">
+                    <span class="race-field-label">Notes</span>
+                    <span class="race-field-value">${notes}</span>
+                </div>` : ''}
+            </div>`;
 
         if (pendingEvents.has(callSid)) {
             const pending = pendingEvents.get(callSid);
