@@ -337,7 +337,7 @@
             border: 2px solid rgba(255,255,255,0.15);
             border-radius: 16px; padding: 32px;
             transition: all 0.4s ease; position: relative;
-            height: 100%; display: flex; flex-direction: column; justify-content: center;
+            height: 100%; display: flex; flex-direction: column; justify-content: flex-start;
         }
 
         .race-card.searching { border: 2px solid rgba(255,255,255,0.3); background: var(--bg-secondary); position: relative; overflow: visible; }
@@ -381,41 +381,68 @@
         .race-card.ended .race-card-status { color: rgba(255,255,255,0.4); }
         .race-status-icon { font-size: 22px; }
 
-        .race-card-name { color: var(--text-primary); font-size: 26px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
+        .race-card-name { color: var(--text-primary); font-size: 28px; font-weight: 700; margin-bottom: 0px; line-height: 1.2; }
         .race-card.machine .race-card-name, .race-card.busy .race-card-name, .race-card.ended .race-card-name { opacity: 0.6; }
         .race-card-info { color: var(--text-secondary); font-size: 16px; margin-bottom: 8px; }
         .race-card.machine .race-card-info, .race-card.busy .race-card-info, .race-card.ended .race-card-info { opacity: 0.5; }
 
-        .race-card-divider { width: 100%; height: 1px; background: var(--divider-color); margin: 12px 0 16px 0; }
+        .race-card-divider { width: 100%; height: 1px; background: var(--divider-color); margin: 14px 0 18px 0; }
 
         .race-card-fields {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px 24px;
+            gap: 0;
+            flex: 1;
         }
 
         .race-card-field {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 4px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        /* Right column fields get a left border as divider */
+        .race-card-field:nth-child(even) {
+            padding-left: 24px;
+            border-left: 1px solid var(--divider-color);
         }
 
         .race-card-field--full {
             grid-column: 1 / -1;
+            padding-left: 0;
+            border-left: none;
+        }
+
+        /* Remove bottom border from last two fields before notes */
+        .race-card-field--full:last-child {
+            border-bottom: none;
+        }
+
+        .race-card-field--notes {
+            margin-top: 2px;
         }
 
         .race-card-field--notes .race-field-value {
             background: rgba(255,255,255,0.04);
-            border-left: 3px solid rgba(255,255,255,0.15);
+            border-left: 3px solid rgba(255,255,255,0.12);
             border-radius: 4px;
-            padding: 8px 10px;
-            max-height: 80px;
+            padding: 10px 12px;
+            height: 90px;
             overflow-y: auto;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-style: italic;
+            opacity: 0.85;
+        }
+
+        .race-card-field--notes .race-field-value.empty {
+            opacity: 0.3;
+            font-style: italic;
         }
 
         .race-field-label {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
@@ -424,9 +451,10 @@
         }
 
         .race-field-value {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             color: var(--text-primary);
+            line-height: 1.3;
         }
 
         .race-winner-badge {
@@ -1229,11 +1257,10 @@ if (status === 'call_initiated') {
                     <span class="race-field-label">Licenses</span>
                     <span class="race-field-value">${licenses}</span>
                 </div>
-                ${notes ? `
                 <div class="race-card-field race-card-field--full race-card-field--notes">
                     <span class="race-field-label">Notes</span>
-                    <span class="race-field-value">${notes}</span>
-                </div>` : ''}
+                    <span class="race-field-value ${notes ? '' : 'empty'}">${notes || '—'}</span>
+                </div>
             </div>`;
 
         if (pendingEvents.has(callSid)) {
