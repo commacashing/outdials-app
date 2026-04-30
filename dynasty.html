@@ -1002,10 +1002,10 @@ document.getElementById('callRaceGrid').innerHTML = '';
 
         const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
         fetch(STOP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone })
-        }).catch(e => console.error('Stop failed:', e));
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
+    body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone })
+}).catch(e => console.error('Stop failed:', e));
     }
 
     function resetDialingState() {
