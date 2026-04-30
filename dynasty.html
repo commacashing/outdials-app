@@ -773,6 +773,7 @@ let cardsReady = false;
     let callTimer = null;
 let pollInterval = null;
 let currentBatchId = null;
+let knownCallSids = new Set();
 
     let currentSessionStats = {
         startTime: null,
