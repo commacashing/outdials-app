@@ -771,6 +771,9 @@
     let pendingEvents = new Map();
 let cardsReady = false;
     let callTimer = null;
+let pollInterval = null;
+let currentBatchId = null;
+let knownCallSids = new Set();
 
     let currentSessionStats = {
         startTime: null,
@@ -949,6 +952,8 @@ let cardsReady = false;
             currentSessionStats.startTime = Date.now();
             currentBatchContacts.clear();
 pendingEvents.clear();
+knownCallSids.clear();
+currentBatchId = null;
 cardsReady = false;
 document.getElementById('callRaceGrid').innerHTML = '';
 
@@ -1018,23 +1023,101 @@ document.getElementById('callRaceGrid').innerHTML = '';
     // REALTIME
     // ============================================
     function subscribeToCallLogs() {
-        if (!supabaseClient) return;
-        supabaseSubscription = supabaseClient
-            .channel(`dynasty_${sessionId}`)
-            .on('postgres_changes', {
-                event: '*', schema: 'public',
-                table: 'dynasty_call_logs',
-                filter: `session_id=eq.${sessionId}`
-            }, (payload) => handleStatusUpdate(payload.new))
-            .subscribe();
+    if (!supabaseClient) return;
+
+    supabaseSubscription = supabaseClient
+        .channel(`dynasty_${sessionId}`)
+        .on('postgres_changes', {
+            event: '*', schema: 'public',
+            table: 'dynasty_call_logs',
+            filter: `session_id=eq.${sessionId}`
+        }, (payload) => handleStatusUpdate(payload.new))
+        .subscribe();
+
+    knownCallSids.clear();
+    currentBatchId = null;
+    pollInterval = setInterval(pollCallLogs, 3000);
+    pollCallLogs();
+}
+
+async function pollCallLogs() {
+    if (!supabaseClient || !sessionId) return;
+    try {
+        const { data, error } = await supabaseClient
+            .from('dynasty_call_logs')
+            .select('*')
+            .eq('session_id', sessionId)
+            .order('created_at', { ascending: true });
+
+        if (error || !data) return;
+
+        // Find the highest batch_id among call_initiated rows
+        const initiatedRows = data.filter(r => r.event_type === 'call_initiated' && r.batch_id);
+        if (initiatedRows.length > 0) {
+            const latestBatch = initiatedRows.reduce((best, r) => {
+                const tsA = parseInt((r.batch_id || '').replace('batch_', '')) || 0;
+                const tsB = parseInt((best.batch_id || '').replace('batch_', '')) || 0;
+                return tsA > tsB ? r : best;
+            });
+            const latestBatchId = latestBatch.batch_id;
+
+            if (latestBatchId !== currentBatchId) {
+                const batchRows = initiatedRows.filter(r => r.batch_id === latestBatchId);
+
+                // Guard: never reset cards while a rep is mid-conversation
+                const hasActiveHuman = [...currentBatchContacts.values()].some(c => c.status === 'human');
+                if (!hasActiveHuman) {
+                    currentBatchId = latestBatchId;
+                    currentBatchContacts.clear();
+                    resetCardsToSearching();
+
+                    setTimeout(() => {
+                        batchRows.forEach((row, idx) => {
+                            if (knownCallSids.has(row.call_sid)) return;
+                            knownCallSids.add(row.call_sid);
+                            currentSessionStats.totalCalls++;
+                            const contact = {
+                                name: row.contact_name,
+                                company: row.contact_company || row.company || '',
+                                phone: row.phone,
+                                licenses: row.licenses,
+                                years_at_firm: row.years_at_firm,
+                                notes: row.notes,
+                                date_of_birth: row.date_of_birth,
+                                call_sid: row.call_sid,
+                                status: 'ringing'
+                            };
+                            currentBatchContacts.set(row.call_sid, contact);
+                            populateRaceCard(row.call_sid, contact, idx);
+                        });
+                        updateStatsDisplay();
+                    }, 600);
+                }
+            }
+        }
+
+        // Process status updates — each call_sid+event_type fires only once
+        const statusRows = data.filter(r => r.event_type !== 'call_initiated' && r.event_type !== 'workflow_started');
+        statusRows.forEach(row => {
+            const key = `status_${row.call_sid}_${row.event_type}`;
+            if (!knownCallSids.has(key)) {
+                knownCallSids.add(key);
+                handleStatusUpdate(row);
+            }
+        });
+
+    } catch (e) {
+        console.error('Poll error:', e);
     }
+}
 
     function unsubscribeFromSupabase() {
-        if (supabaseSubscription && supabaseClient) {
-            supabaseClient.removeChannel(supabaseSubscription);
-            supabaseSubscription = null;
-        }
+    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+    if (supabaseSubscription && supabaseClient) {
+        supabaseClient.removeChannel(supabaseSubscription);
+        supabaseSubscription = null;
     }
+}
 
     function normalizePhone(phone) {
         if (!phone) return '';
