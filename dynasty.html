@@ -1360,25 +1360,16 @@ if (status === 'call_initiated') {
 
             card.querySelector('.race-card-status').innerHTML = `<span class="race-status-icon">✓</span><span>Human Answered</span>`;
 
-            for (let i = 0; i < 3; i++) {
-                const sc = document.getElementById(`race-card-${i}`);
-                if (sc) {
-                    sc.classList.remove('searching','ringing'); sc.classList.add('ended');
-                    const sel = sc.querySelector('.race-card-status');
-                    if (sel) sel.innerHTML = `<span class="race-status-icon">✕</span><span>Call Ended</span>`;
-                }
-            }
             currentBatchContacts.forEach((c, sid) => {
-                if (sid !== callSid && c.status === 'ringing') {
-                    c.status = 'ended';
-                    const oc = document.getElementById(`race-card-${sid}`);
-                    if (oc) {
-                        oc.classList.remove('ringing','searching'); oc.classList.add('ended');
-                        const sel = oc.querySelector('.race-card-status');
-                        if (sel) sel.innerHTML = `<span class="race-status-icon">✕</span><span>Call Ended</span>`;
-                    }
-                }
-            });
+    if (sid !== callSid) {
+        const sc = document.getElementById(`race-card-${sid}`);
+        if (sc) {
+            sc.classList.remove('searching','ringing'); sc.classList.add('ended');
+            const sel = sc.querySelector('.race-card-status');
+            if (sel) sel.innerHTML = `<span class="race-status-icon">✕</span><span>Call Ended</span>`;
+        }
+    }
+});
         }
         else if (status === 'machine') {
             card.classList.add('machine');
