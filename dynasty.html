@@ -1137,13 +1137,15 @@ if (status === 'call_initiated') {
                 document.getElementById('statAvgDuration').textContent = secs + 's';
             }, 1000);
 
-            let foundSid = null;
-            currentBatchContacts.forEach((c, sid) => {
-                if (normalizePhone(c.phone) === normalizePhone(data.phone)) {
-                    foundSid = sid; c.status = 'human';
-                }
-            });
-            if (foundSid) updateRaceCard(foundSid, 'human');
+            const foundSid = data.call_sid;
+            const contact = currentBatchContacts.get(foundSid);
+            if (contact) contact.status = 'human';
+
+            if (!cardsReady || !document.getElementById(`race-card-${foundSid}`)) {
+                pendingEvents.set(foundSid, data);
+            } else {
+                updateRaceCard(foundSid, 'human');
+            }
 
             updateStatus('on-call', 'On Call');
             updateStatsDisplay();
@@ -1166,10 +1168,8 @@ if (status === 'call_initiated') {
             updateStatus('idle', 'System Ready');
         }
         else if (status === 'batches_complete') {
-            showSuccess('All contacts dialed!');
-            resetDialingState();
-            unsubscribeFromSupabase();
-        }
+    showSuccess('All contacts dialed!');
+}
     }
 
     // ============================================
