@@ -372,6 +372,12 @@
         .race-card.machine { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); opacity: 0.4; animation: none; }
         .race-card.busy { background: rgba(255,107,53,0.1); border-color: rgba(255,107,53,0.3); opacity: 0.4; animation: none; }
         .race-card.ended { opacity: 0.3; animation: none; }
+.race-card.speaking { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.5); box-shadow: 0 0 30px rgba(59,130,246,0.3); animation: speakingPulse 0.8s ease-in-out infinite; }
+@keyframes speakingPulse {
+    0%,100% { border-color: rgba(59,130,246,0.4); box-shadow: 0 0 15px rgba(59,130,246,0.2); }
+    50% { border-color: rgba(59,130,246,0.8); box-shadow: 0 0 30px rgba(59,130,246,0.5); }
+}
+.race-card.speaking .race-card-status { color: rgba(59,130,246,1); }
 
         .race-card-status { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
         body.light-mode .race-card-status { color: rgba(0,0,0,0.7); }
@@ -1167,7 +1173,20 @@ if (status === 'call_initiated') {
             updateStatsDisplay();
             updateStatus('idle', 'System Ready');
         }
-        else if (status === 'batches_complete') {
+        else if (status === 'speaker_connected') {
+    const contact = currentBatchContacts.get(data.call_sid);
+    if (!contact || !cardsReady || !document.getElementById(`race-card-${data.call_sid}`)) {
+        pendingEvents.set(data.call_sid, data); return;
+    }
+    contact.status = 'speaking';
+    const card = document.getElementById(`race-card-${data.call_sid}`);
+    if (card) {
+        card.classList.remove('ringing','searching');
+        card.classList.add('speaking');
+        card.querySelector('.race-card-status').innerHTML = `<span class="race-status-icon">🎤</span><span>Speaking...</span>`;
+    }
+}
+else if (status === 'batches_complete') {
     showSuccess('All contacts dialed!');
 }
     }
@@ -1310,7 +1329,7 @@ if (status === 'call_initiated') {
     function updateRaceCard(callSid, status, busyType = null) {
         const card = document.getElementById(`race-card-${callSid}`);
         if (!card) return;
-        card.classList.remove('ringing','human','machine','busy','ended','searching');
+        card.classList.remove('ringing','human','machine','busy','ended','searching','speaking');
 
         if (status === 'human') {
             card.classList.add('human');
