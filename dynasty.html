@@ -1155,24 +1155,17 @@ if (status === 'call_initiated') {
 
             updateStatus('on-call', 'On Call');
             updateStatsDisplay();
-            isDialing = false;
-            document.getElementById('stopButton').style.display = 'none';
-            document.getElementById('startButton').style.display = 'inline-block';
-            document.getElementById('repPhone').disabled = false;
-            document.getElementById('listSelect').disabled = false;
-            document.getElementById('regionSelect').disabled = false;
-            checkFormValid();
+            // Keep dialing state active — session continues until stop or batches complete
         }
         else if (status === 'call_completed') {
-            if (currentSessionStats.humanAnsweredTime) {
-                const dur = (Date.now() - currentSessionStats.humanAnsweredTime) / 1000;
-                if (dur > 0 && dur < 3600) currentSessionStats.callDurations.push(Math.round(dur));
-                currentSessionStats.humanAnsweredTime = null;
-                if (callTimer) { clearInterval(callTimer); callTimer = null; }
-            }
-            updateStatsDisplay();
-            updateStatus('idle', 'System Ready');
-        }
+    if (currentSessionStats.humanAnsweredTime) {
+        const dur = (Date.now() - currentSessionStats.humanAnsweredTime) / 1000;
+        if (dur > 0 && dur < 3600) currentSessionStats.callDurations.push(Math.round(dur));
+        currentSessionStats.humanAnsweredTime = null;
+        if (callTimer) { clearInterval(callTimer); callTimer = null; }
+    }
+    updateStatsDisplay();
+}
         else if (status === 'speaker_connected') {
     const contact = currentBatchContacts.get(data.call_sid);
     if (!contact || !cardsReady || !document.getElementById(`race-card-${data.call_sid}`)) {
@@ -1188,6 +1181,11 @@ if (status === 'call_initiated') {
 }
 else if (status === 'batches_complete') {
     showSuccess('All contacts dialed!');
+    unsubscribeFromSupabase();
+    resetDialingState();
+    document.getElementById('callRaceContainer').classList.remove('active');
+    document.getElementById('callRaceGrid').innerHTML = '';
+    currentBatchContacts.clear();
 }
     }
 
