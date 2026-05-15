@@ -1097,16 +1097,17 @@ if (status === 'call_initiated') {
 
     currentSessionStats.totalCalls++;
     const contact = {
-        name: data.contact_name,
-        company: data.contact_company || data.company || '',
-        phone: data.phone,
-        licenses: data.licenses,
-        years_at_firm: data.years_at_firm,
-        notes: data.notes,
-        date_of_birth: data.date_of_birth,
-        call_sid: data.call_sid,
-        status: 'ringing'
-    };
+    name: data.contact_name,
+    company: data.contact_company || data.company || '',
+    phone: data.phone,
+    licenses: data.licenses,
+    team_name: data.team_name || '',
+    years_at_firm: data.years_at_firm,
+    notes: data.notes,
+    date_of_birth: data.date_of_birth,
+    call_sid: data.call_sid,
+    status: 'ringing'
+};
     currentBatchContacts.set(data.call_sid, contact);
     updateStatsDisplay();
     if (!cardsReady) {
@@ -1155,17 +1156,24 @@ if (status === 'call_initiated') {
 
             updateStatus('on-call', 'On Call');
             updateStatsDisplay();
-            // Keep dialing state active — session continues until stop or batches complete
+            isDialing = false;
+            document.getElementById('stopButton').style.display = 'none';
+            document.getElementById('startButton').style.display = 'inline-block';
+            document.getElementById('repPhone').disabled = false;
+            document.getElementById('listSelect').disabled = false;
+            document.getElementById('regionSelect').disabled = false;
+            checkFormValid();
         }
         else if (status === 'call_completed') {
-    if (currentSessionStats.humanAnsweredTime) {
-        const dur = (Date.now() - currentSessionStats.humanAnsweredTime) / 1000;
-        if (dur > 0 && dur < 3600) currentSessionStats.callDurations.push(Math.round(dur));
-        currentSessionStats.humanAnsweredTime = null;
-        if (callTimer) { clearInterval(callTimer); callTimer = null; }
-    }
-    updateStatsDisplay();
-}
+            if (currentSessionStats.humanAnsweredTime) {
+                const dur = (Date.now() - currentSessionStats.humanAnsweredTime) / 1000;
+                if (dur > 0 && dur < 3600) currentSessionStats.callDurations.push(Math.round(dur));
+                currentSessionStats.humanAnsweredTime = null;
+                if (callTimer) { clearInterval(callTimer); callTimer = null; }
+            }
+            updateStatsDisplay();
+            updateStatus('idle', 'System Ready');
+        }
         else if (status === 'speaker_connected') {
     const contact = currentBatchContacts.get(data.call_sid);
     if (!contact || !cardsReady || !document.getElementById(`race-card-${data.call_sid}`)) {
@@ -1181,11 +1189,6 @@ if (status === 'call_initiated') {
 }
 else if (status === 'batches_complete') {
     showSuccess('All contacts dialed!');
-    unsubscribeFromSupabase();
-    resetDialingState();
-    document.getElementById('callRaceContainer').classList.remove('active');
-    document.getElementById('callRaceGrid').innerHTML = '';
-    currentBatchContacts.clear();
 }
     }
 
@@ -1283,6 +1286,7 @@ else if (status === 'batches_complete') {
         const priorFirm = contact.company && contact.company.trim() ? contact.company : '—';
         const phone = contact.phone || '—';
         const licenses = contact.licenses || '—';
+const team = contact.team_name || '—';
         const years = contact.years_at_firm || '—';
         const notes = contact.notes || '';
 
@@ -1307,9 +1311,13 @@ else if (status === 'batches_complete') {
                     <span class="race-field-label">Prior Firm</span>
                     <span class="race-field-value">${priorFirm}</span>
                 </div>
-                <div class="race-card-field race-card-field--full">
+                <div class="race-card-field">
                     <span class="race-field-label">Licenses</span>
                     <span class="race-field-value">${licenses}</span>
+                </div>
+                <div class="race-card-field">
+                    <span class="race-field-label">Team</span>
+                    <span class="race-field-value">${team}</span>
                 </div>
                 <div class="race-card-field race-card-field--full race-card-field--notes">
                     <span class="race-field-label">Notes</span>
@@ -1407,7 +1415,7 @@ else if (status === 'batches_complete') {
             if (c.status === 'ringing') allResolved = false;
             if (c.status === 'human') anyHuman = true;
         });
-        if (allResolved && !anyHuman) setTimeout(resetCardsToSearching, 500);
+        if (allResolved && !anyHuman) setTimeout(resetCardsToSearching, 2000);
     }
 
     function resetCardsToSearching() {
