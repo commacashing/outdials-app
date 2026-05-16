@@ -780,6 +780,7 @@ let cardsReady = false;
 let pollInterval = null;
 let currentBatchId = null;
 let knownCallSids = new Set();
+let repPhone = '';
 
     let currentSessionStats = {
         startTime: null,
@@ -945,7 +946,7 @@ let knownCallSids = new Set();
     // DIALING
     // ============================================
     async function startDialing() {
-        const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+        repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
         const listEl = document.getElementById('listSelect');
         const selectedOpt = listEl.options[listEl.selectedIndex];
         const fileId = listEl.value;
@@ -1006,11 +1007,11 @@ document.getElementById('callRaceGrid').innerHTML = '';
         resetDialingState();
         showSuccess('Dialing stopped');
 
-        const repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+        const stopRepPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
         fetch(STOP_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
-    body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone })
+    body: JSON.stringify({ session_id: sessionId, rep_phone: stopRepPhone })
 }).catch(e => console.error('Stop failed:', e));
     }
 
@@ -1034,7 +1035,20 @@ document.getElementById('callRaceGrid').innerHTML = '';
     knownCallSids.clear();
     currentBatchId = null;
 
-    supabaseSubscription = supabaseClient
+    supabaseClient
+    .channel(`dynasty_errors_${sessionId}`)
+    .on('postgres_changes', {
+        event: 'INSERT', schema: 'public',
+        table: 'dynasty_call_logs',
+        filter: `rep_phone=eq.${repPhone}`
+    }, (payload) => {
+        const row = payload.new;
+        if (!row || row.event_type !== 'workflow_error') return;
+        handleStatusUpdate(row);
+    })
+    .subscribe();
+
+supabaseSubscription = supabaseClient
         .channel(`dynasty_${sessionId}`)
         .on('postgres_changes', {
             event: 'INSERT', schema: 'public',
