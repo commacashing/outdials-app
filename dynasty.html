@@ -1208,6 +1208,10 @@ else if (status === 'workflow_error') {
     const errorTitle = data.details || 'System Error';
     showError(`⚠️ ${errorTitle}`);
     isDialing = false;
+    document.getElementById('callRaceContainer').classList.remove('active');
+    document.getElementById('callRaceGrid').innerHTML = '';
+    currentBatchContacts.clear();
+    unsubscribeFromSupabase();
     document.getElementById('stopButton').style.display = 'none';
     document.getElementById('startButton').style.display = 'inline-block';
     document.getElementById('repPhone').disabled = false;
@@ -1613,10 +1617,10 @@ const team = contact.team_name || '—';
     }
 
     function showError(msg) {
-        const d = document.createElement('div');
-        d.className = 'message error'; d.textContent = msg;
-        document.body.appendChild(d); setTimeout(() => d.remove(), 4000);
-    }
+    const d = document.createElement('div');
+    d.className = 'message error'; d.textContent = msg;
+    document.body.appendChild(d); setTimeout(() => d.remove(), 8000);
+}
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && isDialing && !supabaseSubscription) {
