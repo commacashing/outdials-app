@@ -1190,6 +1190,18 @@ if (status === 'call_initiated') {
 else if (status === 'batches_complete') {
     showSuccess('All contacts dialed!');
 }
+else if (status === 'workflow_error') {
+    const errorTitle = data.details || 'System Error';
+    showError(`⚠️ ${errorTitle}`);
+    isDialing = false;
+    document.getElementById('stopButton').style.display = 'none';
+    document.getElementById('startButton').style.display = 'inline-block';
+    document.getElementById('repPhone').disabled = false;
+    document.getElementById('listSelect').disabled = false;
+    document.getElementById('regionSelect').disabled = false;
+    updateStatus('idle', 'System Ready');
+    checkFormValid();
+}
     }
 
     // ============================================
