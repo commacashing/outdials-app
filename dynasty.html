@@ -214,7 +214,7 @@
 
         .analytics-stats-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             max-width: 1200px;
             margin: 20px auto;
@@ -709,41 +709,33 @@
 
     <!-- ANALYTICS -->
     <div class="analytics-section" id="analyticsSection" style="padding: 20px 40px 0px 40px; border-top: none;">
-        <div class="analytics-header" onclick="toggleAnalytics()">
-            <h3>Session Analytics</h3>
-            <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-        </div>
-        <div class="analytics-content">
-            <div class="analytics-stats-grid">
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Total Calls</div>
-                    <div class="analytics-stat-value" id="statTotalCalls">0</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Connects</div>
-                    <div class="analytics-stat-value" id="statConnects">0</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Talk Time</div>
-                    <div class="analytics-stat-value" id="statTalkTime">0m</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Calls/Hour</div>
-                    <div class="analytics-stat-value" id="statCallsPerHour">0</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Machine Rate</div>
-                    <div class="analytics-stat-value" id="statMachineRate">0%</div>
-                </div>
-                <div class="analytics-stat-card">
-                    <div class="analytics-stat-label">Avg Duration</div>
-                    <div class="analytics-stat-value" id="statAvgDuration">0s</div>
-                </div>
+    <div class="analytics-header" onclick="toggleAnalytics()">
+        <h3>Session Analytics</h3>
+        <svg class="analytics-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    </div>
+    <div class="analytics-content">
+        <div class="analytics-stats-grid">
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Total Calls</div>
+                <div class="analytics-stat-value" id="statTotalCalls">0</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Connects</div>
+                <div class="analytics-stat-value" id="statConnects">0</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Machine Rate</div>
+                <div class="analytics-stat-value" id="statMachineRate">0%</div>
+            </div>
+            <div class="analytics-stat-card">
+                <div class="analytics-stat-label">Connect Rate</div>
+                <div class="analytics-stat-value" id="statConnectRate">0%</div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
@@ -1578,21 +1570,13 @@ const team = contact.team_name || '—';
     // STATS & UI
     // ============================================
     function updateStatsDisplay() {
-        document.getElementById('statTotalCalls').textContent = currentSessionStats.totalCalls;
-        document.getElementById('statConnects').textContent = currentSessionStats.connects;
-        const totalSecs = currentSessionStats.callDurations.reduce((a, b) => a + b, 0);
-        document.getElementById('statTalkTime').textContent = Math.round(totalSecs / 60) + 'm';
-        if (currentSessionStats.startTime) {
-            const hrs = (Date.now() - currentSessionStats.startTime) / 3600000;
-            document.getElementById('statCallsPerHour').textContent = hrs > 0 ? Math.round(currentSessionStats.totalCalls / hrs) : 0;
-        }
-        const mr = currentSessionStats.totalCalls > 0 ? Math.round((currentSessionStats.machines / currentSessionStats.totalCalls) * 100) : 0;
-        document.getElementById('statMachineRate').textContent = mr + '%';
-        if (currentSessionStats.callDurations.length > 0) {
-            const avg = totalSecs / currentSessionStats.callDurations.length;
-            document.getElementById('statAvgDuration').textContent = avg < 60 ? Math.round(avg) + 's' : Math.round(avg / 60) + 'm';
-        }
-    }
+    document.getElementById('statTotalCalls').textContent = currentSessionStats.totalCalls;
+    document.getElementById('statConnects').textContent = currentSessionStats.connects;
+    const mr = currentSessionStats.totalCalls > 0 ? Math.round((currentSessionStats.machines / currentSessionStats.totalCalls) * 100) : 0;
+    document.getElementById('statMachineRate').textContent = mr + '%';
+    const cr = currentSessionStats.totalCalls > 0 ? Math.round((currentSessionStats.connects / currentSessionStats.totalCalls) * 100) : 0;
+    document.getElementById('statConnectRate').textContent = cr + '%';
+}
 
     function updateStatus(state, text) {
         document.getElementById('dialerStatus').className = `status-indicator ${state}`;
