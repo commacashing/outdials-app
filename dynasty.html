@@ -301,7 +301,10 @@
         }
         body.light-mode .race-card-back { border-color: rgba(0,0,0,0.3); background: rgba(0,0,0,0.04); }
 
-        .race-card-front { transform: rotateY(180deg); }
+        .race-card-front { 
+    transform: rotateY(180deg); 
+    background: var(--bg-secondary);
+}
         .race-card-front .race-card { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
         .race-card-wrapper.flipped .race-card-back { transform: rotateY(180deg); }
