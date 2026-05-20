@@ -1573,6 +1573,9 @@ const team = contact.team_name || '—';
     document.getElementById('statMachineRate').textContent = mr + '%';
     const cr = currentSessionStats.totalCalls > 0 ? Math.round((currentSessionStats.connects / currentSessionStats.totalCalls) * 100) : 0;
     document.getElementById('statConnectRate').textContent = cr + '%';
+    
+    localStorage.setItem('dynasty_stats', JSON.stringify(currentSessionStats));
+    localStorage.setItem('dynasty_stats_date', new Date().toDateString());
 }
 
     function updateStatus(state, text) {
