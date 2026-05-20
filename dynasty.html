@@ -753,8 +753,40 @@
                 <span id="statusText">System Ready</span>
             </div>
         </div>
-    </div>
+</div>
 
+</div>
+
+<div id="heroCardContainer" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+    <div class="hero-card" style="background: var(--bg-secondary); border: 3px solid rgba(34,197,94,0.6); border-radius: 24px; padding: 48px; max-width: 600px; width: 100%; position: relative; box-shadow: 0 0 40px rgba(34,197,94,0.4);">
+        <div style="position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: rgba(34,197,94,1); color: white; padding: 10px 24px; border-radius: 24px; font-size: 14px; font-weight: 700; text-transform: uppercase;">
+            📞 INCOMING CALL
+        </div>
+        <div style="color: var(--text-primary); font-size: 32px; font-weight: 700; margin: 24px 0; text-align: center;" id="heroCardName">Loading...</div>
+        <div style="display: grid; gap: 16px; margin-bottom: 32px;">
+            <div style="background: var(--bg-primary); padding: 16px 20px; border-radius: 12px;">
+                <div style="color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">Phone</div>
+                <div style="color: var(--text-primary); font-size: 16px; font-weight: 600;" id="heroCardPhone">-</div>
+            </div>
+            <div style="background: var(--bg-primary); padding: 16px 20px; border-radius: 12px;">
+                <div style="color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">Company</div>
+                <div style="color: var(--text-primary); font-size: 16px; font-weight: 600;" id="heroCardCompany">-</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 20px; justify-content: center;">
+            <button onclick="dismissHeroCard()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.2); width: 48px; height: 48px; border-radius: 50%; cursor: pointer;">✕</button>
+            <button onclick="toggleHeroNote()" style="background: rgba(59,130,246,0.9); color: white; border: none; border-radius: 50%; width: 48px; height: 48px; cursor: pointer; font-size: 20px;">📝</button>
+            <button onclick="markHeroOptOut()" style="background: rgba(239,68,68,0.9); color: white; border: none; border-radius: 50%; width: 48px; height: 48px; cursor: pointer; font-size: 20px;">🚫</button>
+        </div>
+        <div id="heroNoteCompartment" style="margin-top: 24px; max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease;">
+            <div style="color: #ffffff; font-size: 14px; font-weight: 600; margin-bottom: 12px;">📝 Call Notes</div>
+            <textarea id="heroNoteText" style="width: 100%; min-height: 120px; padding: 14px; background: #0a0a0a; border: 1px solid #333333; border-radius: 10px; color: #ffffff; font-size: 15px; font-family: inherit; resize: vertical; margin-bottom: 12px;" placeholder="Type your notes here..."></textarea>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button onclick="toggleHeroNote()" style="padding: 10px 20px; font-size: 14px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15);">Cancel</button>
+                <button id="heroNoteSaveBtn" onclick="saveHeroNote()" style="padding: 10px 20px; font-size: 14px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; background: rgba(59,130,246,0.9); color: white;">Save</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1144,7 +1176,22 @@ if (status === 'call_initiated') {
             updateRaceCard(data.call_sid, 'busy', status);
             checkBatchComplete();
         }
-        else if (status === 'human_answered') {
+        else if (status === 'inbound_call') {
+    showHeroCard(data);
+    document.getElementById('callRaceContainer').classList.remove('active');
+    document.getElementById('callRaceGrid').innerHTML = '';
+    currentBatchContacts.clear();
+    updateStatus('on-call', 'On Call');
+    isDialing = false;
+    document.getElementById('stopButton').style.display = 'none';
+    document.getElementById('startButton').style.display = 'inline-block';
+    document.getElementById('repPhone').disabled = false;
+    document.getElementById('listSelect').disabled = false;
+    document.getElementById('regionSelect').disabled = false;
+    checkFormValid();
+    return;
+}
+else if (status === 'human_answered') {
             currentSessionStats.connects++;
             currentSessionStats.humanAnsweredTime = Date.now();
 
@@ -1635,6 +1682,89 @@ const team = contact.team_name || '—';
             showSuccess('Reconnected to real-time updates');
         }
     });
+
+    let currentHeroCallSid = null;
+    let currentHeroContact = null;
+
+    function showHeroCard(data) {
+        currentHeroCallSid = data.call_sid;
+        currentHeroContact = { name: data.contact_name, phone: data.phone, company: data.contact_company || '-' };
+        document.getElementById('heroCardName').textContent = data.contact_name || 'Unknown Caller';
+        document.getElementById('heroCardPhone').textContent = data.phone || '-';
+        document.getElementById('heroCardCompany').textContent = data.contact_company || '-';
+        document.getElementById('heroNoteCompartment').style.maxHeight = '0';
+        document.getElementById('heroNoteCompartment').style.opacity = '0';
+        document.getElementById('heroNoteText').value = '';
+        document.getElementById('heroNoteSaveBtn').textContent = 'Save';
+        document.getElementById('heroCardContainer').style.display = 'flex';
+    }
+
+    function dismissHeroCard() {
+        document.getElementById('heroCardContainer').style.display = 'none';
+        currentHeroCallSid = null;
+        currentHeroContact = null;
+        updateStatus('idle', 'System Ready');
+    }
+
+    function toggleHeroNote() {
+        const comp = document.getElementById('heroNoteCompartment');
+        if (comp.style.maxHeight === '0px') {
+            comp.style.maxHeight = '400px';
+            comp.style.opacity = '1';
+        } else {
+            comp.style.maxHeight = '0';
+            comp.style.opacity = '0';
+        }
+    }
+
+    async function saveHeroNote() {
+        const text = document.getElementById('heroNoteText').value.trim();
+        if (!text) { showError('Enter a note first.'); return; }
+        const btn = document.getElementById('heroNoteSaveBtn');
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+            await fetch(`${N8N_BASE}/save-dynasty-note`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    call_sid: currentHeroCallSid,
+                    contact_name: currentHeroContact.name,
+                    contact_phone: currentHeroContact.phone,
+                    note: text,
+                    session_id: sessionId,
+                    file_id: document.getElementById('listSelect').value,
+                    folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId
+                })
+            });
+            showSuccess('Note saved!');
+            btn.textContent = 'Saved ✓';
+            btn.disabled = true;
+        } catch (e) {
+            showError(`Error: ${e.message}`);
+            btn.disabled = false; btn.textContent = 'Save';
+        }
+    }
+
+    async function markHeroOptOut() {
+        if (!currentHeroContact) return;
+        if (!confirm(`Mark ${currentHeroContact.name} as Do Not Call?`)) return;
+        try {
+            await fetch(`${N8N_BASE}/dynasty-dnc`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contact_phone: currentHeroContact.phone,
+                    contact_name: currentHeroContact.name,
+                    session_id: sessionId,
+                    file_id: document.getElementById('listSelect').value,
+                    folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId,
+                    dnc: true
+                })
+            });
+            showSuccess(`${currentHeroContact.name} marked as DNC`);
+            dismissHeroCard();
+        } catch (e) { showError(`Error: ${e.message}`); }
+    }
 </script>
 </body>
 </html>
