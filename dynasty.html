@@ -1532,77 +1532,89 @@ const team = contact.team_name || '—';
     }
 
     async function saveNote(callSid) {
-        const text = document.getElementById(`note-text-${callSid}`)?.value.trim();
-        if (!text) { showError('Enter a note first.'); return; }
-        const contact = currentBatchContacts.get(callSid);
-        const btn = document.getElementById(`note-save-btn-${callSid}`);
-        btn.disabled = true; btn.textContent = 'Saving...';
-        try {
-            const res = await fetch(`${N8N_BASE}/save-dynasty-note`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-    call_sid: callSid, 
-    contact_name: contact?.name, 
-    contact_phone: contact?.phone, 
-    note: text,
-    rep_phone: repPhone,
-    session_id: sessionId,
-    file_id: document.getElementById('listSelect').value,
-    folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId
-})
-            });
-            if (res.ok) { showSuccess('Note saved!'); btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
-            else { showError('Failed to save note.'); btn.disabled = false; btn.textContent = 'Save'; }
-        } catch (e) { showError(`Error: ${e.message}`); btn.disabled = false; btn.textContent = 'Save'; }
-    }
+    const text = document.getElementById(`note-text-${callSid}`)?.value.trim();
+    if (!text) { showError('Enter a note first.'); return; }
+    const contact = currentBatchContacts.get(callSid);
+    const listEl = document.getElementById('listSelect');
+    const selectedOpt = listEl.options[listEl.selectedIndex];
+    const fileName = selectedOpt?.textContent || 'List.xlsx';
+    const btn = document.getElementById(`note-save-btn-${callSid}`);
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+        const res = await fetch(`${N8N_BASE}/save-dynasty-note`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                call_sid: callSid, 
+                contact_name: contact?.name, 
+                contact_phone: contact?.phone, 
+                note: text,
+                rep_phone: repPhone,
+                session_id: sessionId,
+                file_id: listEl.value,
+                file_name: fileName,
+                folder_id: selectedOpt?.dataset.folderId
+            })
+        });
+        if (res.ok) { showSuccess('Note saved!'); btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
+        else { showError('Failed to save note.'); btn.disabled = false; btn.textContent = 'Save'; }
+    } catch (e) { showError(`Error: ${e.message}`); btn.disabled = false; btn.textContent = 'Save'; }
+}
 
-    async function selectDisposition(callSid, disposition) {
-        const contact = currentBatchContacts.get(callSid);
-        const comp = document.getElementById(`disposition-compartment-${callSid}`);
-        comp?.querySelectorAll('.disposition-option').forEach(o => o.classList.remove('selected'));
-        event.target.classList.add('selected');
-        try {
-            await fetch(`${N8N_BASE}/save-dynasty-disposition`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-    call_sid: callSid, 
-    contact_phone: contact?.phone, 
-    contact_name: contact?.name, 
-    disposition,
-    rep_phone: repPhone,
-    session_id: sessionId,
-    file_id: document.getElementById('listSelect').value,
-    folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId
-})
-            });
-            showSuccess(`Disposition: ${disposition}`);
-            setTimeout(() => comp?.classList.remove('open'), 1000);
-        } catch (e) { showError(`Failed: ${e.message}`); }
-    }
+async function selectDisposition(callSid, disposition) {
+    const contact = currentBatchContacts.get(callSid);
+    const listEl = document.getElementById('listSelect');
+    const selectedOpt = listEl.options[listEl.selectedIndex];
+    const fileName = selectedOpt?.textContent || 'List.xlsx';
+    const comp = document.getElementById(`disposition-compartment-${callSid}`);
+    comp?.querySelectorAll('.disposition-option').forEach(o => o.classList.remove('selected'));
+    event.target.classList.add('selected');
+    try {
+        await fetch(`${N8N_BASE}/save-dynasty-disposition`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                call_sid: callSid, 
+                contact_name: contact?.name, 
+                contact_phone: contact?.phone, 
+                disposition: disposition,
+                rep_phone: repPhone,
+                session_id: sessionId,
+                file_id: listEl.value,
+                file_name: fileName,
+                folder_id: selectedOpt?.dataset.folderId
+            })
+        });
+        showSuccess(`Disposition: ${disposition}`);
+        setTimeout(() => comp?.classList.remove('open'), 1000);
+    } catch (e) { showError(`Failed: ${e.message}`); }
+}
 
-    async function markOptOut(callSid) {
-        const contact = currentBatchContacts.get(callSid);
-        if (!contact) return;
-        if (!confirm(`Mark ${contact.name} as Do Not Call?`)) return;
-        try {
-            await fetch(`${N8N_BASE}/dynasty-dnc`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-    contact_phone: contact.phone, 
-    contact_name: contact.name,
-    rep_phone: repPhone,
-    session_id: sessionId,
-    file_id: document.getElementById('listSelect').value,
-    folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId,
-    dnc: true
-})
-            });
-            showSuccess(`${contact.name} marked as DNC`);
-        } catch (e) { showError(`Error: ${e.message}`); }
-    }
+async function markOptOut(callSid) {
+    const contact = currentBatchContacts.get(callSid);
+    if (!contact) return;
+    if (!confirm(`Mark ${contact.name} as Do Not Call?`)) return;
+    const listEl = document.getElementById('listSelect');
+    const selectedOpt = listEl.options[listEl.selectedIndex];
+    const fileName = selectedOpt?.textContent || 'List.xlsx';
+    try {
+        await fetch(`${N8N_BASE}/dynasty-dnc`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                contact_phone: contact.phone, 
+                contact_name: contact.name,
+                rep_phone: repPhone,
+                session_id: sessionId,
+                file_id: listEl.value,
+                file_name: fileName,
+                folder_id: selectedOpt?.dataset.folderId,
+                dnc: true
+            })
+        });
+        showSuccess(`${contact.name} marked as DNC`);
+    } catch (e) { showError(`Error: ${e.message}`); }
+}
 
     // ============================================
     // SYNC LISTS
