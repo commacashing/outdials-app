@@ -1324,11 +1324,12 @@ else if (status === 'workflow_error') {
         const w = document.getElementById(`race-card-wrapper-${i}`);
         if (w) {
             w.classList.remove('dealing');
-            w.classList.remove('flipped'); // START WITH BACK (Searching)
+            w.classList.add('flipped');
             const card = document.getElementById(`race-card-${i}`);
             if (card) card.classList.add('searching');
         }
     }
+    // Wait for flip to finish, then mark ready and flush queued events
     setTimeout(() => {
         cardsReady = true;
         pendingEvents.forEach((evt, sid) => {
@@ -1406,12 +1407,6 @@ const team = contact.team_name || '—';
             const pending = pendingEvents.get(callSid);
             pendingEvents.delete(callSid);
             handleStatusUpdate(pending);
-        }
-        // Flip to front when first contact shows
-        for (let i = 0; i < 3; i++) {
-            if (document.getElementById(`race-card-${i}`)) {
-                document.getElementById(`race-card-wrapper-${i}`).classList.add('flipped');
-            }
         }
     }
 
@@ -1505,7 +1500,6 @@ const team = contact.team_name || '—';
         for (let i = 0; i < 3; i++) {
             const w = document.getElementById(`race-card-wrapper-${i}`);
             if (w) {
-                w.classList.remove('flipped'); // Flip to back
                 const front = w.querySelector('.race-card-front');
                 if (front) front.innerHTML = `
                     <div class="race-card searching" id="race-card-${i}">
@@ -1518,6 +1512,16 @@ const team = contact.team_name || '—';
         currentBatchContacts.forEach((c, sid) => {
             if (c.status !== 'ringing' && c.status !== 'human') currentBatchContacts.delete(sid);
         });
+        for (let i = 0; i < 3; i++) {
+            const w = document.getElementById(`race-card-wrapper-${i}`);
+            if (w) w.classList.remove('flipped');
+        }
+        setTimeout(() => {
+            for (let i = 0; i < 3; i++) {
+                const w = document.getElementById(`race-card-wrapper-${i}`);
+                if (w) w.classList.add('flipped');
+            }
+        }, 500);
     }
 
     // ============================================
