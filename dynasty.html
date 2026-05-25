@@ -1542,6 +1542,7 @@ const team = contact.team_name || '—';
     contact_name: contact?.name, 
     contact_phone: contact?.phone, 
     note: text,
+    rep_phone: repPhone,
     session_id: sessionId,
     file_id: document.getElementById('listSelect').value,
     folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId
@@ -1566,6 +1567,7 @@ const team = contact.team_name || '—';
     contact_phone: contact?.phone, 
     contact_name: contact?.name, 
     disposition,
+    rep_phone: repPhone,
     session_id: sessionId,
     file_id: document.getElementById('listSelect').value,
     folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId
@@ -1587,6 +1589,7 @@ const team = contact.team_name || '—';
                 body: JSON.stringify({ 
     contact_phone: contact.phone, 
     contact_name: contact.name,
+    rep_phone: repPhone,
     session_id: sessionId,
     file_id: document.getElementById('listSelect').value,
     folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId,
