@@ -1245,6 +1245,9 @@ else if (status === 'human_answered') {
         card.querySelector('.race-card-status').innerHTML = `<span class="race-status-icon">🎤</span><span>Speaking...</span>`;
     }
 }
+else if (status === 'batch_complete') {
+    if (cardsReady) resetCardsToSearching();
+}
 else if (status === 'batches_complete') {
     showSuccess('All contacts dialed!');
 }
