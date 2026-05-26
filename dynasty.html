@@ -1009,6 +1009,7 @@ document.getElementById('callRaceGrid').innerHTML = '';
             updateStatus('dialing', 'Dialing Active');
             showEmptyRaceCards();
             subscribeToCallLogs();
+            subscribeToInboundCalls();
 
             await fetch(START_URL, {
                 method: 'POST',
@@ -1062,7 +1063,7 @@ document.getElementById('callRaceGrid').innerHTML = '';
         checkFormValid();
     }
 
-    // ============================================
+ // ============================================
     // REALTIME
     // ============================================
     function subscribeToCallLogs() {
@@ -1103,6 +1104,24 @@ supabaseSubscription = supabaseClient
         })
         .subscribe();
 }
+
+    function subscribeToInboundCalls() {
+        if (!supabaseClient || !repPhone) return;
+
+        supabaseClient
+            .channel(`inbound_${repPhone}`)
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public',
+                table: 'dialer_status',
+                filter: `event_type=eq.inbound_call AND rep_phone=eq.${repPhone}`
+            }, (payload) => {
+                const row = payload.new;
+                if (row && row.event_type === 'inbound_call') {
+                    showHeroCard(row);
+                }
+            })
+            .subscribe();
+    }
 
     function unsubscribeFromSupabase() {
     if (supabaseSubscription && supabaseClient) {
