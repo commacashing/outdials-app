@@ -656,9 +656,10 @@
             <span class="nav-logo-sub">Dynasty Power Dialer</span>
         </div>
         <div class="nav-user">
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
-            <button onclick="logout()" class="btn-logout">Logout</button>
-        </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+    <button id="exportBtn" onclick="exportDailyList()" class="theme-toggle" title="Export List">📝</button>
+    <button onclick="logout()" class="btn-logout">Logout</button>
+</div>
     </div>
 
     <!-- CONTROLS BAR -->
@@ -710,9 +711,6 @@
         <div class="controls-divider"></div>
 
         <button id="startButton" onclick="startDialing()" class="btn-start" disabled>Start Dialing</button>
-        <button id="exportBtn" onclick="exportDailyList()" class="btn-start" style="background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: rgba(34,197,94,0.9);">
-  📥 Export List
-</button>
     </div>
 
     <!-- ANALYTICS -->
