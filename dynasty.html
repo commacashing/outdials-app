@@ -1112,10 +1112,11 @@ supabaseSubscription = supabaseClient
         .channel(`inbound_${repPhone}`)
         .on('postgres_changes', {
             event: 'INSERT', schema: 'public',
-            table: 'dialer_status'
+            table: 'dialer_status',
+            filter: `rep_phone=eq.${repPhone.replace('+1', ' 1')}`
         }, (payload) => {
             const row = payload.new;
-            if (row && row.event_type === 'inbound_call' && row.rep_phone?.trim() === repPhone.trim()) {
+            if (row && row.event_type === 'inbound_call') {
                 showHeroCard(row);
             }
         })
