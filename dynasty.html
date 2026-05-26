@@ -917,6 +917,7 @@ let repPhone = '';
     function showDashboard() {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardScreen').style.display = 'block';
+        subscribeToInboundCalls();
     }
 
     function logout() {
@@ -1010,6 +1011,7 @@ document.getElementById('callRaceGrid').innerHTML = '';
             showEmptyRaceCards();
             subscribeToCallLogs();
             subscribeToInboundCalls();
+            checkFormValid();
 
             await fetch(START_URL, {
                 method: 'POST',
@@ -1106,19 +1108,17 @@ supabaseSubscription = supabaseClient
 }
 
     function subscribeToInboundCalls() {
-    if (!supabaseClient || !repPhone) return;
+    if (!supabaseClient) return;
 
     supabaseClient
-        .channel(`inbound_${repPhone}`)
+        .channel('inbound_calls_listener')
         .on('postgres_changes', {
-            event: 'INSERT', schema: 'public',
+            event: 'INSERT',
+            schema: 'public',
             table: 'dynasty_call_logs',
-            filter: `event_type=eq.inbound_call AND rep_phone=eq.${repPhone.replace('+1', ' 1')}`
+            filter: `event_type=eq.inbound_call`
         }, (payload) => {
-            const row = payload.new;
-            if (row && row.event_type === 'inbound_call') {
-                showHeroCard(row);
-            }
+            showHeroCard(payload.new);
         })
         .subscribe();
 }
