@@ -764,14 +764,34 @@
             📞 INCOMING CALL
         </div>
         <div style="color: var(--text-primary); font-size: 32px; font-weight: 700; margin: 24px 0; text-align: center;" id="heroCardName">Loading...</div>
-        <div style="display: grid; gap: 16px; margin-bottom: 32px;">
-            <div style="background: var(--bg-primary); padding: 16px 20px; border-radius: 12px;">
-                <div style="color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">Phone</div>
-                <div style="color: var(--text-primary); font-size: 16px; font-weight: 600;" id="heroCardPhone">-</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-bottom: 32px;">
+            <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Age</span>
+                <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" id="heroCardAge">—</span>
             </div>
-            <div style="background: var(--bg-primary); padding: 16px 20px; border-radius: 12px;">
-                <div style="color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">Company</div>
-                <div style="color: var(--text-primary); font-size: 16px; font-weight: 600;" id="heroCardCompany">-</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.1);">
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Phone</span>
+                <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" id="heroCardPhone">—</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Years at Firm</span>
+                <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" id="heroCardYears">—</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.1);">
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Prior Firm</span>
+                <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" id="heroCardCompany">—</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Licenses</span>
+                <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" id="heroCardLicenses">—</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.1);">
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Team</span>
+                <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" id="heroCardTeam">—</span>
+            </div>
+            <div style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: none;">
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Notes</span>
+                <span style="font-size: 16px; font-weight: 500; color: var(--text-primary); background: rgba(255,255,255,0.04); border-left: 3px solid rgba(255,255,255,0.12); border-radius: 4px; padding: 10px 12px; height: 90px; overflow-y: auto; line-height: 1.6; font-style: italic; opacity: 0.85;" id="heroCardNotes">—</span>
             </div>
         </div>
         <div style="display: flex; gap: 20px; justify-content: center;">
@@ -1786,8 +1806,23 @@ async function markOptOut(callSid) {
         currentHeroCallSid = data.call_sid;
         currentHeroContact = { name: data.contact_name, phone: data.phone, company: data.contact_company || '-' };
         document.getElementById('heroCardName').textContent = data.contact_name || 'Unknown Caller';
-        document.getElementById('heroCardPhone').textContent = data.phone || '-';
-        document.getElementById('heroCardCompany').textContent = data.contact_company || '-';
+        
+        const age = calcAge(data.date_of_birth);
+        const phone = data.phone || '—';
+        const years = data.years_at_firm || '—';
+        const priorFirm = data.contact_company && data.contact_company.trim() ? data.contact_company : '—';
+        const licenses = data.licenses || '—';
+        const team = data.team_name || '—';
+        const notes = data.notes || '—';
+        
+        document.getElementById('heroCardAge').textContent = age;
+        document.getElementById('heroCardPhone').textContent = phone;
+        document.getElementById('heroCardYears').textContent = years;
+        document.getElementById('heroCardCompany').textContent = priorFirm;
+        document.getElementById('heroCardLicenses').textContent = licenses;
+        document.getElementById('heroCardTeam').textContent = team;
+        document.getElementById('heroCardNotes').textContent = notes;
+        
         document.getElementById('heroNoteCompartment').style.maxHeight = '0';
         document.getElementById('heroNoteCompartment').style.opacity = '0';
         document.getElementById('heroNoteText').value = '';
