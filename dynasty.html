@@ -710,7 +710,9 @@
         <div class="controls-divider"></div>
 
         <button id="startButton" onclick="startDialing()" class="btn-start" disabled>Start Dialing</button>
-        <button id="stopButton" onclick="stopDialing()" class="btn-start btn-stop" style="display: none;">Stop Dialing</button>
+        <button id="exportBtn" onclick="exportDailyList()" class="btn-start" style="background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: rgba(34,197,94,0.9);">
+  📥 Export List
+</button>
     </div>
 
     <!-- ANALYTICS -->
@@ -1590,6 +1592,56 @@ async function selectDisposition(callSid, disposition) {
     } catch (e) { showError(`Failed: ${e.message}`); }
 }
 
+async function exportDailyList() {
+    const listEl = document.getElementById('listSelect');
+    if (!listEl.value) {
+        showError('Select a list first');
+        return;
+    }
+
+    const selectedOpt = listEl.options[listEl.selectedIndex];
+    const fileName = selectedOpt?.textContent || 'List.xlsx';
+    const fileId = listEl.value;
+    const folderId = selectedOpt?.dataset.folderId;
+
+    const btn = document.getElementById('exportBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Exporting...';
+
+    try {
+        const res = await fetch(`${N8N_BASE}/export-dynasty-list`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                file_id: fileId,
+                file_name: fileName,
+                folder_id: folderId,
+                rep_phone: repPhone
+            })
+        });
+
+        if (!res.ok) throw new Error('Export failed');
+
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        showSuccess('List exported!');
+        btn.textContent = '📥 Export List';
+        btn.disabled = false;
+    } catch (e) {
+        showError(`Export error: ${e.message}`);
+        btn.textContent = '📥 Export List';
+        btn.disabled = false;
+    }
+}
+    
 async function markOptOut(callSid) {
     const contact = currentBatchContacts.get(callSid);
     if (!contact) return;
