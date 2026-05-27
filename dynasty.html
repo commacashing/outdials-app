@@ -1033,7 +1033,6 @@ document.getElementById('callRaceGrid').innerHTML = '';
             updateStatus('dialing', 'Dialing Active');
             showEmptyRaceCards();
             subscribeToCallLogs();
-            subscribeToInboundCalls();
             checkFormValid();
 
             await fetch(START_URL, {
