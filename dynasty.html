@@ -936,10 +936,12 @@ let repPhone = '';
     }
 
     function showDashboard() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboardScreen').style.display = 'block';
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardScreen').style.display = 'block';
+    if (supabaseClient) {
         subscribeToInboundCalls();
     }
+}
 
     function logout() {
         localStorage.removeItem('dynasty_authed');
