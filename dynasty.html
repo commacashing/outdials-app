@@ -1208,7 +1208,7 @@ if (status === 'call_initiated') {
         pendingEvents.set(data.call_sid, { _type: 'populate', contact, index });
     } else {
         console.log(`  ✓ Calling populateRaceCard(${data.call_sid}, ${index})`);
-        populateRaceCard(data.call_sid, contact, index);
+        await populateRaceCard(data.call_sid, contact, index);
     }
 }
         else if (status === 'machine_detected') {
@@ -1387,15 +1387,15 @@ else if (status === 'workflow_error') {
         }
     }
     // Wait for flip to finish, then mark ready and flush queued events
-    setTimeout(() => {
+    setTimeout(async () => {
         cardsReady = true;
-        pendingEvents.forEach((evt, sid) => {
+        for (const [sid, evt] of pendingEvents) {
             if (evt._type === 'populate') {
-                populateRaceCard(sid, evt.contact, evt.index);
+                await populateRaceCard(sid, evt.contact, evt.index);
             } else {
                 handleStatusUpdate(evt);
             }
-        });
+        }
         pendingEvents.clear();
     }, 650);
 }, 1400);
@@ -1444,13 +1444,30 @@ else if (status === 'workflow_error') {
     return ageCalc;
 }
 
-    function populateRaceCard(callSid, contact, index) {
-        const card = document.getElementById(`race-card-${index}`);
-        if (!card) { setTimeout(() => populateRaceCard(callSid, contact, index), 100); return; }
-        card.id = `race-card-${callSid}`;
-        card.className = 'race-card ringing';
+    async function populateRaceCard(callSid, contact, index) {
+    const card = document.getElementById(`race-card-${index}`);
+    if (!card) { setTimeout(() => populateRaceCard(callSid, contact, index), 100); return; }
+    card.id = `race-card-${callSid}`;
+    card.className = 'race-card ringing';
 
-        const age = calcAge(contact.date_of_birth, contact.age);
+    // Fallback: if age is null, query Supabase directly
+    let ageValue = contact.age;
+    if ((ageValue === null || ageValue === undefined) && callSid) {
+        try {
+            const { data: fullRow } = await supabaseClient
+                .from('dynasty_call_logs')
+                .select('age')
+                .eq('call_sid', callSid)
+                .single();
+            if (fullRow && fullRow.age !== null) {
+                ageValue = fullRow.age;
+            }
+        } catch (e) {
+            console.warn('Age lookup failed:', e);
+        }
+    }
+
+    const age = calcAge(contact.date_of_birth, ageValue);
         const priorFirm = contact.company && contact.company.trim() ? contact.company : '—';
         const phone = contact.phone || '—';
         const licenses = contact.licenses || '—';
