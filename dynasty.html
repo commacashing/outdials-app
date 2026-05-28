@@ -1168,6 +1168,7 @@ supabaseSubscription = supabaseClient
         if (status === 'workflow_started') return;
 
 if (status === 'call_initiated') {
+    console.log(`🎯 call_initiated incoming: index=${data.call_index}, incomingBatch=${data.batch_id}, currentBatchId=${currentBatchId}, cardsReady=${cardsReady}`);
     const index = data.call_index;
     if (index === null || index === undefined) {
         console.warn('call_initiated skipped — no call_index');
@@ -1178,9 +1179,11 @@ if (status === 'call_initiated') {
     const incomingBatchId = data.batch_id;
     if (incomingBatchId && incomingBatchId !== currentBatchId) {
         const hasActiveHuman = [...currentBatchContacts.values()].some(c => c.status === 'human');
+        console.log(`  Batch changed: old=${currentBatchId}, new=${incomingBatchId}, hasHuman=${hasActiveHuman}`);
         if (!hasActiveHuman) {
             currentBatchId = incomingBatchId;
             currentBatchContacts.clear();
+            console.log(`  ✓ Switched to new batch`);
         }
     }
 
@@ -1200,8 +1203,10 @@ if (status === 'call_initiated') {
     currentBatchContacts.set(data.call_sid, contact);
     updateStatsDisplay();
     if (!cardsReady) {
+        console.log(`  ⏳ Queued to pendingEvents (cardsReady=false)`);
         pendingEvents.set(data.call_sid, { _type: 'populate', contact, index });
     } else {
+        console.log(`  ✓ Calling populateRaceCard(${data.call_sid}, ${index})`);
         populateRaceCard(data.call_sid, contact, index);
     }
 }
