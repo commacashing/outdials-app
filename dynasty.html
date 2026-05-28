@@ -1405,6 +1405,26 @@ else if (status === 'workflow_error') {
     // Otherwise calculate from date_of_birth
     if (!dob) return '—';
     
+    // Handle string format like "6/25/1967"
+    if (typeof dob === 'string' && dob.includes('/')) {
+        const parts = dob.split('/');
+        if (parts.length === 3) {
+            const month = parseInt(parts[0], 10) - 1;
+            const day = parseInt(parts[1], 10);
+            const year = parseInt(parts[2], 10);
+            if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
+                const birth = new Date(year, month, day);
+                if (isNaN(birth.getTime())) return '—';
+                const today = new Date();
+                let ageCalc = today.getFullYear() - birth.getFullYear();
+                const m = today.getMonth() - birth.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) ageCalc--;
+                return ageCalc;
+            }
+        }
+    }
+    
+    // Handle Excel serial number format
     const excelDate = parseInt(dob, 10);
     if (isNaN(excelDate)) return '—';
     
