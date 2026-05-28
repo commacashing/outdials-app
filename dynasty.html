@@ -1416,7 +1416,7 @@ else if (status === 'workflow_error') {
         card.id = `race-card-${callSid}`;
         card.className = 'race-card ringing';
 
-        const age = calcAge(contact.date_of_birth);
+        const age = calcAge(contact.date_of_birth, contact.age);
         const priorFirm = contact.company && contact.company.trim() ? contact.company : '—';
         const phone = contact.phone || '—';
         const licenses = contact.licenses || '—';
@@ -1824,7 +1824,7 @@ async function markOptOut(callSid) {
         currentHeroContact = { name: data.contact_name, phone: data.phone, company: data.contact_company || '-' };
         document.getElementById('heroCardName').textContent = data.contact_name || 'Unknown Caller';
         
-        const age = calcAge(data.date_of_birth);
+        const age = calcAge(data.date_of_birth, data.age);
         const phone = data.phone || '—';
         const years = data.years_at_firm || '—';
         const priorFirm = data.contact_company && data.contact_company.trim() ? data.contact_company : '—';
