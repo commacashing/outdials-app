@@ -2,9 +2,10 @@ FROM mirror.gcr.io/n8nio/n8n:latest
 
 USER root
 
-# Force rebuild by adding timestamp
-RUN echo "Build: $(date)" > /tmp/build.txt
+WORKDIR /usr/local/lib/node_modules/n8n
 
-RUN npm install -g exceljs
+RUN npm install exceljs
+
+WORKDIR /
 
 USER node
