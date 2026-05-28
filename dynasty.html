@@ -1292,16 +1292,7 @@ else if (status === 'human_answered') {
     }
 }
 else if (status === 'batch_complete') {
-    console.log('🔄 batch_complete — flipping cards back to searching');
-    for (let i = 0; i < 3; i++) {
-        const w = document.getElementById(`race-card-wrapper-${i}`);
-        if (w) {
-            w.classList.remove('flipped');
-            console.log(`  Card ${i} flipped back`);
-        } else {
-            console.warn(`  Card ${i} wrapper not found`);
-        }
-    }
+    console.log('🔄 batch_complete received');
     currentBatchContacts.clear();
     currentBatchId = null;
     console.log('✓ batch_complete handled');
