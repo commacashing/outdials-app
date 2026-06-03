@@ -879,11 +879,11 @@ let inboundCallsSubscribed = false;
         }
 
         if (localStorage.getItem('dynasty_authed') === 'true') {
-        showDashboard();
         const currentRepPhone = localStorage.getItem('currentRepPhone');
         if (currentRepPhone) {
             repPhone = currentRepPhone;
         }
+        showDashboard();
     }
 
     const phoneEl = document.getElementById('repPhone');
@@ -922,7 +922,7 @@ let inboundCallsSubscribed = false;
     // ============================================
     async function handleLogin(e) {
         e.preventDefault();
-        const repPhone = '+1' + document.getElementById('repPhoneInput').value.replace(/\D/g, '');
+        const repPhoneLocal = '+1' + document.getElementById('repPhoneInput').value.replace(/\D/g, '');
         const password = document.getElementById('passwordInput').value;
         const btn = document.getElementById('loginBtn');
         btn.disabled = true; btn.textContent = 'Checking...';
@@ -932,7 +932,7 @@ let inboundCallsSubscribed = false;
             const { data: repData, error: repError } = await supabaseClient
                 .from('dynasty_reps')
                 .select('rep_phone, active')
-                .eq('rep_phone', repPhone)
+                .eq('rep_phone', repPhoneLocal)
                 .single();
 
             if (repError || !repData) {
@@ -965,8 +965,9 @@ let inboundCallsSubscribed = false;
             }
 
             // Store rep phone and auth status
+            repPhone = repPhoneLocal;
             localStorage.setItem('dynasty_authed', 'true');
-            localStorage.setItem('currentRepPhone', repPhone);
+            localStorage.setItem('currentRepPhone', repPhoneLocal);
             showDashboard();
             showSuccess('Welcome to Dynasty Power Dialer!');
         } catch (err) {
