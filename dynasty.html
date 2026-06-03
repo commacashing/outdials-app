@@ -1222,9 +1222,11 @@ supabaseSubscription = supabaseClient
             event: 'INSERT',
             schema: 'public',
             table: 'dynasty_call_logs',
-            filter: `event_type=eq.inbound_call AND rep_phone=eq.${repPhone}`
+            filter: `rep_phone=eq.${repPhone}`
         }, (payload) => {
-            showHeroCard(payload.new);
+            if (payload.new.event_type === 'inbound_call') {
+                showHeroCard(payload.new);
+            }
         })
         .subscribe();
     
