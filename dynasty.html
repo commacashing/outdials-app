@@ -988,14 +988,12 @@ let repPhone = '';
     if (isDialing) stopDialing();
     
     // Clean up all subscriptions
-    if (supabaseSubscription) {
-        supabaseSubscription.unsubscribe();
-        supabaseSubscription = null;
-    }
-    
-    if (supabaseClient) {
+    if (supabaseClient && sessionId) {
+        supabaseClient.removeChannel(`dynasty_${sessionId}`);
+        supabaseClient.removeChannel(`dynasty_errors_${sessionId}`);
         supabaseClient.removeChannel('inbound_calls_listener');
     }
+    supabaseSubscription = null;
     
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboardScreen').style.display = 'none';
@@ -1213,10 +1211,11 @@ supabaseSubscription = supabaseClient
 }
 
     function unsubscribeFromSupabase() {
-    if (supabaseSubscription && supabaseClient) {
-        supabaseSubscription.unsubscribe();
-        supabaseSubscription = null;
+    if (supabaseClient && sessionId) {
+        supabaseClient.removeChannel(`dynasty_${sessionId}`);
+        supabaseClient.removeChannel(`dynasty_errors_${sessionId}`);
     }
+    supabaseSubscription = null;
     knownCallSids.clear();
     currentBatchId = null;
 }
