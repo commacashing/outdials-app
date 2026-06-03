@@ -628,10 +628,10 @@
         <h2>Dynasty Power Dialer</h2>
         <p>Dynasty Consulting</p>
         <form class="login-form" onsubmit="handleLogin(event)">
-            <input type="tel" id="repPhoneInput" class="login-input" placeholder="(212) 555-1234" required>
-            <input type="password" id="passwordInput" class="login-input" placeholder="Enter passcode" required>
-            <button type="submit" id="loginBtn" class="btn-primary">Login</button>
-        </form>
+    <input type="tel" id="repPhoneInput" class="login-input" placeholder="(212) 555-1234" autocomplete="tel" required>
+    <input type="password" id="passwordInput" class="login-input" placeholder="Enter passcode" autocomplete="current-password" required>
+    <button type="submit" id="loginBtn" class="btn-primary">Login</button>
+</form>
     </div>
 </div>
 
@@ -978,7 +978,7 @@ let repPhone = '';
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboardScreen').style.display = 'block';
     if (supabaseClient) {
-        subscribeToInboundCalls();
+        setTimeout(() => subscribeToInboundCalls(), 500);
     }
 }
 
