@@ -977,9 +977,7 @@ let repPhone = '';
     function showDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboardScreen').style.display = 'block';
-    if (supabaseClient) {
-        setTimeout(() => subscribeToInboundCalls(), 500);
-    }
+    // Inbound calls subscription removed - will be added when needed
 }
 
     function logout() {
@@ -1064,11 +1062,16 @@ let repPhone = '';
     // DIALING
     // ============================================
     async function startDialing() {
-        // Rep phone is already set from login session
-        if (!repPhone) {
-            showError('Rep phone not set. Please login again.');
-            return;
-        }
+    // Rep phone is already set from login session
+    if (!repPhone) {
+        showError('Rep phone not set. Please login again.');
+        return;
+    }
+    
+    // Subscribe to inbound calls when dialing starts
+    if (!inboundCallsSubscribed) {
+        subscribeToInboundCalls();
+    }
         
         const listEl = document.getElementById('listSelect');
         const selectedOpt = listEl.options[listEl.selectedIndex];
