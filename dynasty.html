@@ -983,10 +983,15 @@ let repPhone = '';
 }
 
     function logout() {
-        localStorage.removeItem('dynasty_authed');
-        localStorage.removeItem('currentRepPhone');
-        repPhone = '';
-        if (isDialing) stopDialing();
+    localStorage.removeItem('dynasty_authed');
+    localStorage.removeItem('currentRepPhone');
+    repPhone = '';
+    if (isDialing) stopDialing();
+    
+    // Unsubscribe from inbound calls listener
+    if (supabaseClient) {
+        supabaseClient.removeChannel('inbound_calls_listener');
+    }
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('dashboardScreen').style.display = 'none';
         document.getElementById('passwordInput').value = '';
