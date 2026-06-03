@@ -977,6 +977,17 @@ let repPhone = '';
     function showDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboardScreen').style.display = 'block';
+    
+    // Auto-populate and lock rep phone field after login
+    const phoneEl = document.getElementById('repPhone');
+    const currentRepPhone = localStorage.getItem('currentRepPhone');
+    if (currentRepPhone && phoneEl) {
+        const digits = currentRepPhone.replace(/\D/g, '').slice(-10);
+        phoneEl.value = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+        phoneEl.readOnly = true;
+        phoneEl.style.opacity = '0.6';
+        phoneEl.style.cursor = 'not-allowed';
+    }
     // Inbound calls subscription removed - will be added when needed
 }
 
@@ -985,6 +996,13 @@ let repPhone = '';
     localStorage.removeItem('currentRepPhone');
     repPhone = '';
     inboundCallsSubscribed = false;
+    
+    // Reset login button
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+    }
     if (isDialing) stopDialing();
     
     // Clean up all subscriptions
