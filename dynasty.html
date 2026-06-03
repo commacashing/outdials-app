@@ -628,6 +628,7 @@
         <h2>Dynasty Power Dialer</h2>
         <p>Dynasty Consulting</p>
         <form class="login-form" onsubmit="handleLogin(event)">
+            <input type="tel" id="repPhoneInput" class="login-input" placeholder="(212) 555-1234" required>
             <input type="password" id="passwordInput" class="login-input" placeholder="Enter passcode" required>
             <button type="submit" id="loginBtn" class="btn-primary">Login</button>
         </form>
@@ -657,7 +658,6 @@
         </div>
         <div class="nav-user">
     <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
-    <button id="exportBtn" onclick="exportDailyList()" class="theme-toggle" title="Export List">📝</button>
     <button onclick="logout()" class="btn-logout">Logout</button>
 </div>
     </div>
@@ -867,20 +867,38 @@ let repPhone = '';
         }
 
         // Load stats from localStorage on page load
-        const savedStats = localStorage.getItem('dynasty_stats');
-        const savedDate = localStorage.getItem('dynasty_stats_date');
+        const currentRepPhoneAtLoad = localStorage.getItem('currentRepPhone');
+        const statsKey = currentRepPhoneAtLoad ? `dynasty_stats_${currentRepPhoneAtLoad}` : 'dynasty_stats';
+        const statsDateKey = currentRepPhoneAtLoad ? `dynasty_stats_date_${currentRepPhoneAtLoad}` : 'dynasty_stats_date';
+        const savedStats = localStorage.getItem(statsKey);
+        const savedDate = localStorage.getItem(statsDateKey);
         if (savedStats && savedDate === new Date().toDateString()) {
             currentSessionStats = JSON.parse(savedStats);
             updateStatsDisplay();
         }
 
         if (localStorage.getItem('dynasty_authed') === 'true') {
-            showDashboard();
+        showDashboard();
+        const currentRepPhone = localStorage.getItem('currentRepPhone');
+        if (currentRepPhone) {
+            repPhone = currentRepPhone;
         }
+    }
 
-        const phoneEl = document.getElementById('repPhone');
-        ['input','change','blur'].forEach(ev => phoneEl.addEventListener(ev, () => formatPhone(phoneEl)));
-        phoneEl.addEventListener('paste', () => setTimeout(() => formatPhone(phoneEl), 0));
+    const phoneEl = document.getElementById('repPhone');
+    
+    // Auto-populate and lock rep phone from login
+    const currentRepPhone = localStorage.getItem('currentRepPhone');
+    if (currentRepPhone) {
+        const digits = currentRepPhone.replace(/\D/g, '').slice(-10);
+        phoneEl.value = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+        phoneEl.readOnly = true;
+        phoneEl.style.opacity = '0.6';
+        phoneEl.style.cursor = 'not-allowed';
+    }
+    
+    ['input','change','blur'].forEach(ev => phoneEl.addEventListener(ev, () => formatPhone(phoneEl)));
+    phoneEl.addEventListener('paste', () => setTimeout(() => formatPhone(phoneEl), 0));
         document.getElementById('listSelect').addEventListener('change', checkFormValid);
         document.getElementById('regionSelect').addEventListener('change', checkFormValid);
     });
@@ -903,29 +921,51 @@ let repPhone = '';
     // ============================================
     async function handleLogin(e) {
         e.preventDefault();
+        const repPhone = '+1' + document.getElementById('repPhoneInput').value.replace(/\D/g, '');
         const password = document.getElementById('passwordInput').value;
         const btn = document.getElementById('loginBtn');
         btn.disabled = true; btn.textContent = 'Checking...';
 
         try {
-            const { data, error } = await supabaseClient
+            // Validate rep phone exists in dynasty_reps
+            const { data: repData, error: repError } = await supabaseClient
+                .from('dynasty_reps')
+                .select('rep_phone, active')
+                .eq('rep_phone', repPhone)
+                .single();
+
+            if (repError || !repData) {
+                showError('Rep phone not found.');
+                btn.disabled = false; btn.textContent = 'Login'; 
+                document.getElementById('repPhoneInput').value = ''; return;
+            }
+
+            if (repData.active !== 'Yes') {
+                showError('This rep account is not active.');
+                btn.disabled = false; btn.textContent = 'Login'; return;
+            }
+
+            // Validate password
+            const { data: compData, error: compError } = await supabaseClient
                 .from('companies')
                 .select('admin_passcode')
                 .eq('company_code', COMPANY_CODE)
                 .single();
 
-            if (error || !data) {
+            if (compError || !compData) {
                 showError('Could not verify. Try again.');
                 btn.disabled = false; btn.textContent = 'Login'; return;
             }
 
-            if (password !== data.admin_passcode) {
+            if (password !== compData.admin_passcode) {
                 showError('Incorrect passcode.');
                 btn.disabled = false; btn.textContent = 'Login';
                 document.getElementById('passwordInput').value = ''; return;
             }
 
+            // Store rep phone and auth status
             localStorage.setItem('dynasty_authed', 'true');
+            localStorage.setItem('currentRepPhone', repPhone);
             showDashboard();
             showSuccess('Welcome to Dynasty Power Dialer!');
         } catch (err) {
@@ -944,10 +984,17 @@ let repPhone = '';
 
     function logout() {
         localStorage.removeItem('dynasty_authed');
+        localStorage.removeItem('currentRepPhone');
+        repPhone = '';
         if (isDialing) stopDialing();
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('dashboardScreen').style.display = 'none';
         document.getElementById('passwordInput').value = '';
+        document.getElementById('repPhoneInput').value = '';
+        document.getElementById('repPhone').value = '';
+        document.getElementById('repPhone').readOnly = false;
+        document.getElementById('repPhone').style.opacity = '1';
+        document.getElementById('repPhone').style.cursor = 'auto';
     }
 
     // ============================================
@@ -1005,7 +1052,12 @@ let repPhone = '';
     // DIALING
     // ============================================
     async function startDialing() {
-        repPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
+        // Rep phone is already set from login session
+        if (!repPhone) {
+            showError('Rep phone not set. Please login again.');
+            return;
+        }
+        
         const listEl = document.getElementById('listSelect');
         const selectedOpt = listEl.options[listEl.selectedIndex];
         const fileId = listEl.value;
@@ -1067,12 +1119,13 @@ document.getElementById('callRaceGrid').innerHTML = '';
         resetDialingState();
         showSuccess('Dialing stopped');
 
-        const stopRepPhone = '+1' + document.getElementById('repPhone').value.replace(/\D/g, '');
-        fetch(STOP_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
-    body: JSON.stringify({ session_id: sessionId, rep_phone: stopRepPhone })
-}).catch(e => console.error('Stop failed:', e));
+        if (repPhone) {
+            fetch(STOP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-webhook-secret': webhookSecret },
+        body: JSON.stringify({ session_id: sessionId, rep_phone: repPhone })
+    }).catch(e => console.error('Stop failed:', e));
+        }
     }
 
     function resetDialingState() {
@@ -1820,8 +1873,10 @@ async function markOptOut(callSid) {
     const cr = currentSessionStats.totalCalls > 0 ? Math.round((currentSessionStats.connects / currentSessionStats.totalCalls) * 100) : 0;
     document.getElementById('statConnectRate').textContent = cr + '%';
     
-    localStorage.setItem('dynasty_stats', JSON.stringify(currentSessionStats));
-    localStorage.setItem('dynasty_stats_date', new Date().toDateString());
+    const statsKey = repPhone ? `dynasty_stats_${repPhone}` : 'dynasty_stats';
+    const statsDateKey = repPhone ? `dynasty_stats_date_${repPhone}` : 'dynasty_stats_date';
+    localStorage.setItem(statsKey, JSON.stringify(currentSessionStats));
+    localStorage.setItem(statsDateKey, new Date().toDateString());
 }
 
     function updateStatus(state, text) {
