@@ -986,21 +986,28 @@ let repPhone = '';
     localStorage.removeItem('dynasty_authed');
     localStorage.removeItem('currentRepPhone');
     repPhone = '';
+    inboundCallsSubscribed = false;
     if (isDialing) stopDialing();
     
-    // Unsubscribe from inbound calls listener
+    // Clean up all subscriptions
+    if (supabaseSubscription) {
+        supabaseSubscription.unsubscribe();
+        supabaseSubscription = null;
+    }
+    
     if (supabaseClient) {
         supabaseClient.removeChannel('inbound_calls_listener');
     }
-        document.getElementById('loginScreen').style.display = 'flex';
-        document.getElementById('dashboardScreen').style.display = 'none';
-        document.getElementById('passwordInput').value = '';
-        document.getElementById('repPhoneInput').value = '';
-        document.getElementById('repPhone').value = '';
-        document.getElementById('repPhone').readOnly = false;
-        document.getElementById('repPhone').style.opacity = '1';
-        document.getElementById('repPhone').style.cursor = 'auto';
-    }
+    
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboardScreen').style.display = 'none';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('repPhoneInput').value = '';
+    document.getElementById('repPhone').value = '';
+    document.getElementById('repPhone').readOnly = false;
+    document.getElementById('repPhone').style.opacity = '1';
+    document.getElementById('repPhone').style.cursor = 'auto';
+}
 
     // ============================================
     // LOAD LISTS & REGIONS
@@ -1204,7 +1211,7 @@ supabaseSubscription = supabaseClient
 
     function unsubscribeFromSupabase() {
     if (supabaseSubscription && supabaseClient) {
-        supabaseClient.removeChannel(supabaseSubscription);
+        supabaseSubscription.unsubscribe();
         supabaseSubscription = null;
     }
     knownCallSids.clear();
