@@ -988,7 +988,11 @@ let repPhone = '';
         phoneEl.style.opacity = '0.6';
         phoneEl.style.cursor = 'not-allowed';
     }
-    // Inbound calls subscription removed - will be added when needed
+    
+    // Subscribe to inbound calls when dashboard loads
+    if (supabaseClient && !inboundCallsSubscribed) {
+        setTimeout(() => subscribeToInboundCalls(), 500);
+    }
 }
 
     function logout() {
@@ -1082,11 +1086,6 @@ let repPhone = '';
     if (!repPhone) {
         showError('Rep phone not set. Please login again.');
         return;
-    }
-    
-    // Subscribe to inbound calls when dialing starts
-    if (!inboundCallsSubscribed) {
-        subscribeToInboundCalls();
     }
         
         const listEl = document.getElementById('listSelect');
@@ -1213,7 +1212,7 @@ supabaseSubscription = supabaseClient
 }
 
     function subscribeToInboundCalls() {
-    if (!supabaseClient) return;
+    if (!supabaseClient || !repPhone) return;
 
     supabaseClient
         .channel('inbound_calls_listener')
@@ -1221,11 +1220,13 @@ supabaseSubscription = supabaseClient
             event: 'INSERT',
             schema: 'public',
             table: 'dynasty_call_logs',
-            filter: `event_type=eq.inbound_call`
+            filter: `event_type=eq.inbound_call AND rep_phone=eq.${repPhone}`
         }, (payload) => {
             showHeroCard(payload.new);
         })
         .subscribe();
+    
+    inboundCallsSubscribed = true;
 }
 
     function unsubscribeFromSupabase() {
