@@ -1680,7 +1680,7 @@ const team = contact.team_name || '—';
         let allResolved = true, anyHuman = false;
         currentBatchContacts.forEach(c => {
             if (c.status === 'ringing') allResolved = false;
-            if (c.status === 'human') anyHuman = true;
+            if (c.status === 'human' || c.status === 'speaking') anyHuman = true;
         });
         if (allResolved && !anyHuman) setTimeout(resetCardsToSearching, 2000);
     }
