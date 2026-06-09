@@ -14,14 +14,14 @@ exports.handler = async (event) => {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(Buffer.from(file_base64, 'base64'));
     
-    console.log('Available sheets:', workbook.worksheets.map(s => s.name));
-    
     const worksheet = workbook.worksheets[0];
     if (!worksheet) throw new Error("No worksheets found in workbook");
+    
     const dataMap = {};
     enriched_results.forEach(item => {
       if (item.CRD) dataMap[String(item.CRD).trim()] = item;
     });
+    
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1) return;
       const cellValue = row.getCell(1).value;
@@ -29,20 +29,12 @@ exports.handler = async (event) => {
       
       const enriched = dataMap[crd];
       if (enriched) {
-        if (enriched.final_phone) row.getCell(15).value = enriched.final_phone;
-        if (enriched.final_email) row.getCell(16).value = enriched.final_email;
-        row.getCell(17).value = enriched['C-Score'] !== undefined ? enriched['C-Score'] : 0;
-        if (enriched['Brokercheck Link']) {
-          const brokercheckUrl = enriched['Brokercheck Link'].trim();
-          row.getCell(18).value = {
-            text: brokercheckUrl,
-            hyperlink: brokercheckUrl
-          };
-          row.getCell(18).font = { color: { argb: 'FF0000FF' }, underline: true };
-        }
+        if (enriched.final_phone) row.getCell(6).value = enriched.final_phone;
+        row.getCell(7).value = enriched['C-Score'] !== undefined ? enriched['C-Score'] : 0;
         row.commit();
       }
     });
+    
     const outputBuffer = await workbook.xlsx.writeBuffer();
     return {
       statusCode: 200,
