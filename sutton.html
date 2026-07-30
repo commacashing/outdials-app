@@ -625,8 +625,8 @@
             </span>
             <span>utDials</span>
         </div>
-        <h2> Power Dialer</h2>
-        <p> Consulting</p>
+        <h2>Sutton Power Dialer</h2>
+        <p>Sutton Strategies</p>
         <form class="login-form" onsubmit="handleLogin(event)">
     <input type="tel" id="repPhoneInput" class="login-input" placeholder="(212) 555-1234" autocomplete="tel" required>
     <input type="password" id="passwordInput" class="login-input" placeholder="Enter passcode" autocomplete="current-password" required>
@@ -654,7 +654,7 @@
             </span>
             <span>utDials</span>
             <div class="nav-logo-divider"></div>
-            <span class="nav-logo-sub"> Power Dialer</span>
+            <span class="nav-logo-sub">Sutton Power Dialer</span>
         </div>
         <div class="nav-user">
     <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
@@ -813,9 +813,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     const N8N_BASE = 'https://primary-production-0bff2.up.railway.app/webhook';
-    const START_URL = `${N8N_BASE}/start-`;
-    const STOP_URL  = `${N8N_BASE}/stop-`;
-    const COMPANY_CODE = '';
+    const START_URL = `${N8N_BASE}/start-sutton`;
+    const STOP_URL  = `${N8N_BASE}/stop-sutton`;
+    const COMPANY_CODE = 'sutton';
 
     let supabaseClient = null;
     let webhookSecret = '';
@@ -861,7 +861,7 @@ let inboundCallsSubscribed = false;
     window.addEventListener('DOMContentLoaded', async () => {
         await initSupabase();
 
-        const savedTheme = localStorage.getItem('_theme');
+        const savedTheme = localStorage.getItem('sutton_theme');
         if (savedTheme === 'light') {
             document.body.classList.add('light-mode');
             document.getElementById('themeToggle').textContent = '☀️';
@@ -869,8 +869,8 @@ let inboundCallsSubscribed = false;
 
         // Load stats from localStorage on page load
         const currentRepPhoneAtLoad = localStorage.getItem('currentRepPhone');
-        const statsKey = currentRepPhoneAtLoad ? `_stats_${currentRepPhoneAtLoad}` : '_stats';
-        const statsDateKey = currentRepPhoneAtLoad ? `_stats_date_${currentRepPhoneAtLoad}` : '_stats_date';
+        const statsKey = currentRepPhoneAtLoad ? `sutton_stats_${currentRepPhoneAtLoad}` : 'sutton_stats';
+        const statsDateKey = currentRepPhoneAtLoad ? `sutton_stats_date_${currentRepPhoneAtLoad}` : 'sutton_stats_date';
         const savedStats = localStorage.getItem(statsKey);
         const savedDate = localStorage.getItem(statsDateKey);
         if (savedStats && savedDate === new Date().toDateString()) {
@@ -878,7 +878,7 @@ let inboundCallsSubscribed = false;
             updateStatsDisplay();
         }
 
-        if (localStorage.getItem('_authed') === 'true') {
+        if (localStorage.getItem('sutton_authed') === 'true') {
         const currentRepPhone = localStorage.getItem('currentRepPhone');
         if (currentRepPhone) {
             repPhone = currentRepPhone;
@@ -928,9 +928,9 @@ let inboundCallsSubscribed = false;
         btn.disabled = true; btn.textContent = 'Checking...';
 
         try {
-            // Validate rep phone exists in _reps
+            // Validate rep phone exists in sutton_reps
             const { data: repData, error: repError } = await supabaseClient
-                .from('_reps')
+                .from('sutton_reps')
                 .select('rep_phone, active')
                 .eq('rep_phone', repPhoneLocal)
                 .single();
@@ -966,10 +966,10 @@ let inboundCallsSubscribed = false;
 
             // Store rep phone and auth status
             repPhone = repPhoneLocal;
-            localStorage.setItem('_authed', 'true');
+            localStorage.setItem('sutton_authed', 'true');
             localStorage.setItem('currentRepPhone', repPhoneLocal);
             showDashboard();
-            showSuccess('Welcome to  Power Dialer!');
+            showSuccess('Welcome to Sutton Power Dialer!');
         } catch (err) {
             showError(`Login error: ${err.message}`);
             btn.disabled = false; btn.textContent = 'Login';
@@ -998,7 +998,7 @@ let inboundCallsSubscribed = false;
 }
 
     function logout() {
-    localStorage.removeItem('_authed');
+    localStorage.removeItem('sutton_authed');
     localStorage.removeItem('currentRepPhone');
     repPhone = '';
     inboundCallsSubscribed = false;
@@ -1013,8 +1013,8 @@ let inboundCallsSubscribed = false;
     
     // Clean up all subscriptions
     if (supabaseClient && sessionId) {
-        supabaseClient.removeChannel(`_${sessionId}`);
-        supabaseClient.removeChannel(`_errors_${sessionId}`);
+        supabaseClient.removeChannel(`sutton_${sessionId}`);
+        supabaseClient.removeChannel(`sutton_errors_${sessionId}`);
         supabaseClient.removeChannel('inbound_calls_listener');
     }
     supabaseSubscription = null;
@@ -1036,7 +1036,7 @@ let inboundCallsSubscribed = false;
         if (!supabaseClient) return;
         try {
             const { data, error } = await supabaseClient
-                .from('_contact_lists')
+                .from('sutton_contact_lists')
                 .select('file_id, file_name, file_name_original, folder_id')
                 .order('file_name_original');
             if (error) throw error;
@@ -1181,10 +1181,10 @@ document.getElementById('callRaceGrid').innerHTML = '';
     currentBatchId = null;
 
     supabaseClient
-    .channel(`_errors_${sessionId}`)
+    .channel(`sutton_errors_${sessionId}`)
     .on('postgres_changes', {
         event: 'INSERT', schema: 'public',
-        table: '_call_logs',
+        table: 'sutton_call_logs',
         filter: `rep_phone=eq.${repPhone}`
     }, (payload) => {
         const row = payload.new;
@@ -1194,10 +1194,10 @@ document.getElementById('callRaceGrid').innerHTML = '';
     .subscribe();
 
 supabaseSubscription = supabaseClient
-        .channel(`_${sessionId}`)
+        .channel(`sutton_${sessionId}`)
         .on('postgres_changes', {
             event: 'INSERT', schema: 'public',
-            table: '_call_logs',
+            table: 'sutton_call_logs',
             filter: `session_id=eq.${sessionId}`
         }, (payload) => {
             const row = payload.new;
@@ -1221,7 +1221,7 @@ supabaseSubscription = supabaseClient
         .on('postgres_changes', {
             event: 'INSERT',
             schema: 'public',
-            table: '_call_logs',
+            table: 'sutton_call_logs',
             filter: `rep_phone=eq.${repPhone}`
         }, (payload) => {
             if (payload.new.event_type === 'inbound_call') {
@@ -1235,8 +1235,8 @@ supabaseSubscription = supabaseClient
 
     function unsubscribeFromSupabase() {
     if (supabaseClient && sessionId) {
-        supabaseClient.removeChannel(`_${sessionId}`);
-        supabaseClient.removeChannel(`_errors_${sessionId}`);
+        supabaseClient.removeChannel(`sutton_${sessionId}`);
+        supabaseClient.removeChannel(`sutton_errors_${sessionId}`);
     }
     supabaseSubscription = null;
     knownCallSids.clear();
