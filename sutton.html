@@ -1191,7 +1191,7 @@ document.getElementById('callRaceGrid').innerHTML = '';
         if (!row || row.event_type !== 'workflow_error') return;
         handleStatusUpdate(row);
     })
-    .subscribe();
+    .subscribe((status, err) => console.log('SUTTON CHANNEL STATUS:', status, err));
 
 supabaseSubscription = supabaseClient
         .channel(`sutton_${sessionId}`)
