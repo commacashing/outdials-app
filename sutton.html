@@ -1099,6 +1099,7 @@ let inboundCallsSubscribed = false;
         try {
             isDialing = true;
             sessionId = `session_${Date.now()}`;
+console.log('SUTTON SESSION ID:', sessionId, 'REP PHONE:', repPhone);
             currentSessionStats.startTime = Date.now();
             currentBatchContacts.clear();
 pendingEvents.clear();
