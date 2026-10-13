@@ -1121,6 +1121,7 @@ document.getElementById('callRaceGrid').innerHTML = '';
             updateStatus('dialing', 'Dialing Active');
             showEmptyRaceCards();
             subscribeToCallLogs();
+            startPolling();
             checkFormValid();
 
             await fetch(START_URL, {
@@ -1218,6 +1219,49 @@ supabaseSubscription = supabaseClient
         .subscribe();
 }
 
+    let pollTimer = null;
+    let pollCursor = null;
+    let pollBusy = false;
+
+    function startPolling() {
+        stopPolling();
+        const sid = sessionId;
+        pollTimer = setInterval(async () => {
+            if (pollBusy || !supabaseClient || sessionId !== sid) return;
+            pollBusy = true;
+            try {
+                let q = supabaseClient
+                    .from('sutton_call_logs')
+                    .select('*')
+                    .eq('session_id', sid)
+                    .order('created_at', { ascending: true })
+                    .limit(500);
+                if (pollCursor) q = q.gte('created_at', pollCursor);
+                const { data, error } = await q;
+                if (error) { console.warn('Poll error:', error.message); return; }
+                for (const row of (data || [])) {
+                    pollCursor = row.created_at;
+                    const key = `${row.call_sid}_${row.event_type}`;
+                    if (knownCallSids.has(key)) continue;
+                    knownCallSids.add(key);
+                    console.log('🔁 poll delivered', row.event_type);
+                    await handleStatusUpdate(row);
+                }
+            } catch (e) {
+                console.warn('Poll failed:', e);
+            } finally {
+                pollBusy = false;
+            }
+        }, 1500);
+    }
+
+    function stopPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = null;
+        pollCursor = null;
+        pollBusy = false;
+    }
+
     function subscribeToInboundCalls() {
     if (!supabaseClient || !repPhone) return;
 
@@ -1244,6 +1288,7 @@ supabaseSubscription = supabaseClient
     if (errorsSubscription) supabaseClient.removeChannel(errorsSubscription);
     errorsSubscription = null;
     }
+        stopPolling();
     supabaseSubscription = null;
     knownCallSids.clear();
     currentBatchId = null;
