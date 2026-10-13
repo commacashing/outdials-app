@@ -822,6 +822,8 @@
     let isDialing = false;
     let sessionId = null;
     let supabaseSubscription = null;
+let errorsSubscription = null;
+let inboundSubscription = null;
     let currentBatchContacts = new Map();
     let pendingEvents = new Map();
 let cardsReady = false;
@@ -1012,12 +1014,14 @@ let inboundCallsSubscribed = false;
     if (isDialing) stopDialing();
     
     // Clean up all subscriptions
-    if (supabaseClient && sessionId) {
-        supabaseClient.removeChannel(`sutton_${sessionId}`);
-        supabaseClient.removeChannel(`sutton_errors_${sessionId}`);
-        supabaseClient.removeChannel('inbound_calls_listener');
+        if (supabaseClient) {
+        if (supabaseSubscription) supabaseClient.removeChannel(supabaseSubscription);
+        if (errorsSubscription) supabaseClient.removeChannel(errorsSubscription);
+        if (inboundSubscription) supabaseClient.removeChannel(inboundSubscription);
     }
     supabaseSubscription = null;
+    errorsSubscription = null;
+    inboundSubscription = null;
     
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('dashboardScreen').style.display = 'none';
@@ -1181,8 +1185,8 @@ document.getElementById('callRaceGrid').innerHTML = '';
     knownCallSids.clear();
     currentBatchId = null;
 
-    supabaseClient
-    .channel(`sutton_errors_${sessionId}`)
+        errorsSubscription = supabaseClient
+      .channel(`sutton_errors_${sessionId}`)
     .on('postgres_changes', {
         event: 'INSERT', schema: 'public',
         table: 'sutton_call_logs',
@@ -1217,7 +1221,7 @@ supabaseSubscription = supabaseClient
     function subscribeToInboundCalls() {
     if (!supabaseClient || !repPhone) return;
 
-    supabaseClient
+        inboundSubscription = supabaseClient
         .channel('inbound_calls_listener')
         .on('postgres_changes', {
             event: 'INSERT',
@@ -1236,8 +1240,9 @@ supabaseSubscription = supabaseClient
 
     function unsubscribeFromSupabase() {
     if (supabaseClient && sessionId) {
-        supabaseClient.removeChannel(`sutton_${sessionId}`);
-        supabaseClient.removeChannel(`sutton_errors_${sessionId}`);
+         if (supabaseSubscription) supabaseClient.removeChannel(supabaseSubscription);
+    if (errorsSubscription) supabaseClient.removeChannel(errorsSubscription);
+    errorsSubscription = null;
     }
     supabaseSubscription = null;
     knownCallSids.clear();
