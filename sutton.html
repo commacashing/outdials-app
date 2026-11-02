@@ -585,6 +585,7 @@
             .control-item:has(#listSelect), .control-item:has(#regionSelect) { order: 2; width: calc(50% - 6px) !important; flex: 0 0 calc(50% - 6px); }
             .control-label { font-size: 10px; }
             select.control-input { font-size: 12px; min-width: auto; padding: 8px 10px; }
+            #listSearch { display: none; }
             .controls-divider { display: none; }
             .analytics-section { padding: 12px 16px 12px 16px !important; }
             .analytics-header { padding: 12px 0; }
@@ -676,6 +677,7 @@
 
         <div class="control-item">
             <span class="control-label">List</span>
+                        <input type="text" id="listSearch" class="control-input" placeholder="Search lists..." autocomplete="off" oninput="filterLists()" style="min-width: 120px; width: 140px;">
             <select id="listSelect" class="control-input">
                 <option value="">Select list...</option>
             </select>
@@ -832,6 +834,7 @@ let currentBatchId = null;
 let knownCallSids = new Set();
 let repPhone = '';
 let inboundCallsSubscribed = false;
+let allListOptions = [];
 
     let currentSessionStats = {
         startTime: null,
@@ -1052,9 +1055,28 @@ let inboundCallsSubscribed = false;
                 opt.dataset.listSource = (list.file_name || '').replace(/\.xlsx$/i, '');
                 opt.dataset.folderId = list.folder_id || '';
                 opt.textContent = list.file_name_original || list.file_name || list.file_id;
-                select.appendChild(opt);
+                                select.appendChild(opt);
             });
+            allListOptions = [...select.options].slice(1);
+            filterLists();
         } catch (e) { console.error('Failed to load lists:', e); }
+    }
+
+    function filterLists() {
+        const select = document.getElementById('listSelect');
+        const search = document.getElementById('listSearch');
+        if (!select || !search) return;
+        const keep = select.value;
+        const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        select.innerHTML = '<option value="">Select list...</option>';
+        allListOptions.forEach(opt => {
+            const text = opt.textContent.toLowerCase();
+            if ((keep && opt.value === keep) || terms.every(t => text.includes(t))) {
+                select.appendChild(opt);
+            }
+        });
+        select.value = keep;
+        checkFormValid();
     }
 
     function loadRegions() {
