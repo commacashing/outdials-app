@@ -146,6 +146,17 @@
         .control-input:focus { outline: none; border-color: rgba(107,144,128,0.5); }
         .control-input:disabled { opacity: 0.5; cursor: not-allowed; }
         select.control-input { cursor: pointer; min-width: 160px; }
+        .list-combo { position: relative; }
+        .list-combo-btn { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 220px; max-width: 320px; text-align: left; cursor: pointer; }
+        #listComboLabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .list-combo-panel { position: absolute; top: calc(100% + 6px); left: 0; z-index: 1000; width: 340px; max-width: 90vw; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); padding: 8px; }
+        .list-combo-search { width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 14px; font-family: inherit; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); margin-bottom: 6px; }
+        .list-combo-search:focus { outline: none; border-color: rgba(107,144,128,0.5); }
+        .list-combo-items { max-height: 280px; overflow-y: auto; }
+        .list-combo-item { padding: 8px 10px; font-size: 14px; border-radius: 6px; cursor: pointer; color: var(--text-primary); }
+        .list-combo-item:hover { background: var(--bg-secondary); }
+        .list-combo-item.selected { background: rgba(107,144,128,0.18); }
+        .list-combo-empty { padding: 10px; font-size: 13px; color: var(--text-secondary); }
         input[type="tel"].control-input { min-width: 160px; }
 
         .phone-wrapper { display: flex; align-items: center; gap: 4px; }
@@ -585,7 +596,8 @@
             .control-item:has(#listSelect), .control-item:has(#regionSelect) { order: 2; width: calc(50% - 6px) !important; flex: 0 0 calc(50% - 6px); }
             .control-label { font-size: 10px; }
             select.control-input { font-size: 12px; min-width: auto; padding: 8px 10px; }
-            #listSearch { display: none; }
+            .list-combo { flex: 1; min-width: 0; }
+            .list-combo-btn { min-width: 0 !important; width: 100%; font-size: 12px; padding: 8px 10px; }
             .controls-divider { display: none; }
             .analytics-section { padding: 12px 16px 12px 16px !important; }
             .analytics-header { padding: 12px 0; }
@@ -677,10 +689,18 @@
 
         <div class="control-item">
             <span class="control-label">List</span>
-                        <input type="text" id="listSearch" class="control-input" placeholder="Search lists..." autocomplete="off" oninput="filterLists()" style="min-width: 120px; width: 140px;">
-            <select id="listSelect" class="control-input">
-                <option value="">Select list...</option>
+            <select id="listSelect" class="control-input" style="display: none;">
+                                <option value="">Select list...</option>
             </select>
+            <div class="list-combo" id="listCombo">
+                <button type="button" id="listComboBtn" class="control-input list-combo-btn">
+                    <span id="listComboLabel">Select list...</span><span>▾</span>
+                </button>
+                <div class="list-combo-panel" id="listComboPanel" style="display: none;">
+                    <input type="text" id="listComboSearch" class="list-combo-search" placeholder="Search lists..." autocomplete="off">
+                    <div class="list-combo-items" id="listComboItems"></div>
+                </div>
+            </div>
             <button id="syncBtn" onclick="syncLists()" title="Sync lists" style="
                 background: transparent;
                 border: 1px solid var(--border-color);
@@ -834,7 +854,6 @@ let currentBatchId = null;
 let knownCallSids = new Set();
 let repPhone = '';
 let inboundCallsSubscribed = false;
-let allListOptions = [];
 
     let currentSessionStats = {
         startTime: null,
@@ -1057,27 +1076,89 @@ let allListOptions = [];
                 opt.textContent = list.file_name_original || list.file_name || list.file_id;
                                 select.appendChild(opt);
             });
-            allListOptions = [...select.options].slice(1);
-            filterLists();
-        } catch (e) { console.error('Failed to load lists:', e); }
+                    } catch (e) { console.error('Failed to load lists:', e); }
     }
 
-    function filterLists() {
+    function initListCombo() {
         const select = document.getElementById('listSelect');
-        const search = document.getElementById('listSearch');
-        if (!select || !search) return;
-        const keep = select.value;
-        const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-        select.innerHTML = '<option value="">Select list...</option>';
-        allListOptions.forEach(opt => {
-            const text = opt.textContent.toLowerCase();
-            if ((keep && opt.value === keep) || terms.every(t => text.includes(t))) {
-                select.appendChild(opt);
+        const btn = document.getElementById('listComboBtn');
+        const panel = document.getElementById('listComboPanel');
+        const search = document.getElementById('listComboSearch');
+        const items = document.getElementById('listComboItems');
+        const combo = document.getElementById('listCombo');
+        if (!select || !btn || !panel || !search || !items || !combo) return;
+
+        function updateListLabel() {
+            const opt = select.options[select.selectedIndex];
+            document.getElementById('listComboLabel').textContent =
+                (opt && select.selectedIndex > 0) ? opt.textContent : 'Select list...';
+            btn.disabled = select.disabled;
+        }
+        window.updateListLabel = updateListLabel;
+
+        function render() {
+            const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+            items.innerHTML = '';
+            let count = 0;
+            [...select.options].forEach((opt, i) => {
+                if (i === 0) return;
+                const low = opt.textContent.toLowerCase();
+                if (!terms.every(t => low.includes(t))) return;
+                const div = document.createElement('div');
+                div.className = 'list-combo-item' + (i === select.selectedIndex ? ' selected' : '');
+                div.textContent = opt.textContent;
+                div.dataset.index = i;
+                div.addEventListener('click', () => pick(i));
+                items.appendChild(div);
+                count++;
+            });
+            if (!count) {
+                const empty = document.createElement('div');
+                empty.className = 'list-combo-empty';
+                empty.textContent = 'No lists found';
+                items.appendChild(empty);
+            }
+        }
+
+        function pick(i) {
+            select.selectedIndex = i;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            updateListLabel();
+            closePanel();
+        }
+
+        function openPanel() {
+            if (select.disabled) return;
+            search.value = '';
+            render();
+            panel.style.display = 'block';
+            search.focus();
+            const sel = items.querySelector('.selected');
+            if (sel) sel.scrollIntoView({ block: 'nearest' });
+        }
+
+        function closePanel() { panel.style.display = 'none'; }
+
+        btn.addEventListener('click', () => {
+            if (panel.style.display === 'none') openPanel(); else closePanel();
+        });
+        search.addEventListener('input', render);
+        search.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { closePanel(); btn.focus(); }
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const first = items.querySelector('.list-combo-item');
+                if (first) pick(Number(first.dataset.index));
             }
         });
-        select.value = keep;
-        checkFormValid();
+        document.addEventListener('click', (e) => {
+            if (!combo.contains(e.target)) closePanel();
+        });
+        new MutationObserver(updateListLabel).observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
+        updateListLabel();
     }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initListCombo);
+    else initListCombo();
 
     function loadRegions() {
         const select = document.getElementById('regionSelect');
@@ -1961,6 +2042,7 @@ async function markOptOut(callSid) {
             if (currentVal) {
                 const match = [...select.options].find(o => o.value === currentVal);
                 if (match) select.value = currentVal;
+                if (window.updateListLabel) updateListLabel();
             }
 
             showSuccess('Lists synced!');
