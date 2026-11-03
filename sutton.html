@@ -1894,7 +1894,8 @@ const team = contact.team_name || '—';
                 note: text,
                 rep_phone: repPhone,
                 session_id: sessionId,
-                file_id: listEl.value,
+                file_id: listEl.value,                 
+                list_source: selectedOpt?.dataset.listSource || '',
                 file_name: fileName,
                 folder_id: selectedOpt?.dataset.folderId
             })
@@ -1923,7 +1924,8 @@ async function selectDisposition(callSid, disposition) {
                 disposition: disposition,
                 rep_phone: repPhone,
                 session_id: sessionId,
-                file_id: listEl.value,
+                file_id: listEl.value,                 
+                list_source: selectedOpt?.dataset.listSource || '',
                 file_name: fileName,
                 folder_id: selectedOpt?.dataset.folderId
             })
@@ -1999,7 +2001,8 @@ async function markOptOut(callSid) {
                 contact_name: contact.name,
                 rep_phone: repPhone,
                 session_id: sessionId,
-                file_id: listEl.value,
+                file_id: listEl.value,                 
+                list_source: selectedOpt?.dataset.listSource || '',
                 file_name: fileName,
                 folder_id: selectedOpt?.dataset.folderId,
                 dnc: true
@@ -2171,6 +2174,7 @@ async function markOptOut(callSid) {
                     note: text,
                     session_id: sessionId,
                     file_id: document.getElementById('listSelect').value,
+                    list_source: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.listSource || '',
                     folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId
                 })
             });
@@ -2195,6 +2199,7 @@ async function markOptOut(callSid) {
                     contact_name: currentHeroContact.name,
                     session_id: sessionId,
                     file_id: document.getElementById('listSelect').value,
+                    list_source: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.listSource || '',
                     folder_id: document.getElementById('listSelect').options[document.getElementById('listSelect').selectedIndex].dataset.folderId,
                     dnc: true
                 })
