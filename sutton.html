@@ -480,6 +480,11 @@
             line-height: 1.3;
         }
 
+        .race-losxp { display: inline-flex; align-items: stretch; gap: 3px; height: 38px; }
+        .race-losxp .los { align-self: flex-start; font-size: 18px; font-weight: 600; line-height: 1.1; }
+        .race-losxp .xp { align-self: flex-end; font-size: 18px; font-weight: 600; line-height: 1.1; }
+        .race-losxp .slash { align-self: center; font-size: 36px; font-weight: 200; opacity: 0.45; line-height: 1; }
+
         .race-winner-badge {
             position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
             background: rgba(34,197,94,1); color: white;
@@ -789,7 +794,7 @@
         <div style="color: var(--text-primary); font-size: 32px; font-weight: 700; margin: 24px 0; text-align: center;" id="heroCardName">Loading...</div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-bottom: 32px;">
             <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Experience</span>
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Firm</span>
                 <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" id="heroCardAge">—</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.1);">
@@ -797,8 +802,8 @@
                 <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" id="heroCardPhone">—</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">Years at Firm</span>
-                <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" id="heroCardYears">—</span>
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">LOS / XP</span>
+                <span style="font-size: 16px; font-weight: 500; color: var(--text-primary);" class="race-losxp" id="heroCardYears">—</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 0 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.1);">
                 <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); opacity: 0.6;">CRD</span>
@@ -1434,7 +1439,8 @@ if (status === 'call_initiated') {
     currentSessionStats.totalCalls++;
     const contact = {
     name: data.contact_name,
-    company: data.contact_company || data.company || '',
+    company: data.contact_company || '',
+    firm: data.company || '',
     phone: data.phone,
     licenses: data.licenses,
     team_name: data.team_name || '',
@@ -1709,6 +1715,7 @@ else if (status === 'workflow_error') {
         const licenses = contact.licenses || '—';
 const team = contact.team_name || '—';
         const years = contact.years_at_firm || '—';
+        const firm = contact.firm || '—';
         const notes = contact.notes || '';
 
         card.innerHTML = `
@@ -1717,16 +1724,16 @@ const team = contact.team_name || '—';
             <div class="race-card-divider"></div>
             <div class="race-card-fields">
                 <div class="race-card-field">
-                    <span class="race-field-label">Experience</span>
-                    <span class="race-field-value">${age}</span>
+                    <span class="race-field-label">Firm</span>
+                    <span class="race-field-value">${firm}</span>
                 </div>
                 <div class="race-card-field">
                     <span class="race-field-label">Phone</span>
                     <span class="race-field-value">${phone}</span>
                 </div>
                 <div class="race-card-field">
-                    <span class="race-field-label">Years at Firm</span>
-                    <span class="race-field-value">${years}</span>
+                    <span class="race-field-label">LOS / XP</span>
+                    <span class="race-field-value race-losxp"><span class="los">${years}</span><span class="slash">/</span><span class="xp">${age}</span></span>
                 </div>
                 <div class="race-card-field">
                     <span class="race-field-label">CRD</span>
@@ -2125,9 +2132,9 @@ async function markOptOut(callSid) {
         const team = data.team_name || '—';
         const notes = data.notes || '—';
         
-        document.getElementById('heroCardAge').textContent = age;
+        document.getElementById('heroCardAge').textContent = data.company || '—';
         document.getElementById('heroCardPhone').textContent = phone;
-        document.getElementById('heroCardYears').textContent = years;
+        document.getElementById('heroCardYears').innerHTML = `<span class="los">${years}</span><span class="slash">/</span><span class="xp">${age}</span>`;
         document.getElementById('heroCardCompany').textContent = priorFirm;
         document.getElementById('heroCardLicenses').textContent = licenses;
         document.getElementById('heroCardTeam').textContent = team;
